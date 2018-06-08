@@ -5,5 +5,5 @@
 	"Description": "Allow to see another players emotes in multiplayer and adds a interface to do emotes.",
 	"UniqueID": "FerMod.MultiplayerEmotes",
 	"EntryDll": "MultiplayerEmotes.dll",
-	"UpdateKeys": [ "GitHub:FerMod/MultiplayerEmotes" ]
+	"UpdateKeys": [ "GitHub:FerMod/StardewMods/MultiplayerEmotes" ]
 }
