@@ -12,21 +12,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dummy", "..\CustomEmojis\Du
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug Multiplayer|Any CPU = Debug Multiplayer|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{23F1DA89-0C7F-4015-96F3-5C4A6FD5500D}.Debug Multiplayer|Any CPU.ActiveCfg = Debug Multiplayer|Any CPU
-		{23F1DA89-0C7F-4015-96F3-5C4A6FD5500D}.Debug Multiplayer|Any CPU.Build.0 = Debug Multiplayer|Any CPU
 		{23F1DA89-0C7F-4015-96F3-5C4A6FD5500D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{23F1DA89-0C7F-4015-96F3-5C4A6FD5500D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23F1DA89-0C7F-4015-96F3-5C4A6FD5500D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{23F1DA89-0C7F-4015-96F3-5C4A6FD5500D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB944FF1-1AC4-4131-A8D0-A3F3E85CC249}.Debug Multiplayer|Any CPU.ActiveCfg = Debug Multiplayer|Any CPU
+		{23F1DA89-0C7F-4015-96F3-5C4A6FD5500D}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{23F1DA89-0C7F-4015-96F3-5C4A6FD5500D}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{DB944FF1-1AC4-4131-A8D0-A3F3E85CC249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB944FF1-1AC4-4131-A8D0-A3F3E85CC249}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB944FF1-1AC4-4131-A8D0-A3F3E85CC249}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB944FF1-1AC4-4131-A8D0-A3F3E85CC249}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
