@@ -7,6 +7,8 @@ using System;
 using Microsoft.Xna.Framework;
 using MultiplayerEmotes.Menus;
 using MultiplayerEmotes.Events;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace MultiplayerEmotes {
 
@@ -26,23 +28,34 @@ namespace MultiplayerEmotes {
 
 			ModPatchControl PatchManager = new ModPatchControl(helper);
 			PatchManager.PatchList.Add(new FarmerPatch());
-			PatchManager.PatchList.Add(new MultiplayerPatch());
+			//PatchManager.PatchList.Add(new MultiplayerPatch());
 			PatchManager.ApplyPatch();
 
-			this.Monitor.Log("Loading mod config...", LogLevel.Trace);
+			this.Monitor.Log("Loading mod config...", LogLevel.Debug);
 			Config = helper.ReadConfig<ModConfig>();
 
-			this.Monitor.Log("Loading mod data...", LogLevel.Trace);
+			this.Monitor.Log("Loading mod data...", LogLevel.Debug);
 			Data = this.Helper.ReadJsonFile<ModData>("data.json") ?? new ModData();
 
 			SaveEvents.AfterLoad += this.AfterLoad;
 			SaveEvents.AfterReturnToTitle += this.AfterReturnToTitle;
 			InputEvents.ButtonPressed += this.ButtonPressed;
+			GraphicsEvents.OnPostRenderEvent += this.OnPostRenderEvent;
 
 			helper.ConsoleCommands.Add("emote", "Play the emote animation with the passed id.\n\nUsage: emote <value>\n- value: a integer representing the animation id.", this.Emote);
 			helper.ConsoleCommands.Add("stop_emote", "Stop any playing emote.\n\nUsage: stop_emote", this.StopEmote);
 			helper.ConsoleCommands.Add("stop_all_emotes", "Stop any playing emote by players.\n\nUsage: stop_all_emotes", this.StopAllEmotes);
 
+			ModHelp = Helper;
+
+		}
+
+		private void OnPostRenderEvent(object sender, EventArgs e) {
+			if(emoteStart != null && emoteEnding != null) {
+				Vector2 position = new Vector2(Game1.player.Position.X, Game1.player.Position.Y - 160);
+				emoteStart.position = position;
+				emoteEnding.position = position;
+			}
 		}
 
 		private void AfterReturnToTitle(object sender, EventArgs e) {
@@ -58,6 +71,42 @@ namespace MultiplayerEmotes {
 			}
 		}
 
+		public static IModHelper ModHelp;
+		public static bool Flag { get; set; }
+
+		public static TemporaryAnimatedSprite emoteStart, emoteEnding;
+
+		public static void BroadcastSpritesTest(int whichEmote) {
+
+			Multiplayer multiplayer = ModHelp.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
+
+			emoteStart = new TemporaryAnimatedSprite("TileSheets\\emotes", new Rectangle(0, 0, 16, 16), new Vector2(Game1.player.Position.X, Game1.player.Position.Y - 160), false, 0f, Color.White) {
+				interval = 100f,
+				animationLength = 4,
+				scale = 4f,
+				layerDepth = 1f,
+				local = false,
+				attachedCharacter = Game1.getFarmer(Game1.player.UniqueMultiplayerID)
+			};
+
+			emoteEnding = new TemporaryAnimatedSprite("TileSheets\\emotes", new Rectangle(0, whichEmote * 4, 16, 16), new Vector2(Game1.player.Position.X, Game1.player.Position.Y - 160), false, 0f, Color.White) {
+				delayBeforeAnimationStart = 400,
+				interval = 100f,
+				animationLength = 4,
+				scale = 4f,
+				layerDepth = 1f,
+				local = false,
+				attachedCharacter = Game1.getFarmer(Game1.player.UniqueMultiplayerID)
+			};
+
+
+			List<TemporaryAnimatedSprite> tempAnimSpriteList = new List<TemporaryAnimatedSprite>() {
+				emoteStart,
+				emoteEnding
+			};
+			multiplayer.broadcastSprites(Game1.getFarmer(Game1.player.UniqueMultiplayerID).currentLocation, tempAnimSpriteList);
+
+		}
 
 		/*********
 		** Private methods
