@@ -65,6 +65,10 @@ namespace MultiplayerEmotes.Menus {
 			return component.Contains(x, y);
 		}
 
+		//public override void performHoverAction(int x, int y) {
+		//	base.performHoverAction(x, y);
+		//}
+
 		private int getAmmountToScroll() {
 			return maxColComponents * maxRowComponents;
 		}

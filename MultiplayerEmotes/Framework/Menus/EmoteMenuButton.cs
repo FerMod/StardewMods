@@ -125,7 +125,7 @@ namespace MultiplayerEmotes.Menus {
 
 			Utility.makeSafe(ref this.targetRect.X, ref this.targetRect.Y, this.targetRect.Width, this.targetRect.Height);
 
-			if(emoteMenu != null && IsBeingDragged) {
+			if(emoteMenu != null) {
 				this.emoteMenu.xPositionOnScreen = this.xPositionOnScreen + this.emoteMenuIcon.bounds.Width;//this.emoteMenuIcon.bounds.Center.X - 146;
 				this.emoteMenu.yPositionOnScreen += (this.yPositionOnScreen + (this.height / 2)) - (this.emoteMenu.yPositionOnScreen - 2 + (emoteMenu.height / 2));//this.emoteMenuIcon.bounds.Y - 248;
 				Utility.makeSafe(ref this.emoteMenu.xPositionOnScreen, ref this.emoteMenu.yPositionOnScreen, this.emoteMenu.width, this.emoteMenu.height);
