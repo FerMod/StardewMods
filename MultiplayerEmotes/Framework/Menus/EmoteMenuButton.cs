@@ -20,7 +20,7 @@ namespace MultiplayerEmotes.Menus {
 		private string hoverText;
 		public ClickableTextureComponent emoteMenuIcon;
 		public EmoteMenu emoteMenu;
-		public bool hover;
+		public bool isHovering;
 
 		private Texture2D emoteMenuTexture;
 		private Texture2D emoteTexture;
@@ -85,7 +85,7 @@ namespace MultiplayerEmotes.Menus {
 
 			ShowTooltipOnHover = config.ShowTooltipOnHover;
 			hoverText = "Emotes";
-			hover = false;
+			isHovering = false;
 
 			emoteMenu.IsOpen = false;
 
@@ -260,7 +260,7 @@ namespace MultiplayerEmotes.Menus {
 				IsBeingDragged = false;
 			}
 
-			if((playAnimation && AnimatedEmoteIcon) || (hover && AnimationOnHover)) {
+			if((playAnimation && AnimatedEmoteIcon) || (isHovering && AnimationOnHover)) {
 				if(iconAnimation == null) {
 					iconAnimation = new TemporaryAnimatedSprite("TileSheets\\emotes", new Rectangle(0, 0, 16, 16), 250f, 4, 0, new Vector2(this.emoteMenuIcon.bounds.X + 15, this.emoteMenuIcon.bounds.Y + 15), false, false, 0.9f, 0f, Color.White, 2.0f, 0f, 0f, 0f, true);
 				} else {
@@ -346,8 +346,8 @@ namespace MultiplayerEmotes.Menus {
 		}
 
 		private void DrawTooltipText(SpriteBatch b) {
-			this.hover = isWithinBounds(Game1.getMouseX(), Game1.getMouseY());
-			if(hover && !emoteMenu.IsOpen && !IsBeingDragged && ShowTooltipOnHover) {
+			this.isHovering = isWithinBounds(Game1.getMouseX(), Game1.getMouseY());
+			if(isHovering && !emoteMenu.IsOpen && !IsBeingDragged && ShowTooltipOnHover) {
 				drawHoverText(b, this.hoverText, Game1.dialogueFont);
 			}
 		}
