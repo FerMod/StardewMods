@@ -4,22 +4,14 @@ using MultiplayerEmotes.Extensions;
 using Harmony;
 using StardewValley;
 using StardewValley.Network;
+using System;
 
 namespace MultiplayerEmotes.Patches {
 
-	public class MultiplayerPatch {
+	public class MultiplayerPatch : ClassPatch {
 
-		private static MethodInfo Original => AccessTools.Method(typeof(Multiplayer), "processIncomingMessage");
-
-		private static MethodInfo Prefix => typeof(MultiplayerPatch).GetMethod("ProcessIncomingMessage_Prefix");
-
-		internal static void Register(HarmonyInstance harmony) {
-			harmony.Patch(Original, new HarmonyMethod(Prefix), null);
-		}
-
-		internal static void Remove(HarmonyInstance harmony) {
-			harmony.RemovePatch(Original, HarmonyPatchType.Prefix, harmony.Id);
-		}
+		public override MethodInfo Original => AccessTools.Method(typeof(Multiplayer), "processIncomingMessage", new Type[] { typeof(IncomingMessage) });
+		public override MethodInfo Prefix => typeof(MultiplayerPatch).GetMethod("ProcessIncomingMessage_Prefix");
 
 		//TODO: Checking for ussed MessageTypes ids. Possible?
 		public static bool ProcessIncomingMessage_Prefix(Multiplayer __instance, ref IncomingMessage msg) {

@@ -25,6 +25,8 @@ namespace MultiplayerEmotes {
 		public override void Entry(IModHelper helper) {
 
 			ModPatchControl PatchManager = new ModPatchControl(helper);
+			PatchManager.PatchList.Add(new FarmerPatch());
+			PatchManager.PatchList.Add(new MultiplayerPatch());
 			PatchManager.ApplyPatch();
 
 			this.Monitor.Log("Loading mod config...", LogLevel.Trace);
@@ -60,7 +62,6 @@ namespace MultiplayerEmotes {
 		/*********
 		** Private methods
 		*********/
-
 		private void AfterLoad(object sender, EventArgs e) {
 
 			emoteMenuButton = new EmoteMenuButton(Helper, Config, Data.MenuPosition);
