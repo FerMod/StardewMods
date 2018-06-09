@@ -46,7 +46,7 @@ namespace MultiplayerEmotes.Menus {
 			int spriteSize = emoteSize * Game1.pixelZoom + 8;
 			for(int i = 0; i < maxRowComponents; ++i) {
 				for(int j = 0; j < maxColComponents; j++) {
-					this.emoteSelectionButtons.Add(new ClickableComponent(new Rectangle(j * spriteSize + 32 + 8, i * spriteSize + 16, spriteSize, spriteSize), string.Concat(j + (i * maxColComponents) + 1)));
+					this.emoteSelectionButtons.Add(new ClickableComponent(new Rectangle(j * spriteSize + 36, i * spriteSize + 16, spriteSize, spriteSize), string.Concat(j + (i * maxColComponents) + 1)));
 				}
 			}
 
