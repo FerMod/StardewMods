@@ -261,6 +261,4 @@ __pycache__/
 *.pyc
 
 # Ignore some files and folders
-IClassPatch.cs
-ClassPatch.cs
 Test/
