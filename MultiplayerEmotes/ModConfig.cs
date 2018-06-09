@@ -4,11 +4,17 @@ using StardewValley.Menus;
 public class ModConfig {
 	
 	/// <summary>
-	/// Key binded to open the menu.
+	/// Animate icon within the emote button 
 	/// </summary>
-	public bool AnimatedIcon { get; set; }
+	public bool AnimateEmoteButtonIcon { get; set; }
+
+	/// <summary>
+	/// Show or hide tooltip on hover
+	/// </summary>
+	public bool ShowTooltipOnHover { get; set; }	
 
 	public ModConfig() {
-		this.AnimatedIcon = true;
+		this.AnimateEmoteButtonIcon = true;
+		this.ShowTooltipOnHover = true;
 	}
 }

@@ -35,7 +35,6 @@ namespace MultiplayerEmotes {
 
 			SaveEvents.AfterLoad += this.AfterLoad;
 			SaveEvents.AfterReturnToTitle += this.AfterReturnToTitle;
-			GameEvents.UpdateTick += MouseStateMonitor.UpdateMouseState;
 			InputEvents.ButtonPressed += this.ButtonPressed;
 
 			helper.ConsoleCommands.Add("emote", "Play the emote animation with the passed id.\n\nUsage: emote <value>\n- value: a integer representing the animation id.", this.Emote);
@@ -64,7 +63,16 @@ namespace MultiplayerEmotes {
 
 		private void AfterLoad(object sender, EventArgs e) {
 
-			emoteMenuButton = new EmoteMenuButton(Helper, Data.MenuPosition, Config.AnimatedIcon);
+			emoteMenuButton = new EmoteMenuButton(Helper, Config, Data.MenuPosition);
+
+			// Remove any duplicated EmoteMenuButton. If for some reason there is one.
+			foreach(var screenMenu in Game1.onScreenMenus) {
+				if(screenMenu is EmoteMenuButton) {
+					Game1.onScreenMenus.Remove(screenMenu);
+				}
+			}
+
+			// Add EmoteMenuButton to the screen menus
 			Game1.onScreenMenus.Add(emoteMenuButton);
 
 #if(DEBUG)

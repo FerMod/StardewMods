@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MultiplayerEmotes.Events;
 using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
 
@@ -26,10 +27,11 @@ namespace MultiplayerEmotes.Menus {
 		private Rectangle targetRect;
 		private Rectangle sourceRect;
 
-		public bool AnimatedIcon { get; set; }
+		public bool AnimatedEmoteIcon { get; set; }
+		public bool ShowTooltipOnHover { get; set; }
+
 		public bool AnimationOnHover { get; set; }
 		public int AnimationCooldownTime { get; set; }
-		public int HoldToDragTime { get; set; }
 
 		TemporaryAnimatedSprite iconAnimation;
 		private int animationTimer;
@@ -38,7 +40,6 @@ namespace MultiplayerEmotes.Menus {
 		private MouseState oldMouseState;
 		private InputState inputState;
 
-		private int holdToDragTimer;
 		private Vector2 iconPositionOffset;
 
 		public bool IsBeingDragged { get; private set; }
@@ -48,7 +49,7 @@ namespace MultiplayerEmotes.Menus {
 
 		private readonly IModHelper helper;
 
-		public EmoteMenuButton(IModHelper helper, Vector2 menuPosition, bool animatedIcon) {
+		public EmoteMenuButton(IModHelper helper, ModConfig config, Vector2 menuPosition) {
 
 			this.helper = helper;
 			/* ### Code ready for SMAPI 2.15.2 ###
@@ -75,15 +76,14 @@ namespace MultiplayerEmotes.Menus {
 			Texture2D chatBoxTexture = helper.Content.Load<Texture2D>("LooseSprites\\chatBox", ContentSource.GameContent);
 			this.emoteMenu = new EmoteMenu(helper, this, emoteMenuTexture, chatBoxTexture, emoteTexture, new Vector2(this.targetRect.X, this.targetRect.Y));
 
-			HoldToDragTime = 0;
-			holdToDragTimer = HoldToDragTime;
 			IsBeingDragged = false;
 
 			AnimationCooldownTime = 5000;
 			animationTimer = AnimationCooldownTime;
-			AnimatedIcon = animatedIcon;
+			AnimatedEmoteIcon = config.AnimateEmoteButtonIcon;
 			AnimationOnHover = true; // Not in use
 
+			ShowTooltipOnHover = config.ShowTooltipOnHover;
 			hoverText = "Emotes";
 			hover = false;
 
@@ -95,6 +95,16 @@ namespace MultiplayerEmotes.Menus {
 			currentMouseState = Mouse.GetState();
 			previousMouseState = currentMouseState;
 
+			GraphicsEvents.OnPostRenderHudEvent += this.OnPostRenderHudEvent;
+			GameEvents.UpdateTick += MouseStateMonitor.UpdateMouseState;
+			SaveEvents.AfterReturnToTitle += this.OnReturnToTile;
+
+		}
+
+		internal void OnReturnToTile(object sender, EventArgs e) {
+			GraphicsEvents.OnPostRenderHudEvent -= this.OnPostRenderHudEvent;
+			GameEvents.UpdateTick -= MouseStateMonitor.UpdateMouseState;
+			SaveEvents.AfterReturnToTitle -= this.OnReturnToTile;
 		}
 
 		/* ### Code ready for SMAPI 2.15.2 ###
@@ -218,9 +228,8 @@ namespace MultiplayerEmotes.Menus {
 
 		public override void update(GameTime time) {
 
-
-			this.UpdateHoldToDragTimer(time);
-			//this.UpdateAnimationTimer(time);
+			this.UpdateAnimationTimer(time);
+			//this.UpdateHoldToDragTimer(time);
 
 			if(ShouldDragIcon()) {
 
@@ -251,7 +260,7 @@ namespace MultiplayerEmotes.Menus {
 				IsBeingDragged = false;
 			}
 
-			if((playAnimation && AnimatedIcon) || (hover && AnimationOnHover)) {
+			if((playAnimation && AnimatedEmoteIcon) || (hover && AnimationOnHover)) {
 				if(iconAnimation == null) {
 					iconAnimation = new TemporaryAnimatedSprite("TileSheets\\emotes", new Rectangle(0, 0, 16, 16), 250f, 4, 0, new Vector2(this.emoteMenuIcon.bounds.X + 15, this.emoteMenuIcon.bounds.Y + 15), false, false, 0.9f, 0f, Color.White, 2.0f, 0f, 0f, 0f, true);
 				} else {
@@ -277,9 +286,10 @@ namespace MultiplayerEmotes.Menus {
 		}
 
 		public bool ShouldPlayAnimation() {
-			return this.iconAnimation != null && AnimatedIcon && !IsBeingDragged;
+			return this.iconAnimation != null && AnimatedEmoteIcon && !IsBeingDragged;
 		}
 
+		/*
 		public void UpdateHoldToDragTimer(GameTime time) {
 			if(this.holdToDragTimer <= HoldToDragTime && ShouldDragIcon()) {
 				this.holdToDragTimer += time.ElapsedGameTime.Milliseconds;
@@ -309,6 +319,7 @@ namespace MultiplayerEmotes.Menus {
 				IsBeingDragged = false;
 			}
 		}
+		*/
 
 		public void UpdateAnimationTimer(GameTime time) {
 			if(this.animationTimer >= 0 && ShouldPlayAnimation()) {
@@ -336,7 +347,7 @@ namespace MultiplayerEmotes.Menus {
 
 		private void DrawTooltipText(SpriteBatch b) {
 			this.hover = isWithinBounds(Game1.getMouseX(), Game1.getMouseY());
-			if(hover && !emoteMenu.IsOpen && !IsBeingDragged) {
+			if(hover && !emoteMenu.IsOpen && !IsBeingDragged && ShowTooltipOnHover) {
 				drawHoverText(b, this.hoverText, Game1.dialogueFont);
 			}
 		}
@@ -347,7 +358,11 @@ namespace MultiplayerEmotes.Menus {
 			}
 		}
 
-		public override void draw(SpriteBatch b) {
+		private void OnPostRenderHudEvent(object sender, EventArgs e) {
+			this.Draw(Game1.spriteBatch);
+		}
+
+		public void Draw(SpriteBatch b) {
 			if(Game1.activeClickableMenu == null) {
 				this.updatePosition();
 				this.DrawAnimatedIcon(b);
