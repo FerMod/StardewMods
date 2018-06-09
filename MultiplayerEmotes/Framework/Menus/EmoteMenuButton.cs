@@ -115,9 +115,9 @@ namespace MultiplayerEmotes.Menus {
 
 			Utility.makeSafe(ref this.targetRect.X, ref this.targetRect.Y, this.targetRect.Width, this.targetRect.Height);
 
-			if(emoteMenu != null) {
+			if(emoteMenu != null && IsBeingDragged) {
 				this.emoteMenu.xPositionOnScreen = this.xPositionOnScreen + this.emoteMenuIcon.bounds.Width;//this.emoteMenuIcon.bounds.Center.X - 146;
-				this.emoteMenu.yPositionOnScreen = (this.yPositionOnScreen + this.emoteMenuIcon.bounds.Height) - (emoteMenu.width / 2) - 7;//this.emoteMenuIcon.bounds.Y - 248;
+				this.emoteMenu.yPositionOnScreen += (this.yPositionOnScreen + (this.height / 2)) - (this.emoteMenu.yPositionOnScreen - 2 + (emoteMenu.height / 2));//this.emoteMenuIcon.bounds.Y - 248;
 				Utility.makeSafe(ref this.emoteMenu.xPositionOnScreen, ref this.emoteMenu.yPositionOnScreen, this.emoteMenu.width, this.emoteMenu.height);
 			}
 
@@ -135,7 +135,7 @@ namespace MultiplayerEmotes.Menus {
 		}
 
 		public override void receiveLeftClick(int x, int y, bool playSound = true) {
-			
+
 			if(!ShouldDragIcon()) {
 
 				if(this.emoteMenuIcon.containsPoint(x, y)) {
@@ -220,12 +220,36 @@ namespace MultiplayerEmotes.Menus {
 
 
 			this.UpdateHoldToDragTimer(time);
-			this.UpdateAnimationTimer(time);
+			//this.UpdateAnimationTimer(time);
 
-			//if(this.IsBeingDragged) {
-			//	this.targetRect.X = Game1.getMouseX() - (int)iconPositionOffset.X;
-			//	this.targetRect.Y = Game1.getMouseY() - (int)iconPositionOffset.Y;
-			//}
+			if(ShouldDragIcon()) {
+
+				IsBeingDragged = true;
+
+				this.targetRect.X = Game1.getMouseX() - (int)iconPositionOffset.X;
+				this.targetRect.Y = Game1.getMouseY() - (int)iconPositionOffset.Y;
+
+
+				iconPositionOffset = new Vector2(Game1.getMouseX() - this.emoteMenuIcon.bounds.X, Game1.getMouseY() - this.emoteMenuIcon.bounds.Y);
+
+				//Dont let the mouse grab the air, and set to grab at least the border
+				//Horizontal position
+				if(iconPositionOffset.X < 0) {
+					iconPositionOffset.X = 0;
+				} else if(iconPositionOffset.X >= emoteMenuIcon.bounds.Width) {
+					iconPositionOffset.X = emoteMenuIcon.bounds.Width - 1;
+				}
+
+				//Vertical position
+				if(iconPositionOffset.Y < 0) {
+					iconPositionOffset.Y = 0;
+				} else if(iconPositionOffset.Y >= emoteMenuIcon.bounds.Height) {
+					iconPositionOffset.Y = emoteMenuIcon.bounds.Height - 1;
+				}
+
+			} else {
+				IsBeingDragged = false;
+			}
 
 			if((playAnimation && AnimatedIcon) || (hover && AnimationOnHover)) {
 				if(iconAnimation == null) {

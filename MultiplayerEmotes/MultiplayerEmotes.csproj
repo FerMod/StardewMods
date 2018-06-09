@@ -63,7 +63,6 @@
     <Compile Include="Framework\StateMonitor\MouseStateMonitor.cs" />
     <Compile Include="Framework\Menus\EmoteMenuButton.cs" />
     <Compile Include="Framework\Menus\EmoteMenu.cs" />
-    <Compile Include="Framework\Menus\ClickableMenu.cs" />
     <Compile Include="Framework\Menus\Sprites.cs" />
     <Compile Include="ModConfig.cs" />
     <Compile Include="ModData.cs" />
