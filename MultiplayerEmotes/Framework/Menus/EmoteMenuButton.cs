@@ -14,7 +14,7 @@ using StardewValley.Menus;
 
 namespace MultiplayerEmotes.Menus {
 
-	public class EmoteMenuButton : ClickableMenu {
+	public class EmoteMenuButton : IClickableMenu {
 
 		private string hoverText;
 		public ClickableTextureComponent emoteMenuIcon;

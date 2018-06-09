@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace MultiplayerEmotes.Menus {
 
-	public class EmoteMenu : ClickableMenu {
+	public class EmoteMenu : IClickableMenu {
 
 		private List<ClickableComponent> emoteSelectionButtons;
 		private Texture2D emoteMenuTexture;
