@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using MultiplayerEmotes.Events;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
 
@@ -273,12 +274,13 @@ namespace MultiplayerEmotes.Menus {
 				}
 			}
 
-			//MouseState mouseState = inputState.GetMouseState();
-			//if(mouseState.ScrollWheelValue != oldMouseState.ScrollWheelValue) {
-			//	this.receiveScrollWheelAction(mouseState.ScrollWheelValue - oldMouseState.ScrollWheelValue);
-			//}
-			//oldMouseState = mouseState;
-
+			/*
+			MouseState mouseState = inputState.GetMouseState();
+			if(mouseState.ScrollWheelValue != oldMouseState.ScrollWheelValue) {
+				this.receiveScrollWheelAction(mouseState.ScrollWheelValue - oldMouseState.ScrollWheelValue);
+			}
+			oldMouseState = mouseState;
+			*/
 		}
 
 		private bool ShouldDragIcon() {
