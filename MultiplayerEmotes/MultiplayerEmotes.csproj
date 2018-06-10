@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;HOST</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
@@ -31,15 +31,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug Multiplayer|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug Multiplayer\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;HOST</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -64,13 +55,11 @@
     <Compile Include="Framework\StateMonitor\MouseStateMonitor.cs" />
     <Compile Include="Framework\Menus\EmoteMenuButton.cs" />
     <Compile Include="Framework\Menus\EmoteMenu.cs" />
-    <Compile Include="Framework\Menus\Sprites.cs" />
     <Compile Include="ModConfig.cs" />
     <Compile Include="ModData.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Framework\Patches\ClassPatch.cs" />
     <Compile Include="Framework\Patches\IClassPatch.cs" />
-    <Compile Include="Framework\Utilities\ModUtilities.cs" />
     <Compile Include="Framework\Extensions\MultiplayerExtension.cs" />
     <Compile Include="Test\NetTest.cs" />
     <Compile Include="Framework\Patches\FarmerPatch.cs" />
@@ -91,15 +80,18 @@
     <Content Include="assets\emoteBox.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\emoteBoxPrototype.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Test\images\MenuClose.png" />
+    <Content Include="Test\images\MenuOpen.png" />
+    <Content Include="Test\images\MultiplayerEmotesHeader.png" />
+    <Content Include="Test\images\PlayerEmoting.png" />
+    <Content Include="Test\images\TwoPlayers.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="manifest.json" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180428\analyzers\dotnet\cs\StardewModdingAPI.ModBuildConfig.Analyzer.dll" />

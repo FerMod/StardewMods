@@ -7,6 +7,8 @@ using System;
 using Microsoft.Xna.Framework;
 using MultiplayerEmotes.Menus;
 using MultiplayerEmotes.Events;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace MultiplayerEmotes {
 
@@ -23,16 +25,15 @@ namespace MultiplayerEmotes {
 		 If the host does not have the mod, it will not work.
 		 */
 		public override void Entry(IModHelper helper) {
-
 			ModPatchControl PatchManager = new ModPatchControl(helper);
 			PatchManager.PatchList.Add(new FarmerPatch());
 			PatchManager.PatchList.Add(new MultiplayerPatch());
 			PatchManager.ApplyPatch();
 
-			this.Monitor.Log("Loading mod config...", LogLevel.Trace);
+			this.Monitor.Log("Loading mod config...", LogLevel.Debug);
 			Config = helper.ReadConfig<ModConfig>();
 
-			this.Monitor.Log("Loading mod data...", LogLevel.Trace);
+			this.Monitor.Log("Loading mod data...", LogLevel.Debug);
 			Data = this.Helper.ReadJsonFile<ModData>("data.json") ?? new ModData();
 
 			SaveEvents.AfterLoad += this.AfterLoad;
@@ -57,7 +58,6 @@ namespace MultiplayerEmotes {
 				}
 			}
 		}
-
 
 		/*********
 		** Private methods
