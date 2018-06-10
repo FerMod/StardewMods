@@ -1,11 +1,18 @@
 
 # Multiplayer Emotes
 
-To download the mod, go to the the page of [Multiplayer Emotes](https://www.nexusmods.com/stardewvalley/mods/2347) in NexusMods mod page.
+This mod allows to play emotes and to other player see your emotes.
+Adds a interface to play any Stardew Valley emote in any time.
 
-In order to other players see the played emotes and they alse need to have this mod.
+The interface is a button to open and close the emote list, and the button can be dragged holding the right click and positioned in any place of the screen.
+
+>**Note:** In order to other players see the emotes they also need to have this mod.
 
 ## Instalation
+
+To download the mod, go to the the page of [Multiplayer Emotes](https://www.nexusmods.com/stardewvalley/mods/2347) in NexusMods mod page.
+
+This mod requires [SMAPI](https://smapi.io/). All the help to install SMAPI and the troubleshooting help can be found in the "Player guide".
 
 Follow these spteps to install the mod:
 1. Download the mod [here](https://www.nexusmods.com/stardewvalley/mods/2347)
@@ -28,7 +35,7 @@ This mod adds some console commands to use with the SMAPI console. This can be u
 
 The commands are the following:
   
-| command 				| parameters 							   | action
+| Command 				| Parameters 							   | Action
 | --------------------- | -----------------------------------------|----------------
 | `emote <value>`		| A integer representing the animation id. | Play the emote with the passed id
 | `stop_emote` 		| None				                       | Stop any playing emote
