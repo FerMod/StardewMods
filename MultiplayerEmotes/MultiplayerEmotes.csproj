@@ -55,13 +55,11 @@
     <Compile Include="Framework\StateMonitor\MouseStateMonitor.cs" />
     <Compile Include="Framework\Menus\EmoteMenuButton.cs" />
     <Compile Include="Framework\Menus\EmoteMenu.cs" />
-    <Compile Include="Framework\Menus\Sprites.cs" />
     <Compile Include="ModConfig.cs" />
     <Compile Include="ModData.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Framework\Patches\ClassPatch.cs" />
     <Compile Include="Framework\Patches\IClassPatch.cs" />
-    <Compile Include="Framework\Utilities\ModUtilities.cs" />
     <Compile Include="Framework\Extensions\MultiplayerExtension.cs" />
     <Compile Include="Test\NetTest.cs" />
     <Compile Include="Framework\Patches\FarmerPatch.cs" />
