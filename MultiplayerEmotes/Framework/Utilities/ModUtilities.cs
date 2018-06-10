@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +13,16 @@ namespace MultiplayerEmotes {
 	//TODO: Not used
 	public static class ModUtilities {
 
+		public static IEnumerable<MethodInfo> GetExtensionMethods(Assembly assembly, Type extendedType) {
+			var query = from type in assembly.GetTypes()
+						where type.IsSealed && !type.IsGenericType && !type.IsNested
+						from method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+						where method.IsDefined(typeof(ExtensionAttribute), false)
+						where method.GetParameters()[0].ParameterType == extendedType
+						select method;
+			return query;
+		}
+
 		// Takes same patterns, and executes in parallel
 		public static IEnumerable<string> GetFiles(string path, string[] searchPatterns, SearchOption searchOption = SearchOption.TopDirectoryOnly) {
 			return searchPatterns.AsParallel().SelectMany(searchPattern => Directory.EnumerateFiles(path, "*.*", searchOption).Where(s => s.EndsWith(searchPattern)));
@@ -18,9 +30,9 @@ namespace MultiplayerEmotes {
 
 		public static string CalculateFileHash(string filePath) {
 
-			using (HashAlgorithm hashAlgorithm = SHA256.Create()) {
+			using(HashAlgorithm hashAlgorithm = SHA256.Create()) {
 
-				using (FileStream stream = File.OpenRead(filePath)) {
+				using(FileStream stream = File.OpenRead(filePath)) {
 					byte[] hash = hashAlgorithm.ComputeHash(stream);
 					return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
 				}
@@ -40,10 +52,10 @@ namespace MultiplayerEmotes {
 		/// <exception cref="InvalidOperationException"></exception>
 		public static String GetRelativePath(String fromPath, String toPath) {
 
-			if (String.IsNullOrEmpty(fromPath)) {
+			if(String.IsNullOrEmpty(fromPath)) {
 				throw new ArgumentNullException("fromPath");
 			}
-			if (String.IsNullOrEmpty(toPath)) {
+			if(String.IsNullOrEmpty(toPath)) {
 				throw new ArgumentNullException("toPath");
 			}
 
@@ -52,14 +64,14 @@ namespace MultiplayerEmotes {
 			Uri fromUri = new Uri(fromPath);
 			Uri toUri = new Uri(toPath);
 
-			if (fromUri.Scheme != toUri.Scheme) { // path can't be made relative.
+			if(fromUri.Scheme != toUri.Scheme) { // path can't be made relative.
 				return toPath;
 			}
 
 			Uri relativeUri = fromUri.MakeRelativeUri(toUri);
 			String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
 
-			if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase)) {
+			if(toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase)) {
 				relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 			}
 
