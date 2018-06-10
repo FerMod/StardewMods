@@ -5,6 +5,7 @@ using Harmony;
 using StardewValley;
 using StardewValley.Network;
 using System;
+using System.IO;
 
 namespace MultiplayerEmotes.Patches {
 
@@ -15,34 +16,29 @@ namespace MultiplayerEmotes.Patches {
 
 		//TODO: Checking for ussed MessageTypes ids. Possible?
 		public static bool ProcessIncomingMessage_Prefix(Multiplayer __instance, ref IncomingMessage msg) {
+
 			if(msg.MessageType >= 20 && msg.Data.Length >= 0) {
 
 				try {
 
-					//Check that this isnt other mods message
-					string key = msg.Reader.ReadString();
-					if(key.Equals("EmoteBroadcast")) {
-						switch(msg.MessageType) {
-							//case 20:
-							//	__instance.ProcessBroadcastTexture(msg);
-							//	return false;
-							//case 21:
-							//	__instance.ProcessRequestTexture(msg);
-							//	return false;
-							case 22:
-								__instance.ProcessBroadcastEmote(msg);
-								return false;
+					using(BinaryReader b = msg.Reader) {
+						//Check that this isnt other mods message by trying to read a 'key'
+						string key = msg.Reader.ReadString();
+						if(key.Equals("EmoteBroadcast") && msg.MessageType == 22) {
+							__instance.ProcessBroadcastEmote(msg);
+							// Dont let to execute the vanilla method
+							return false;
 						}
 					}
 
-				} catch(System.IO.EndOfStreamException) {
-					// Do nothing if does not contain the key, it may be another mods custom message
+				} catch(EndOfStreamException) {
+					// Do nothing. If it does not contain the key, it may be another mods custom message or something went wrong
 				}
 
 			}
 
+			// Allow to execute the vanilla method
 			return true;
-
 		}
 
 	}
