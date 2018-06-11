@@ -47,8 +47,10 @@ namespace MultiplayerEmotes {
 		}
 
 		private void AfterReturnToTitle(object sender, EventArgs e) {
-			Data.MenuPosition = new Vector2(emoteMenuButton.xPositionOnScreen, emoteMenuButton.yPositionOnScreen);
-			this.Helper.WriteJsonFile("data.json", Data);
+			if(emoteMenuButton != null) {
+				Data.MenuPosition = new Vector2(emoteMenuButton.xPositionOnScreen, emoteMenuButton.yPositionOnScreen);
+				this.Helper.WriteJsonFile("data.json", Data);
+			}
 		}
 
 		private void ButtonPressed(object sender, EventArgsInput e) {
