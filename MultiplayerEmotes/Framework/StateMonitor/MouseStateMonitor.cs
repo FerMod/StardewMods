@@ -35,7 +35,7 @@ namespace MultiplayerEmotes.Events {
 			CurrentMouseState = newMouseState;
 		}
 
-		public static bool MouseClicked(SButton button) {
+		public static bool MouseClicked() {
 			return PreviousMouseState.RightButton == ButtonState.Released && CurrentMouseState.RightButton == ButtonState.Pressed;
 		}
 

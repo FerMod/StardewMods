@@ -19,12 +19,18 @@ namespace MultiplayerEmotes {
 
 		private EmoteMenuButton emoteMenuButton;
 
+		// TODO: Remove. Used for debugging
+		public static IMonitor ModMonitor { get; private set; }
+
 		/*
 		 Emotes only visible by others with the mod.
 		 The host needs to have the mod, to others with the mod use it.
 		 If the host does not have the mod, it will not work.
 		 */
 		public override void Entry(IModHelper helper) {
+
+			ModMonitor = Monitor;
+
 			ModPatchControl PatchManager = new ModPatchControl(helper);
 			PatchManager.PatchList.Add(new FarmerPatch());
 			PatchManager.PatchList.Add(new MultiplayerPatch());
