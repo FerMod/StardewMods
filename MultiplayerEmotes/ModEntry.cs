@@ -19,12 +19,18 @@ namespace MultiplayerEmotes {
 
 		private EmoteMenuButton emoteMenuButton;
 
+		// TODO: Remove. Used for debugging
+		public static IMonitor ModMonitor { get; private set; }
+
 		/*
 		 Emotes only visible by others with the mod.
 		 The host needs to have the mod, to others with the mod use it.
 		 If the host does not have the mod, it will not work.
 		 */
 		public override void Entry(IModHelper helper) {
+
+			ModMonitor = Monitor;
+
 			ModPatchControl PatchManager = new ModPatchControl(helper);
 			PatchManager.PatchList.Add(new FarmerPatch());
 			PatchManager.PatchList.Add(new MultiplayerPatch());
@@ -37,8 +43,6 @@ namespace MultiplayerEmotes {
 			Data = this.Helper.ReadJsonFile<ModData>("data.json") ?? new ModData();
 
 			SaveEvents.AfterLoad += this.AfterLoad;
-			SaveEvents.AfterReturnToTitle += this.AfterReturnToTitle;
-			InputEvents.ButtonPressed += this.ButtonPressed;
 
 			helper.ConsoleCommands.Add("emote", "Play the emote animation with the passed id.\n\nUsage: emote <value>\n- value: a integer representing the animation id.", this.Emote);
 			helper.ConsoleCommands.Add("stop_emote", "Stop any playing emote.\n\nUsage: stop_emote", this.StopEmote);
@@ -46,25 +50,12 @@ namespace MultiplayerEmotes {
 
 		}
 
-		private void AfterReturnToTitle(object sender, EventArgs e) {
-			Data.MenuPosition = new Vector2(emoteMenuButton.xPositionOnScreen, emoteMenuButton.yPositionOnScreen);
-			this.Helper.WriteJsonFile("data.json", Data);
-		}
-
-		private void ButtonPressed(object sender, EventArgsInput e) {
-			if(Context.IsWorldReady) {
-				if(emoteMenuButton.IsBeingDragged && e.Button == SButton.MouseRight) {
-					e.SuppressButton();
-				}
-			}
-		}
-
 		/*********
 		** Private methods
 		*********/
 		private void AfterLoad(object sender, EventArgs e) {
 
-			emoteMenuButton = new EmoteMenuButton(Helper, Config, Data.MenuPosition);
+			emoteMenuButton = new EmoteMenuButton(Helper, Config, Data);
 
 			// Remove any duplicated EmoteMenuButton. If for some reason there is one.
 			foreach(var screenMenu in Game1.onScreenMenus) {
@@ -77,6 +68,7 @@ namespace MultiplayerEmotes {
 			Game1.onScreenMenus.Add(emoteMenuButton);
 
 #if(DEBUG)
+			// Pause time and set it to 09:00
 			Helper.ConsoleCommands.Trigger("world_freezetime", new string[] { "1" });
 			Helper.ConsoleCommands.Trigger("world_settime", new string[] { "0900" });
 #endif

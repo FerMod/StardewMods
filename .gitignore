@@ -261,5 +261,6 @@ __pycache__/
 *.pyc
 
 # Ignore some files and folders
-Framework/Utilities/
-Test/
+MultiplayerEmotes/Framework/Utilities/
+MultiplayerEmotes/Test/
+NetworkFramework/

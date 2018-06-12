@@ -1,16 +1,11 @@
 ﻿
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using MultiplayerEmotes.Menus;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiplayerEmotes.Menus {
 
@@ -35,9 +30,9 @@ namespace MultiplayerEmotes.Menus {
 		public EmoteMenu(IModHelper helper, EmoteMenuButton emoteMenuButton, Texture2D emoteMenuTexture, Texture2D chatBoxTexture, Texture2D emoteTexture, Vector2 position) {
 
 			this.emoteMenuButton = emoteMenuButton;
-			this.emoteMenuTexture = emoteMenuTexture;//ModEntry.ModHelper.Content.Load<Texture2D>("LooseSprites\\chatBox", ContentSource.GameContent);
-			this.chatBoxTexture = chatBoxTexture; //helper.Content.Load<Texture2D>("LooseSprites\\chatBox", ContentSource.GameContent);
-			this.emoteTexture = emoteTexture;//ModEntry.ModHelper.Content.Load<Texture2D>("TileSheets\\emotes", ContentSource.GameContent);
+			this.emoteMenuTexture = emoteMenuTexture;
+			this.chatBoxTexture = chatBoxTexture;
+			this.emoteTexture = emoteTexture;
 
 			this.width = 300;
 			this.height = 250;
@@ -64,10 +59,6 @@ namespace MultiplayerEmotes.Menus {
 			Rectangle component = new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
 			return component.Contains(x, y);
 		}
-
-		//public override void performHoverAction(int x, int y) {
-		//	base.performHoverAction(x, y);
-		//}
 
 		private int getAmmountToScroll() {
 			return maxColComponents * maxRowComponents;
@@ -100,7 +91,7 @@ namespace MultiplayerEmotes.Menus {
 
 		}
 
-		private void upArrowPressed(int amountToScroll = 12) {
+		private void upArrowPressed(int amountToScroll) {
 			if(this.pageStartIndex != 0) {
 				Game1.playSound("Cowboy_Footstep");
 			}
@@ -108,7 +99,7 @@ namespace MultiplayerEmotes.Menus {
 			this.upArrow.scale = 0.75f;
 		}
 
-		private void downArrowPressed(int amountToScroll = 12) {
+		private void downArrowPressed(int amountToScroll) {
 			if(this.pageStartIndex != totalEmotes - amountToScroll) {
 				Game1.playSound("Cowboy_Footstep");
 			}
@@ -118,9 +109,9 @@ namespace MultiplayerEmotes.Menus {
 
 		public override void receiveScrollWheelAction(int direction) {
 			if(direction < 0) {
-				this.downArrowPressed(maxRowComponents);
+				this.downArrowPressed(getAmmountToScroll());
 			} else if(direction > 0) {
-				this.upArrowPressed(maxRowComponents);
+				this.upArrowPressed(getAmmountToScroll());
 			}
 		}
 

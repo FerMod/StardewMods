@@ -48,15 +48,15 @@ namespace MultiplayerEmotes.Events {
 		}
 
 		public static int ScrollValueDifference() {
-			return PreviousMouseState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue;
+			return CurrentMouseState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue;
 		}
 
 		public static bool ScrollIncreased() {
-			return PreviousMouseState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue < 0;
+			return CurrentMouseState.ScrollWheelValue > PreviousMouseState.ScrollWheelValue;
 		}
 
 		public static bool ScrollDecreased() {
-			return PreviousMouseState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue > 0;
+			return CurrentMouseState.ScrollWheelValue < PreviousMouseState.ScrollWheelValue;
 		}
 
 		public static bool ScrollChanged() {

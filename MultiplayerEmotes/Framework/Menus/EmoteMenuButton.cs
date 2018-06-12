@@ -1,16 +1,12 @@
 ﻿
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MultiplayerEmotes.Events;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
 
@@ -38,9 +34,6 @@ namespace MultiplayerEmotes.Menus {
 		private int animationTimer;
 		public bool playAnimation;
 
-		private MouseState oldMouseState;
-		private InputState inputState;
-
 		private Vector2 iconPositionOffset;
 
 		public bool IsBeingDragged { get; private set; }
@@ -49,22 +42,17 @@ namespace MultiplayerEmotes.Menus {
 		MouseState previousMouseState;
 
 		private readonly IModHelper helper;
+		private readonly ModData modData;
+		private readonly ModConfig modConfig;
 
-		public EmoteMenuButton(IModHelper helper, ModConfig config, Vector2 menuPosition) {
+		public EmoteMenuButton(IModHelper helper, ModConfig modConfig, ModData modData) {
 
 			this.helper = helper;
-			/* ### Code ready for SMAPI 2.15.2 ###
-				helper.Events.MouseWheelScrolled += this.MouseWheelScrolled;
-			*/
+			this.modConfig = modConfig;
+			this.modData = modData;
 
 			this.sourceRect = new Rectangle(301, 288, 15, 15);
-			this.targetRect = new Rectangle((int)menuPosition.X, (int)menuPosition.Y, sourceRect.Width * Game1.pixelZoom, sourceRect.Height * Game1.pixelZoom);
-
-			this.inputState = helper.Reflection.GetField<InputState>(typeof(Game1), "input").GetValue();
-			oldMouseState = inputState.GetMouseState();
-
-			this.emoteMenuTexture = helper.Content.Load<Texture2D>("assets\\emoteBox.png", ContentSource.ModFolder);
-			this.emoteTexture = helper.Content.Load<Texture2D>("TileSheets\\emotes", ContentSource.GameContent);
+			this.targetRect = new Rectangle((int)modData.MenuPosition.X, (int)modData.MenuPosition.Y, sourceRect.Width * Game1.pixelZoom, sourceRect.Height * Game1.pixelZoom);
 
 			this.xPositionOnScreen = targetRect.X;
 			this.yPositionOnScreen = targetRect.Y;
@@ -72,6 +60,8 @@ namespace MultiplayerEmotes.Menus {
 			this.width = targetRect.Width;
 			this.height = targetRect.Height;
 
+			this.emoteMenuTexture = helper.Content.Load<Texture2D>("assets\\emoteBox.png", ContentSource.ModFolder);
+			this.emoteTexture = helper.Content.Load<Texture2D>("TileSheets\\emotes", ContentSource.GameContent);
 			this.emoteMenuIcon = new ClickableTextureComponent(new Rectangle(this.targetRect.X, this.targetRect.Y, this.width, this.height), Game1.mouseCursors, sourceRect, 4f, false);
 
 			Texture2D chatBoxTexture = helper.Content.Load<Texture2D>("LooseSprites\\chatBox", ContentSource.GameContent);
@@ -81,10 +71,10 @@ namespace MultiplayerEmotes.Menus {
 
 			AnimationCooldownTime = 5000;
 			animationTimer = AnimationCooldownTime;
-			AnimatedEmoteIcon = config.AnimateEmoteButtonIcon;
+			AnimatedEmoteIcon = modConfig.AnimateEmoteButtonIcon;
 			AnimationOnHover = true; // Not in use
 
-			ShowTooltipOnHover = config.ShowTooltipOnHover;
+			ShowTooltipOnHover = modConfig.ShowTooltipOnHover;
 			hoverText = "Emotes";
 			isHovering = false;
 
@@ -96,26 +86,47 @@ namespace MultiplayerEmotes.Menus {
 			currentMouseState = Mouse.GetState();
 			previousMouseState = currentMouseState;
 
-			GraphicsEvents.OnPostRenderHudEvent += this.OnPostRenderHudEvent;
-			GameEvents.UpdateTick += MouseStateMonitor.UpdateMouseState;
-			SaveEvents.AfterReturnToTitle += this.OnReturnToTile;
+			SubscribeEvents();
 
+		}
+
+		private void SubscribeEvents() {
+			SaveEvents.AfterReturnToTitle += this.OnReturnToTile;	
+			GraphicsEvents.OnPostRenderHudEvent += this.OnPostRenderHudEvent;
+			ControlEvents.MouseChanged += this.MouseChanged;
+			InputEvents.ButtonPressed += this.ButtonPressed;
+		}
+
+		private void UnsubscribeEvents() {
+			SaveEvents.AfterReturnToTitle -= this.OnReturnToTile;
+			GraphicsEvents.OnPostRenderHudEvent -= this.OnPostRenderHudEvent;
+			ControlEvents.MouseChanged -= this.MouseChanged;
+			InputEvents.ButtonPressed -= this.ButtonPressed;
+		}
+
+		private void MouseChanged(object sender, EventArgsMouseStateChanged e) {
+			MouseStateMonitor.UpdateMouseState();
+			if(MouseStateMonitor.ScrollChanged() && this.isWithinBounds(MouseStateMonitor.CurrentMouseState.X, MouseStateMonitor.CurrentMouseState.Y) && this.emoteMenu.IsOpen) {
+				MouseState mouseState = Game1.oldMouseState;
+				Game1.oldMouseState = new MouseState(mouseState.X, mouseState.Y, MouseStateMonitor.CurrentMouseState.ScrollWheelValue, mouseState.LeftButton, mouseState.MiddleButton, mouseState.RightButton, mouseState.XButton1, mouseState.XButton2);
+				receiveScrollWheelAction(MouseStateMonitor.ScrollValueDifference());
+			}
 		}
 
 		internal void OnReturnToTile(object sender, EventArgs e) {
-			GraphicsEvents.OnPostRenderHudEvent -= this.OnPostRenderHudEvent;
-			GameEvents.UpdateTick -= MouseStateMonitor.UpdateMouseState;
-			SaveEvents.AfterReturnToTitle -= this.OnReturnToTile;
+
+			UnsubscribeEvents();
+
+			modData.MenuPosition = new Vector2(this.xPositionOnScreen, this.yPositionOnScreen);
+			helper.WriteJsonFile("data.json", modData);
+
 		}
 
-		/* ### Code ready for SMAPI 2.15.2 ###
-		private void MouseWheelScrolled(object sender, InputMouseWheelScrolledEventArgs e) {
-			ICursorPosition cursorPos = helper.Input.GetCursorPosition();
-			if(this.isWithinBounds(helper.Input.GetCursorPosition().ScreenPixels.X, helper.Input.GetCursorPosition().ScreenPixels.Y)) {
-				e.Supress();
+		private void ButtonPressed(object sender, EventArgsInput e) {
+			if(this.IsBeingDragged && e.Button == SButton.MouseRight) {
+				e.SuppressButton();
 			}
 		}
-		*/
 
 		private void updatePosition() {
 
@@ -127,7 +138,7 @@ namespace MultiplayerEmotes.Menus {
 			Utility.makeSafe(ref this.targetRect.X, ref this.targetRect.Y, this.targetRect.Width, this.targetRect.Height);
 
 			if(emoteMenu != null) {
-				this.emoteMenu.xPositionOnScreen = this.xPositionOnScreen + this.emoteMenuIcon.bounds.Width;//this.emoteMenuIcon.bounds.Center.X - 146;
+				this.emoteMenu.xPositionOnScreen = this.xPositionOnScreen + this.emoteMenuIcon.bounds.Width;
 				this.emoteMenu.yPositionOnScreen += (this.yPositionOnScreen + (this.height / 2)) - (this.emoteMenu.yPositionOnScreen - 2 + (emoteMenu.height / 2));//this.emoteMenuIcon.bounds.Y - 248;
 				Utility.makeSafe(ref this.emoteMenu.xPositionOnScreen, ref this.emoteMenu.yPositionOnScreen, this.emoteMenu.width, this.emoteMenu.height);
 			}
@@ -178,7 +189,7 @@ namespace MultiplayerEmotes.Menus {
 
 		public override void clickAway() {
 			base.clickAway();
-			if(!this.emoteMenu.IsOpen || !this.emoteMenu.isWithinBounds(Game1.getMouseX(), Game1.getMouseY()) || !inputState.GetKeyboardState().IsKeyDown(Keys.Escape)) {
+			if(!this.emoteMenu.IsOpen || !this.emoteMenu.isWithinBounds(Game1.getMouseX(), Game1.getMouseY())) {
 				emoteMenu.IsOpen = false;
 			}
 		}
@@ -273,14 +284,6 @@ namespace MultiplayerEmotes.Menus {
 					}
 				}
 			}
-
-			/*
-			MouseState mouseState = inputState.GetMouseState();
-			if(mouseState.ScrollWheelValue != oldMouseState.ScrollWheelValue) {
-				this.receiveScrollWheelAction(mouseState.ScrollWheelValue - oldMouseState.ScrollWheelValue);
-			}
-			oldMouseState = mouseState;
-			*/
 		}
 
 		private bool ShouldDragIcon() {
