@@ -49,16 +49,21 @@ namespace MultiplayerEmotes.Menus {
 		MouseState previousMouseState;
 
 		private readonly IModHelper helper;
+		private readonly ModData modData;
+		private readonly ModConfig modConfig;
 
-		public EmoteMenuButton(IModHelper helper, ModConfig config, Vector2 menuPosition) {
+		public EmoteMenuButton(IModHelper helper, ModConfig modConfig, ModData modData) {
 
 			this.helper = helper;
+			this.modConfig = modConfig;
+			this.modData = modData;
+
 			/* ### Code ready for SMAPI 2.15.2 ###
 				helper.Events.MouseWheelScrolled += this.MouseWheelScrolled;
 			*/
 
 			this.sourceRect = new Rectangle(301, 288, 15, 15);
-			this.targetRect = new Rectangle((int)menuPosition.X, (int)menuPosition.Y, sourceRect.Width * Game1.pixelZoom, sourceRect.Height * Game1.pixelZoom);
+			this.targetRect = new Rectangle((int)modData.MenuPosition.X, (int)modData.MenuPosition.Y, sourceRect.Width * Game1.pixelZoom, sourceRect.Height * Game1.pixelZoom);
 
 			this.inputState = helper.Reflection.GetField<InputState>(typeof(Game1), "input").GetValue();
 			oldMouseState = inputState.GetMouseState();
@@ -81,10 +86,10 @@ namespace MultiplayerEmotes.Menus {
 
 			AnimationCooldownTime = 5000;
 			animationTimer = AnimationCooldownTime;
-			AnimatedEmoteIcon = config.AnimateEmoteButtonIcon;
+			AnimatedEmoteIcon = modConfig.AnimateEmoteButtonIcon;
 			AnimationOnHover = true; // Not in use
 
-			ShowTooltipOnHover = config.ShowTooltipOnHover;
+			ShowTooltipOnHover = modConfig.ShowTooltipOnHover;
 			hoverText = "Emotes";
 			isHovering = false;
 
@@ -99,13 +104,24 @@ namespace MultiplayerEmotes.Menus {
 			GraphicsEvents.OnPostRenderHudEvent += this.OnPostRenderHudEvent;
 			GameEvents.UpdateTick += MouseStateMonitor.UpdateMouseState;
 			SaveEvents.AfterReturnToTitle += this.OnReturnToTile;
+			InputEvents.ButtonPressed += this.ButtonPressed;
 
 		}
 
 		internal void OnReturnToTile(object sender, EventArgs e) {
+
+			modData.MenuPosition = new Vector2(this.xPositionOnScreen, this.yPositionOnScreen);
+			helper.WriteJsonFile("data.json", modData);
+
 			GraphicsEvents.OnPostRenderHudEvent -= this.OnPostRenderHudEvent;
 			GameEvents.UpdateTick -= MouseStateMonitor.UpdateMouseState;
 			SaveEvents.AfterReturnToTitle -= this.OnReturnToTile;
+		}
+
+		private void ButtonPressed(object sender, EventArgsInput e) {
+			if(this.IsBeingDragged && e.Button == SButton.MouseRight) {
+				e.SuppressButton();
+			}
 		}
 
 		/* ### Code ready for SMAPI 2.15.2 ###
