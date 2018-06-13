@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Framework\Constants.cs" />
     <Compile Include="Framework\StateMonitor\MouseStateMonitor.cs" />
     <Compile Include="Framework\Menus\EmoteMenuButton.cs" />
     <Compile Include="Framework\Menus\EmoteMenu.cs" />
