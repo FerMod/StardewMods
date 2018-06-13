@@ -2,7 +2,7 @@
 	"Name": "Multiplayer Emotes",
 	"Author": "FerMod",
 	"Version": "1.0.0-beta1",
-	"Description": "Allow to see another players emotes in multiplayer and adds a interface to do emotes.",
+	"Description": "Allows to do emotes and to see other players emotes in multiplayer through an interface and commands.",
 	"UniqueID": "FerMod.MultiplayerEmotes",
 	"EntryDll": "MultiplayerEmotes.dll",
 	"UpdateKeys": [ "Nexus:2347" ]
