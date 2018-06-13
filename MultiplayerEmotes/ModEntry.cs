@@ -31,10 +31,10 @@ namespace MultiplayerEmotes {
 
 			ModMonitor = Monitor;
 
-			ModPatchControl PatchManager = new ModPatchControl(helper);
-			PatchManager.PatchList.Add(new FarmerPatch());
-			PatchManager.PatchList.Add(new MultiplayerPatch());
-			PatchManager.ApplyPatch();
+			ModPatchControl PatchContol = new ModPatchControl(helper);
+			PatchContol.PatchList.Add(new FarmerPatch());
+			PatchContol.PatchList.Add(new MultiplayerPatch());
+			PatchContol.ApplyPatch();
 
 			this.Monitor.Log("Loading mod config...", LogLevel.Debug);
 			Config = helper.ReadConfig<ModConfig>();

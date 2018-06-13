@@ -1,4 +1,5 @@
 ﻿
+using MultiplayerEmotes.Framework;
 using StardewValley;
 using StardewValley.Network;
 
@@ -9,11 +10,12 @@ namespace MultiplayerEmotes.Extensions {
 		public static void BroadcastEmote(this Multiplayer multiplayer, int emoteIndex) {
 
 			if(Game1.IsMultiplayer) {
+				ModEntry.ModMonitor.Log($"Extens: {Constants.Network.MessageAction.EmoteBroadcast.ToString()}");
 				object[] objArray = new object[2] {
-					"EmoteBroadcast",
+					Constants.Network.MessageAction.EmoteBroadcast.ToString(),
 					emoteIndex
 				};
-				OutgoingMessage message = new OutgoingMessage(22, Game1.player, objArray);
+				OutgoingMessage message = new OutgoingMessage(Constants.Network.MessageTypeID, Game1.player, objArray);
 				if(Game1.IsClient) {
 					Game1.client.sendMessage(message);
 				} else {
