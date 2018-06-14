@@ -4,11 +4,7 @@ using StardewValley;
 using MultiplayerEmotes.Patches;
 using StardewModdingAPI.Events;
 using System;
-using Microsoft.Xna.Framework;
 using MultiplayerEmotes.Menus;
-using MultiplayerEmotes.Events;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace MultiplayerEmotes {
 

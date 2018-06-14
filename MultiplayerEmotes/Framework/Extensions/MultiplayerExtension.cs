@@ -10,7 +10,6 @@ namespace MultiplayerEmotes.Extensions {
 		public static void BroadcastEmote(this Multiplayer multiplayer, int emoteIndex) {
 
 			if(Game1.IsMultiplayer) {
-				ModEntry.ModMonitor.Log($"Extens: {Constants.Network.MessageAction.EmoteBroadcast.ToString()}");
 				object[] objArray = new object[2] {
 					Constants.Network.MessageAction.EmoteBroadcast.ToString(),
 					emoteIndex
