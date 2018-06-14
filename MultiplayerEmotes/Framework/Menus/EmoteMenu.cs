@@ -19,6 +19,8 @@ namespace MultiplayerEmotes.Menus {
 		private ClickableComponent upArrow;
 		private ClickableComponent downArrow;
 		public bool IsOpen { get; set; }
+		public bool PlayEmotePreview { get; set; }
+
 		private readonly EmoteMenuButton emoteMenuButton;
 		public int totalEmotes;
 
@@ -26,6 +28,11 @@ namespace MultiplayerEmotes.Menus {
 		public int animationFrames = 4;
 		public int maxRowComponents = 3;
 		public int maxColComponents = 3;
+		private bool playPreviewAnimation;
+		private TemporaryAnimatedSprite previewAnimationIcon;
+
+		private int hoveringEmoteIndex;
+		private bool isHoveringEmote;
 
 		public EmoteMenu(IModHelper helper, EmoteMenuButton emoteMenuButton, Texture2D emoteMenuTexture, Texture2D chatBoxTexture, Texture2D emoteTexture, Vector2 position) {
 
@@ -33,6 +40,8 @@ namespace MultiplayerEmotes.Menus {
 			this.emoteMenuTexture = emoteMenuTexture;
 			this.chatBoxTexture = chatBoxTexture;
 			this.emoteTexture = emoteTexture;
+
+			PlayEmotePreview = true;
 
 			this.width = 300;
 			this.height = 250;
@@ -50,7 +59,6 @@ namespace MultiplayerEmotes.Menus {
 
 			totalEmotes = (emoteTexture.Width / (animationFrames * emoteSize)) * ((emoteTexture.Height - emoteSize) / emoteSize);
 
-			this.exitFunction += this.OnExit;
 			IsOpen = false;
 
 		}
@@ -129,15 +137,62 @@ namespace MultiplayerEmotes.Menus {
 			Game1.playSound("shwip");
 		}
 
-		private void OnExit() {
+		public override void performHoverAction(int x, int y) {
+			if(this.IsOpen) {
+				foreach(ClickableComponent emoteSelectionButton in this.emoteSelectionButtons) {
+					if(emoteSelectionButton.containsPoint(x, y)) {
+						hoveringEmoteIndex = this.pageStartIndex + int.Parse(emoteSelectionButton.name);
+						isHoveringEmote = true;
+						break;
+					}
+				}
+			}
+		}
+
+		public bool IsPlayingAnimation(TemporaryAnimatedSprite tempAnimSprite) {
+			return tempAnimSprite != null && tempAnimSprite.currentParentTileIndex < tempAnimSprite.animationLength - 1;
+		}
+
+		public override void update(GameTime time) {
+			if(playPreviewAnimation && PlayEmotePreview) {
+				if(IsPlayingAnimation(previewAnimationIcon)) {
+					previewAnimationIcon.update(time);
+				} else {
+					previewAnimationIcon.reset();
+				}
+			}
+
 		}
 
 		public override void draw(SpriteBatch b) {
 
 			b.Draw(this.emoteMenuTexture, new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height), new Rectangle?(new Rectangle(0, 0, 244, 300)), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
-
+			playPreviewAnimation = false;
 			for(int index = 0; index < this.emoteSelectionButtons.Count; ++index) {
-				b.Draw(this.emoteTexture, new Vector2((float)(this.emoteSelectionButtons[index].bounds.X + this.xPositionOnScreen + 4), (this.emoteSelectionButtons[index].bounds.Y + this.yPositionOnScreen + 4)), new Rectangle?(new Rectangle((emoteSize * (animationFrames - 1)), (this.pageStartIndex + index + 1) * emoteSize, emoteSize, emoteSize)), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 0.9f);
+				if(this.emoteSelectionButtons[index].containsPoint(Game1.getMouseX() - this.xPositionOnScreen - 4, Game1.getMouseY() - this.yPositionOnScreen - 4)) {
+					if(index != hoveringEmoteIndex) {
+						hoveringEmoteIndex = this.pageStartIndex + int.Parse(this.emoteSelectionButtons[index].name);
+						//isHoveringEmote = true;
+						playPreviewAnimation = true;
+
+
+						if(!IsPlayingAnimation(previewAnimationIcon)) {
+							previewAnimationIcon = new TemporaryAnimatedSprite("", new Rectangle(0, (this.pageStartIndex + index + 1) * emoteSize, emoteSize, emoteSize), 250f, 4, 0, new Vector2(this.emoteSelectionButtons[index].bounds.X + this.xPositionOnScreen + 4, this.emoteSelectionButtons[index].bounds.Y + this.yPositionOnScreen + 4), false, false, 0.9f, 0f, Color.White, 4f, 0f, 0f, 0f, true) {
+								texture = this.emoteTexture
+							};
+						}
+						//previewAnimationIcon.texture = this.emoteTexture;
+						//previewAnimationIcon.sourceRect = new Rectangle(0, (this.pageStartIndex + index + 1) * emoteSize, emoteSize, emoteSize);
+						//previewAnimationIcon.position = new Vector2(this.emoteSelectionButtons[index].bounds.X + this.xPositionOnScreen + 4, this.emoteSelectionButtons[index].bounds.Y + this.yPositionOnScreen + 4);
+						//previewAnimationIcon.holdLastFrame = true;
+						//this.previewAnimationIcon.update(Game1.currentGameTime);
+
+					}
+					this.previewAnimationIcon.draw(b, false, 0, 0, 4f);
+				} else {
+					//isHoveringEmote = false;
+					b.Draw(this.emoteTexture, new Vector2(this.emoteSelectionButtons[index].bounds.X + this.xPositionOnScreen + 4, this.emoteSelectionButtons[index].bounds.Y + this.yPositionOnScreen + 4), new Rectangle?(new Rectangle(emoteSize * (animationFrames - 1), (this.pageStartIndex + index + 1) * emoteSize, emoteSize, emoteSize)), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 0.9f);
+				}
 			}
 
 			if((double)this.upArrow.scale < 1.0) {

@@ -285,6 +285,10 @@ namespace MultiplayerEmotes.Menus {
 				}
 			}
 
+			if(this.emoteMenu.IsOpen) {
+				this.emoteMenu.update(time);
+			}
+
 		}
 
 		private bool ShouldDragIcon() {
