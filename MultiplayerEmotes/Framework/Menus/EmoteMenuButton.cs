@@ -69,10 +69,11 @@ namespace MultiplayerEmotes.Menus {
 
 			IsBeingDragged = false;
 
-			AnimationCooldownTime = 5000;
+			AnimationCooldownTime = 10000;
 			animationTimer = AnimationCooldownTime;
 			AnimatedEmoteIcon = modConfig.AnimateEmoteButtonIcon;
 			AnimationOnHover = true; // Not in use
+			iconAnimation = new TemporaryAnimatedSprite("TileSheets\\emotes", new Rectangle(0, 0, 16, 16), 250f, 4, 0, new Vector2(this.emoteMenuIcon.bounds.X + 15, this.emoteMenuIcon.bounds.Y + 15), false, false, 0.9f, 0f, Color.White, 2.0f, 0f, 0f, 0f, true);
 
 			ShowTooltipOnHover = modConfig.ShowTooltipOnHover;
 			hoverText = "Emotes";
@@ -91,20 +92,20 @@ namespace MultiplayerEmotes.Menus {
 		}
 
 		private void SubscribeEvents() {
-			SaveEvents.AfterReturnToTitle += this.OnReturnToTile;	
+			MenuEvents.MenuChanged += this.OnMenuChanged;
 			GraphicsEvents.OnPostRenderHudEvent += this.OnPostRenderHudEvent;
-			ControlEvents.MouseChanged += this.MouseChanged;
-			InputEvents.ButtonPressed += this.ButtonPressed;
+			ControlEvents.MouseChanged += this.OnMouseChanged;
+			InputEvents.ButtonPressed += this.OnButtonPressed;
 		}
 
 		private void UnsubscribeEvents() {
-			SaveEvents.AfterReturnToTitle -= this.OnReturnToTile;
+			MenuEvents.MenuChanged -= this.OnMenuChanged;
 			GraphicsEvents.OnPostRenderHudEvent -= this.OnPostRenderHudEvent;
-			ControlEvents.MouseChanged -= this.MouseChanged;
-			InputEvents.ButtonPressed -= this.ButtonPressed;
+			ControlEvents.MouseChanged -= this.OnMouseChanged;
+			InputEvents.ButtonPressed -= this.OnButtonPressed;
 		}
 
-		private void MouseChanged(object sender, EventArgsMouseStateChanged e) {
+		private void OnMouseChanged(object sender, EventArgsMouseStateChanged e) {
 			MouseStateMonitor.UpdateMouseState();
 			if(MouseStateMonitor.ScrollChanged() && this.isWithinBounds(MouseStateMonitor.CurrentMouseState.X, MouseStateMonitor.CurrentMouseState.Y) && this.emoteMenu.IsOpen) {
 				MouseState mouseState = Game1.oldMouseState;
@@ -113,16 +114,19 @@ namespace MultiplayerEmotes.Menus {
 			}
 		}
 
-		internal void OnReturnToTile(object sender, EventArgs e) {
-
-			UnsubscribeEvents();
-
-			modData.MenuPosition = new Vector2(this.xPositionOnScreen, this.yPositionOnScreen);
-			helper.WriteJsonFile("data.json", modData);
-
+		private void OnMenuChanged(object sender, EventArgsClickableMenuChanged e) {
+			if(e.NewMenu is TitleMenu) {
+				UnsubscribeEvents();
+				SaveData();
+			}
 		}
 
-		private void ButtonPressed(object sender, EventArgsInput e) {
+		private void SaveData() {
+			modData.MenuPosition = new Vector2(this.xPositionOnScreen, this.yPositionOnScreen);
+			helper.WriteJsonFile("data.json", modData);
+		}
+
+		private void OnButtonPressed(object sender, EventArgsInput e) {
 			if(this.IsBeingDragged && e.Button == SButton.MouseRight) {
 				e.SuppressButton();
 			}
@@ -150,7 +154,7 @@ namespace MultiplayerEmotes.Menus {
 			this.height = targetRect.Height;
 
 			this.emoteMenuIcon.bounds = new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height);
-			if(playAnimation && iconAnimation != null) {
+			if(playAnimation && ShouldPlayAnimation()) {
 				this.iconAnimation.position = new Vector2(this.emoteMenuIcon.bounds.X + 15, this.emoteMenuIcon.bounds.Y + 15);
 			}
 
@@ -200,7 +204,7 @@ namespace MultiplayerEmotes.Menus {
 
 		public override bool isWithinBounds(int x, int y) {
 			updatePosition();
-			Rectangle component = new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
+			Rectangle component = new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height);
 
 			//ModEntry.ModMonitor.Log($"(x: {x}, y: {y}) (xPositionOnScreen: {xPositionOnScreen}, yPositionOnScreen: {yPositionOnScreen}), (width: {width}, height: {height})");
 
@@ -273,17 +277,14 @@ namespace MultiplayerEmotes.Menus {
 			}
 
 			if((playAnimation && AnimatedEmoteIcon) || (isHovering && AnimationOnHover)) {
-				if(iconAnimation == null) {
-					iconAnimation = new TemporaryAnimatedSprite("TileSheets\\emotes", new Rectangle(0, 0, 16, 16), 250f, 4, 0, new Vector2(this.emoteMenuIcon.bounds.X + 15, this.emoteMenuIcon.bounds.Y + 15), false, false, 0.9f, 0f, Color.White, 2.0f, 0f, 0f, 0f, true);
+				if(IsPlayingAnimation()) {
+					iconAnimation.update(time);
 				} else {
-					if(iconAnimation.currentParentTileIndex < iconAnimation.animationLength - 1) {
-						iconAnimation.update(time);
-					} else {
-						iconAnimation.reset();
-						playAnimation = false;
-					}
+					iconAnimation.reset();
+					playAnimation = false;
 				}
 			}
+
 		}
 
 		private bool ShouldDragIcon() {
@@ -292,6 +293,10 @@ namespace MultiplayerEmotes.Menus {
 
 		public bool ShouldPlayAnimation() {
 			return this.iconAnimation != null && AnimatedEmoteIcon && !IsBeingDragged;
+		}
+
+		public bool IsPlayingAnimation() {
+			return this.iconAnimation != null && iconAnimation.currentParentTileIndex < iconAnimation.animationLength - 1;
 		}
 
 		/*
@@ -327,11 +332,18 @@ namespace MultiplayerEmotes.Menus {
 		*/
 
 		public void UpdateAnimationTimer(GameTime time) {
-			if(this.animationTimer >= 0 && ShouldPlayAnimation()) {
-				this.animationTimer -= time.ElapsedGameTime.Milliseconds;
+			if(ShouldPlayAnimation()) {
+				// If there is no animation playing start countdown for next animation
+				if(this.animationTimer >= 0 && !playAnimation) {
+					this.animationTimer -= time.ElapsedGameTime.Milliseconds;
+				}
+				// Check if timer reached 0
+				if(this.animationTimer < 0) {
+					this.animationTimer = AnimationCooldownTime;
+					playAnimation = true;
+				}
 			} else {
-				this.animationTimer = AnimationCooldownTime;
-				playAnimation = true;
+				playAnimation = false;
 			}
 		}
 

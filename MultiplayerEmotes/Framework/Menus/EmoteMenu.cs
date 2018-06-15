@@ -100,18 +100,18 @@ namespace MultiplayerEmotes.Menus {
 		}
 
 		private void downArrowPressed(int amountToScroll) {
-			if(this.pageStartIndex != totalEmotes - amountToScroll) {
+			if(this.pageStartIndex != totalEmotes - getAmmountToScroll()) {
 				Game1.playSound("Cowboy_Footstep");
 			}
-			this.pageStartIndex = Math.Min(totalEmotes - amountToScroll, this.pageStartIndex + amountToScroll);
+			this.pageStartIndex = Math.Min(totalEmotes - getAmmountToScroll(), this.pageStartIndex + amountToScroll);
 			this.downArrow.scale = 0.75f;
 		}
 
 		public override void receiveScrollWheelAction(int direction) {
 			if(direction < 0) {
-				this.downArrowPressed(getAmmountToScroll());
+				this.downArrowPressed(maxRowComponents);
 			} else if(direction > 0) {
-				this.upArrowPressed(getAmmountToScroll());
+				this.upArrowPressed(maxRowComponents);
 			}
 		}
 

@@ -4,11 +4,7 @@ using StardewValley;
 using MultiplayerEmotes.Patches;
 using StardewModdingAPI.Events;
 using System;
-using Microsoft.Xna.Framework;
 using MultiplayerEmotes.Menus;
-using MultiplayerEmotes.Events;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace MultiplayerEmotes {
 
@@ -31,10 +27,10 @@ namespace MultiplayerEmotes {
 
 			ModMonitor = Monitor;
 
-			ModPatchControl PatchManager = new ModPatchControl(helper);
-			PatchManager.PatchList.Add(new FarmerPatch());
-			PatchManager.PatchList.Add(new MultiplayerPatch());
-			PatchManager.ApplyPatch();
+			ModPatchControl PatchContol = new ModPatchControl(helper);
+			PatchContol.PatchList.Add(new FarmerPatch());
+			PatchContol.PatchList.Add(new MultiplayerPatch());
+			PatchContol.ApplyPatch();
 
 			this.Monitor.Log("Loading mod config...", LogLevel.Debug);
 			Config = helper.ReadConfig<ModConfig>();
@@ -57,15 +53,8 @@ namespace MultiplayerEmotes {
 
 			emoteMenuButton = new EmoteMenuButton(Helper, Config, Data);
 
-			// Remove any duplicated EmoteMenuButton. If for some reason there is one.
-			foreach(var screenMenu in Game1.onScreenMenus) {
-				if(screenMenu is EmoteMenuButton) {
-					Game1.onScreenMenus.Remove(screenMenu);
-				}
-			}
-
 			// Add EmoteMenuButton to the screen menus
-			Game1.onScreenMenus.Add(emoteMenuButton);
+			Game1.onScreenMenus.Insert(0, emoteMenuButton);
 
 #if(DEBUG)
 			// Pause time and set it to 09:00
