@@ -1,3 +1,4 @@
 
 A repository containing mods made with SMAPI for Stardew Valley:
- - [Multiplayer Emotes](https://github.com/FerMod/StardewMods/tree/master/MultiplayerEmotes) - Allows to do emotes and other players to see them.
+- **[Multiplayer Emotes](https://www.nexusmods.com/stardewvalley/mods/2347) ‒** *[source](MultiplayerEmotes)*  
+  Allows to do emotes through a draggable interface and to see other players emotes in multiplayer.

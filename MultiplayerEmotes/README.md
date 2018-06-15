@@ -6,6 +6,8 @@ Adds a interface to play any Stardew Valley emote in any time.
 
 The interface is a button to open and close the emote list, and the button can be dragged holding the right click and positioned in any place of the screen.
 
+To know what changed between versions you can go to the [Release Notes](https://github.com/FerMod/StardewMods/tree/master/MultiplayerEmotes/release-notes.md).
+
 >**Note:** In order to other players see the emotes they also need to have this mod.
 
 ## Instalation
