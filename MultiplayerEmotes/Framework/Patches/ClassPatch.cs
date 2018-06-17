@@ -11,7 +11,7 @@ namespace MultiplayerEmotes.Patches {
 		public virtual MethodInfo Postfix => null;
 		public virtual MethodInfo Transpiler => null;
 
-		public void Register(HarmonyInstance harmony) {
+		public void Register(HarmonyInstance harmony) {			
 			harmony.Patch(Original, Prefix == null ? null : new HarmonyMethod(Prefix), Postfix == null ? null : new HarmonyMethod(Postfix), Transpiler == null ? null : new HarmonyMethod(Transpiler));
 		}
 

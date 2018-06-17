@@ -7,18 +7,31 @@ using StardewModdingAPI;
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Netcode;
+using StardewValley.Network;
 
 namespace MultiplayerEmotes.Patches {
 
-	public class FarmerPatch : ClassPatch {
+	internal static class FarmerPatch {
 
-		public override MethodInfo Original => AccessTools.Method(typeof(Farmer), "doEmote", new Type[] { typeof(int) });
-		public override MethodInfo Postfix => typeof(FarmerPatch).GetMethod("DoEmote_Postfix");
+		internal class DoEmotePatch : ClassPatch {
 
-		public static void DoEmote_Postfix(Farmer __instance, int whichEmote) {
-			if(Context.IsMultiplayer && __instance.IsLocalPlayer && __instance.IsEmoting) {
-				Traverse.Create(typeof(Game1)).Field("multiplayer").GetValue<Multiplayer>().BroadcastEmote(whichEmote);
+			public override MethodInfo Original => AccessTools.Method(typeof(Farmer), nameof(Farmer.doEmote), new Type[] { typeof(int) });
+			public override MethodInfo Postfix => AccessTools.Method(this.GetType(), nameof(DoEmotePatch.DoEmote_Postfix));
+
+			private static IReflectionHelper Reflection;
+
+			public DoEmotePatch(IReflectionHelper reflection) {
+				Reflection = reflection;
 			}
+
+			private static void DoEmote_Postfix(Farmer __instance, int whichEmote) {
+				if(Context.IsMultiplayer && __instance.IsLocalPlayer && __instance.IsEmoting) {
+					// Traverse.Create(typeof(Game1)).Field("multiplayer").GetValue<Multiplayer>().BroadcastEmote(whichEmote);
+					Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue().BroadcastEmote(whichEmote);
+				}
+			}
+
 		}
 
 	}

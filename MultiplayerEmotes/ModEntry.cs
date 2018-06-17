@@ -5,6 +5,9 @@ using MultiplayerEmotes.Patches;
 using StardewModdingAPI.Events;
 using System;
 using MultiplayerEmotes.Menus;
+using StardewValley.Network;
+using Netcode;
+using System.Reflection;
 
 namespace MultiplayerEmotes {
 
@@ -28,8 +31,8 @@ namespace MultiplayerEmotes {
 			ModMonitor = Monitor;
 
 			ModPatchControl PatchContol = new ModPatchControl(helper);
-			PatchContol.PatchList.Add(new FarmerPatch());
-			PatchContol.PatchList.Add(new MultiplayerPatch());
+			PatchContol.PatchList.Add(new FarmerPatch.DoEmotePatch(helper.Reflection));
+			PatchContol.PatchList.Add(new MultiplayerPatch.ProcessIncomingMessagePatch());
 			PatchContol.ApplyPatch();
 
 			this.Monitor.Log("Loading mod config...", LogLevel.Debug);
@@ -43,7 +46,7 @@ namespace MultiplayerEmotes {
 			helper.ConsoleCommands.Add("emote", "Play the emote animation with the passed id.\n\nUsage: emote <value>\n- value: a integer representing the animation id.", this.Emote);
 			helper.ConsoleCommands.Add("stop_emote", "Stop any playing emote.\n\nUsage: stop_emote", this.StopEmote);
 			helper.ConsoleCommands.Add("stop_all_emotes", "Stop any playing emote by players.\n\nUsage: stop_all_emotes", this.StopAllEmotes);
-
+			
 		}
 
 		/*********

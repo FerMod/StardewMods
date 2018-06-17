@@ -10,37 +10,42 @@ using MultiplayerEmotes.Framework;
 
 namespace MultiplayerEmotes.Patches {
 
-	public class MultiplayerPatch : ClassPatch {
+	internal static class MultiplayerPatch {
 
-		public override MethodInfo Original => AccessTools.Method(typeof(Multiplayer), "processIncomingMessage", new Type[] { typeof(IncomingMessage) });
-		public override MethodInfo Prefix => typeof(MultiplayerPatch).GetMethod("ProcessIncomingMessage_Prefix");
 
-		//TODO: Checking for ussed MessageTypes ids. Possible?
-		public static bool ProcessIncomingMessage_Prefix(Multiplayer __instance, ref IncomingMessage msg) {
+		public class ProcessIncomingMessagePatch : ClassPatch {
 
-			if(msg.MessageType == Constants.Network.MessageTypeID && msg.Data.Length >= 0) {
+			public override MethodInfo Original => AccessTools.Method(typeof(Multiplayer), nameof(Multiplayer.processIncomingMessage), new Type[] { typeof(IncomingMessage) });
+			public override MethodInfo Prefix => AccessTools.Method(this.GetType(), nameof(ProcessIncomingMessagePatch.ProcessIncomingMessage_Prefix));
 
-				try {
+			//TODO: Checking for ussed MessageTypes ids. Possible?
+			private static bool ProcessIncomingMessage_Prefix(Multiplayer __instance, ref IncomingMessage msg) {
 
-					using(BinaryReader reader = msg.Reader) {
-						Constants.Network.MessageAction action = (Constants.Network.MessageAction)Enum.ToObject(typeof(Constants.Network.MessageAction), msg.MessageType);
-						//Check that this isnt other mods message by trying to read a 'key'
-						String keyword = reader.ReadString();
-						if(keyword.Equals(Constants.Network.MessageAction.EmoteBroadcast.ToString())) {
-							__instance.ProcessBroadcastEmote(msg);
-							// Dont let to execute the vanilla method
-							return false;
+				if(msg.MessageType == Constants.Network.MessageTypeID && msg.Data.Length >= 0) {
+
+					try {
+
+						using(BinaryReader reader = msg.Reader) {
+							Constants.Network.MessageAction action = (Constants.Network.MessageAction)Enum.ToObject(typeof(Constants.Network.MessageAction), msg.MessageType);
+							//Check that this isnt other mods message by trying to read a 'key'
+							String keyword = reader.ReadString();
+							if(keyword.Equals(Constants.Network.MessageAction.EmoteBroadcast.ToString())) {
+								__instance.ProcessBroadcastEmote(msg);
+								// Dont let to execute the vanilla method
+								return false;
+							}
 						}
+
+					} catch(EndOfStreamException) {
+						// Do nothing. If it does not contain the key, it may be another mods custom message or something went wrong
 					}
 
-				} catch(EndOfStreamException) {
-					// Do nothing. If it does not contain the key, it may be another mods custom message or something went wrong
 				}
 
+				// Allow to execute the vanilla method
+				return true;
 			}
 
-			// Allow to execute the vanilla method
-			return true;
 		}
 
 	}
