@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MultiplayerEmotes.Framework {
 
-	internal static class Constants {
+	internal static class ModConstants {
 
 		public static class Network {
 

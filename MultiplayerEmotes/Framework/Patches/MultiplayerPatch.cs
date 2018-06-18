@@ -13,7 +13,7 @@ namespace MultiplayerEmotes.Patches {
 	internal static class MultiplayerPatch {
 
 
-		public class ProcessIncomingMessagePatch : ClassPatch {
+		internal class ProcessIncomingMessagePatch : ClassPatch {
 
 			public override MethodInfo Original => AccessTools.Method(typeof(Multiplayer), nameof(Multiplayer.processIncomingMessage), new Type[] { typeof(IncomingMessage) });
 			public override MethodInfo Prefix => AccessTools.Method(this.GetType(), nameof(ProcessIncomingMessagePatch.ProcessIncomingMessage_Prefix));
@@ -21,15 +21,15 @@ namespace MultiplayerEmotes.Patches {
 			//TODO: Checking for ussed MessageTypes ids. Possible?
 			private static bool ProcessIncomingMessage_Prefix(Multiplayer __instance, ref IncomingMessage msg) {
 
-				if(msg.MessageType == Constants.Network.MessageTypeID && msg.Data.Length >= 0) {
+				if(msg.MessageType == ModConstants.Network.MessageTypeID && msg.Data.Length >= 0) {
 
 					try {
 
 						using(BinaryReader reader = msg.Reader) {
-							Constants.Network.MessageAction action = (Constants.Network.MessageAction)Enum.ToObject(typeof(Constants.Network.MessageAction), msg.MessageType);
+							ModConstants.Network.MessageAction action = (ModConstants.Network.MessageAction)Enum.ToObject(typeof(ModConstants.Network.MessageAction), msg.MessageType);
 							//Check that this isnt other mods message by trying to read a 'key'
 							String keyword = reader.ReadString();
-							if(keyword.Equals(Constants.Network.MessageAction.EmoteBroadcast.ToString())) {
+							if(keyword.Equals(ModConstants.Network.MessageAction.EmoteBroadcast.ToString())) {
 								__instance.ProcessBroadcastEmote(msg);
 								// Dont let to execute the vanilla method
 								return false;
