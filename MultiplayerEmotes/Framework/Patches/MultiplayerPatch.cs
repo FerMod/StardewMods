@@ -24,18 +24,14 @@ namespace MultiplayerEmotes.Patches {
 				if(msg.MessageType == ModConstants.Network.MessageTypeID && msg.Data.Length >= 0) {
 
 					try {
-
-						using(BinaryReader reader = msg.Reader) {
-							ModConstants.Network.MessageAction action = (ModConstants.Network.MessageAction)Enum.ToObject(typeof(ModConstants.Network.MessageAction), msg.MessageType);
-							//Check that this isnt other mods message by trying to read a 'key'
-							String keyword = reader.ReadString();
-							if(keyword.Equals(ModConstants.Network.MessageAction.EmoteBroadcast.ToString())) {
-								__instance.ProcessBroadcastEmote(msg);
-								// Dont let to execute the vanilla method
-								return false;
-							}
+						ModConstants.Network.MessageAction action = (ModConstants.Network.MessageAction)Enum.ToObject(typeof(ModConstants.Network.MessageAction), msg.MessageType);
+						//Check that this isnt other mods message by trying to read a 'key'
+						String keyword = msg.Reader.ReadString();
+						if(keyword.Equals(ModConstants.Network.MessageAction.EmoteBroadcast.ToString())) {
+							__instance.ProcessBroadcastEmote(msg);
+							// Dont let to execute the vanilla method
+							return false;
 						}
-
 					} catch(EndOfStreamException) {
 						// Do nothing. If it does not contain the key, it may be another mods custom message or something went wrong
 					}
