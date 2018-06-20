@@ -21,19 +21,26 @@ namespace MultiplayerEmotes.Patches {
 			//TODO: Checking for ussed MessageTypes ids. Possible?
 			private static bool ProcessIncomingMessage_Prefix(Multiplayer __instance, ref IncomingMessage msg) {
 
-				if(msg.MessageType == ModConstants.Network.MessageTypeID && msg.Data.Length >= 0) {
+				if(msg.MessageType == ModNetwork.MessageTypeID && msg.Data.Length > 0) {
+
+					String keyword = ModNetwork.MessageAction.None.ToString();
 
 					try {
-						ModConstants.Network.MessageAction action = (ModConstants.Network.MessageAction)Enum.ToObject(typeof(ModConstants.Network.MessageAction), msg.MessageType);
 						//Check that this isnt other mods message by trying to read a 'key'
-						String keyword = msg.Reader.ReadString();
-						if(keyword.Equals(ModConstants.Network.MessageAction.EmoteBroadcast.ToString())) {
-							__instance.ProcessBroadcastEmote(msg);
-							// Dont let to execute the vanilla method
-							return false;
-						}
+						keyword = msg.Reader.ReadString();
 					} catch(EndOfStreamException) {
-						// Do nothing. If it does not contain the key, it may be another mods custom message or something went wrong
+						// Do nothing. If it does not contain the key, it may be anothers mod custom message or something went wrong
+					}
+
+					if(Enum.TryParse(keyword, out ModNetwork.MessageAction action)) {
+						if(Enum.IsDefined(typeof(ModNetwork.MessageAction), action)) {
+							switch(action) {
+								case ModNetwork.MessageAction.EmoteBroadcast:
+									__instance.ProcessBroadcastEmote(msg);
+									// Dont let to execute the vanilla method
+									return false;
+							}
+						}
 					}
 
 				}

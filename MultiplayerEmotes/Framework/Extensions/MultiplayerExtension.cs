@@ -11,10 +11,10 @@ namespace MultiplayerEmotes.Extensions {
 
 			if(Game1.IsMultiplayer) {
 				object[] objArray = new object[2] {
-					ModConstants.Network.MessageAction.EmoteBroadcast.ToString(),
+					ModNetwork.MessageAction.EmoteBroadcast.ToString(),
 					emoteIndex
 				};
-				OutgoingMessage message = new OutgoingMessage(ModConstants.Network.MessageTypeID, Game1.player, objArray);
+				OutgoingMessage message = new OutgoingMessage(ModNetwork.MessageTypeID, Game1.player, objArray);
 				if(Game1.IsClient) {
 					Game1.client.sendMessage(message);
 				} else {
