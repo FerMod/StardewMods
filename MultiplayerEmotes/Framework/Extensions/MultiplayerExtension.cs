@@ -1,5 +1,5 @@
 ﻿
-using MultiplayerEmotes.Framework;
+using MultiplayerEmotes.Framework.Constants;
 using StardewValley;
 using StardewValley.Network;
 

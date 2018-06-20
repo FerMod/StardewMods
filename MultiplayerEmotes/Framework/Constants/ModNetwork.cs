@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MultiplayerEmotes.Framework {
+namespace MultiplayerEmotes.Framework.Constants {
 
 	internal static class ModNetwork {
 

@@ -6,7 +6,7 @@ using StardewValley;
 using StardewValley.Network;
 using System;
 using System.IO;
-using MultiplayerEmotes.Framework;
+using MultiplayerEmotes.Framework.Constants;
 
 namespace MultiplayerEmotes.Patches {
 
