@@ -263,4 +263,5 @@ __pycache__/
 # Ignore some files and folders
 MultiplayerEmotes/Framework/Utilities/
 MultiplayerEmotes/Test/
-NetworkFramework/
+NetworkFramework
+CustomEmojis/Test

@@ -1,0 +1,9 @@
+﻿{
+	"Name": "Custom Emojis",
+	"Author": "FerMod",
+	"Version": "1.0.0-beta",
+	"Description": "Allows to add custom emojis that can be sent by chat.",
+	"UniqueID": "FerMod.CustomEmojis",
+	"EntryDll": "CustomEmojis.dll",
+	"UpdateKeys": ["Nexus:"]
+}
