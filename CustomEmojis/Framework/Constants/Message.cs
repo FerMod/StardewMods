@@ -3,7 +3,7 @@ namespace CustomEmojis.Framework.Constants {
 
 	internal static class Message {
 
-		internal static byte TypeID = 50;
+		internal const byte TypeID = 50;
 
 		internal enum Action {
 			None,
@@ -11,6 +11,7 @@ namespace CustomEmojis.Framework.Constants {
 			EmojiTextureResponse,
 			EmojiTextureBroadcast
 		};
+
 	}
 
 }
