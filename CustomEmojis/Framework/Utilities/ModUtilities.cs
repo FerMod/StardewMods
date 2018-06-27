@@ -1,17 +1,39 @@
 ﻿
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 
 namespace CustomEmojis.Framework.Utilities {
 
-	public static class ModUtilities {
+	public class ModUtilities {
 
-		// Takes same patterns, and executes in parallel
+		public static string GetParentFolder(string path) {
+			string parentFolder = "";
+			try {
+				parentFolder = GetParentFolder(Path.GetDirectoryName(path), path);
+			} catch(ArgumentException) {
+			}
+			return parentFolder;
+		}
+
+		private static string GetParentFolder(string path, string lastPath) {
+			if(!String.IsNullOrWhiteSpace(path)) {
+				lastPath = path;
+				return GetParentFolder(Path.GetDirectoryName(path), lastPath);
+			} else {
+				return lastPath;
+			}
+		}
+
+		/// <summary>
+		///  Return a <code>IEnumerable<string></code> of file path that matches at least one of the patters. The search is executed in parallel.
+		/// </summary>
 		public static IEnumerable<string> GetFiles(string path, string[] searchPatterns, SearchOption searchOption = SearchOption.TopDirectoryOnly) {
 			return searchPatterns.AsParallel().SelectMany(searchPattern => Directory.EnumerateFiles(path, "*.*", searchOption).Where(s => s.EndsWith(searchPattern)));
 		}
@@ -43,6 +65,7 @@ namespace CustomEmojis.Framework.Utilities {
 			if(String.IsNullOrEmpty(fromPath)) {
 				throw new ArgumentNullException("fromPath");
 			}
+
 			if(String.IsNullOrEmpty(toPath)) {
 				throw new ArgumentNullException("toPath");
 			}
@@ -64,6 +87,95 @@ namespace CustomEmojis.Framework.Utilities {
 			}
 
 			return relativePath;
+		}
+
+		/*
+		/// <summary>
+		/// Construct a derived class of from a base class
+		/// </summary>
+		/// <typeparam name="F">Type of base class</typeparam>
+		/// <typeparam name="T">Type of class you want</typeparam>
+		/// <param name="baseClass">the instance of the base class</param>
+		/// <returns></returns>
+		public static T Construct<T>(Type baseClassType, object baseClassInstance) where T : new() {
+
+			// Create derived instance
+			T derived = new T();
+
+			if(baseClassInstance.GetType().IsSubclassOf(baseClassType)) {
+
+				// Get all base class properties
+				PropertyInfo[] properties = baseClassInstance.GetType().GetProperties();
+
+				foreach(PropertyInfo basePropertyInfo in properties) {
+
+					// Get derived matching property
+					PropertyInfo derivedPropertyInfo = typeof(T).GetProperty(basePropertyInfo.Name, basePropertyInfo.PropertyType);
+
+					// this property must not be index property
+					if(derivedPropertyInfo != null && derivedPropertyInfo.GetSetMethod() != null && basePropertyInfo.GetIndexParameters().Length == 0 && derivedPropertyInfo.GetIndexParameters().Length == 0) {
+						derivedPropertyInfo.SetValue(derived, derivedPropertyInfo.GetValue(baseClassInstance, null), null);
+					}
+				}
+
+			}
+
+			return derived;
+		}
+		*/
+
+		/// <summary>
+		/// Perform a deep Copy of the object, using Json as a serialisation method. NOTE: Private members are not cloned using this method.
+		/// </summary>
+		/// <typeparam name="T">The type of object being copied.</typeparam>
+		/// <param name="source">The object instance to copy.</param>
+		/// <returns>The copied object.</returns>
+		public static T CloneJson<T>(T source) {
+
+			// Don't serialize a null object, simply return the default for that object
+			if(source == null) {
+				return default(T);
+			}
+
+			// initialize inner objects individually
+			// for example in default constructor some list property initialized with some values,
+			// but in 'source' these items are cleaned -
+			// without ObjectCreationHandling.Replace default constructor values will be added to result
+			var deserializeSettings = new JsonSerializerSettings {
+				ObjectCreationHandling = ObjectCreationHandling.Replace
+			};
+
+			return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(source), deserializeSettings);
+		}
+
+		// Source: https://www.codeproject.com/Articles/42221/Constructing-an-instance-class-from-its-base-class
+		/// <summary>
+		/// Construct a derived class of from a base class
+		/// </summary>
+		/// <typeparam name="F">Type of base class</typeparam>
+		/// <typeparam name="T">Type of class you want</typeparam>
+		/// <param name="baseClass">the instance of the base class</param>
+		/// <returns></returns>
+		public static T Construct<F, T>(F baseClass) where T : F, new() {
+
+			// Create derived instance
+			T derived = new T();
+
+			// Get all base class properties
+			PropertyInfo[] properties = typeof(F).GetProperties();
+
+			foreach(PropertyInfo basePropertyInfo in properties) {
+
+				// Get derived matching property
+				PropertyInfo derivedPropertyInfo = typeof(T).GetProperty(basePropertyInfo.Name, basePropertyInfo.PropertyType);
+
+				// this property must not be index property
+				if(derivedPropertyInfo != null && derivedPropertyInfo.GetSetMethod() != null && basePropertyInfo.GetIndexParameters().Length == 0 && derivedPropertyInfo.GetIndexParameters().Length == 0) {
+					derivedPropertyInfo.SetValue(derived, derivedPropertyInfo.GetValue(baseClass, null), null);
+				}
+			}
+
+			return derived;
 		}
 
 	}
