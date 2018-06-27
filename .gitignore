@@ -268,3 +268,4 @@ CustomEmojis/Test
 /CustomEmojis/Framework/Utilities/LockBitmap.cs
 /CustomEmojis/Framework/Exceptions
 /CustomEmojis/Framework/Overrides/ChatBoxOverride.cs
+/CustomEmojis/Framework/CustomEmojiDrawer.cs
