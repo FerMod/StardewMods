@@ -95,9 +95,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Framework\Constants\Assets.cs" />
+    <Compile Include="Framework\CustomEmojiDrawer.cs" />
+    <Compile Include="Framework\Exceptions\CustomEmojisException.cs" />
     <Compile Include="Framework\Events\RecievedEmojiTextureRequestEventArgs.cs" />
     <Compile Include="Framework\Network\TextureData.cs" />
     <Compile Include="Framework\Network\DataSerialization.cs" />
+    <Compile Include="Framework\Overrides\ChatBoxOverride.cs" />
+    <Compile Include="Framework\Types\BiDictionary.cs" />
+    <Compile Include="Framework\Utilities\LockBitmap.cs" />
     <Compile Include="ModDebugData.cs" />
     <Compile Include="Test\AccessPrivateWrapper.cs" />
     <Compile Include="Test\EmojiDraw.cs" />
@@ -128,33 +134,33 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="mergedSprites\" />
+    <Folder Include="assets\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="sprites\square01.png" />
-    <Content Include="sprites\square02.png" />
-    <Content Include="sprites\square03.png" />
-    <Content Include="sprites\square04.png" />
-    <Content Include="sprites\square05.png" />
-    <Content Include="sprites\square06.png" />
-    <Content Include="sprites\square07.png" />
-    <Content Include="sprites\square08.png" />
-    <Content Include="sprites\square09.png" />
-    <Content Include="sprites\square10.png" />
-    <Content Include="sprites\square11.png" />
-    <Content Include="sprites\square12.png" />
-    <Content Include="sprites\square13.png" />
-    <Content Include="sprites\square14.png" />
-    <Content Include="sprites\square15.png" />
-    <Content Include="sprites\square16.png" />
-    <Content Include="sprites\square17.png" />
-    <Content Include="sprites\square18.png" />
-    <Content Include="sprites\square19.png" />
-    <Content Include="sprites\square20.png" />
+    <Content Include="emojis\square01.png" />
+    <Content Include="emojis\square02.png" />
+    <Content Include="emojis\square03.png" />
+    <Content Include="emojis\square04.png" />
+    <Content Include="emojis\square05.png" />
+    <Content Include="emojis\square06.png" />
+    <Content Include="emojis\square07.png" />
+    <Content Include="emojis\square08.png" />
+    <Content Include="emojis\square09.png" />
+    <Content Include="emojis\square10.png" />
+    <Content Include="emojis\square11.png" />
+    <Content Include="emojis\square12.png" />
+    <Content Include="emojis\square13.png" />
+    <Content Include="emojis\square14.png" />
+    <Content Include="emojis\square15.png" />
+    <Content Include="emojis\square16.png" />
+    <Content Include="emojis\square17.png" />
+    <Content Include="emojis\square18.png" />
+    <Content Include="emojis\square19.png" />
+    <Content Include="emojis\square20.png" />
     <Content Include="vanillaEmojis.png" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180428\analyzers\dotnet\cs\StardewModdingAPI.ModBuildConfig.Analyzer.dll" />
+    <Analyzer Include="..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180625\analyzers\dotnet\cs\StardewModdingAPI.ModBuildConfig.Analyzer.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -162,11 +168,11 @@
     </PreBuildEvent>
     <!-- <PostBuildEvent Condition="$(Configuration) != 'Release'">xcopy "$(GamePath)\Mods\$(ProjectName)" "$(GamePath)\Mods\$(ProjectName)Dummy" /Y /E /D</PostBuildEvent> -->
   </PropertyGroup>
-  <Import Project="..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180428\build\Pathoschild.Stardew.ModBuildConfig.targets" Condition="Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180428\build\Pathoschild.Stardew.ModBuildConfig.targets')" />
+  <Import Project="..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180625\build\Pathoschild.Stardew.ModBuildConfig.targets" Condition="Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180625\build\Pathoschild.Stardew.ModBuildConfig.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180428\build\Pathoschild.Stardew.ModBuildConfig.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180428\build\Pathoschild.Stardew.ModBuildConfig.targets'))" />
+    <Error Condition="!Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180625\build\Pathoschild.Stardew.ModBuildConfig.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180625\build\Pathoschild.Stardew.ModBuildConfig.targets'))" />
   </Target>
 </Project>

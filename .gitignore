@@ -265,3 +265,6 @@ MultiplayerEmotes/Framework/Utilities/
 MultiplayerEmotes/Test/
 NetworkFramework
 CustomEmojis/Test
+/CustomEmojis/Framework/Utilities/LockBitmap.cs
+/CustomEmojis/Framework/Exceptions
+/CustomEmojis/Framework/Overrides/ChatBoxOverride.cs
