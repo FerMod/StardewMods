@@ -1,27 +1,18 @@
 
 using CustomEmojis.Framework.Extensions;
 using CustomEmojis.Framework.Events;
-using Harmony;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
-using StardewValley.Network;
 using System;
 using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using CustomEmojis.Framework.Patches;
 using CustomEmojis.Framework;
-using System.IO;
 using CustomEmojis.Patches;
 using System.Collections.Generic;
 using CustomEmojis.Framework.Constants;
-using CustomEmojis.Framework.Overrides;
-using CustomEmojis.Framework.Utilities;
-using CustomEmojis.Framework.Benchmark;
 
 namespace CustomEmojis {
 
