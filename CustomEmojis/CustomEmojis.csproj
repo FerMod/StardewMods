@@ -95,6 +95,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Framework\Constants\FilePaths.cs" />
     <Compile Include="Framework\Constants\Assets.cs" />
     <Compile Include="Framework\CustomEmojiDrawer.cs" />
     <Compile Include="Framework\Exceptions\CustomEmojisException.cs" />

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using System;
+using System.IO;
 
 namespace CustomEmojis.Framework.Network {
 
@@ -14,6 +15,10 @@ namespace CustomEmojis.Framework.Network {
 		public Color[] Data { get; set; }
 
 		public TextureData() {
+		}
+
+		public void InitData(Stream stream) {
+			InitData(Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream));
 		}
 
 		public TextureData(Texture2D texture) {

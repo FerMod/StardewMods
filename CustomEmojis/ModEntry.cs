@@ -42,15 +42,14 @@ namespace CustomEmojis {
 			this.config = helper.ReadConfig<ModConfig>();
 
 			this.Monitor.Log("Loading mod data...", LogLevel.Trace);
-			this.modData = this.Helper.ReadJsonFile<ModData>("data.json");
+			this.modData = this.Helper.ReadJsonFile<ModData>(FilePaths.Data);
 
 			Monitor.Log($"[ModEntry] Timer started!", LogLevel.Trace);
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			if(this.modData == null) {
 				this.Monitor.Log("Mod data file not found. (harmless info)", LogLevel.Trace);
-				this.modData = new ModData {
-					ModFolder = this.Helper.DirectoryPath,
+				this.modData = new ModData(this.Helper.DirectoryPath) {
 					WatchedPaths = new List<string>() {
 						Assets.InputFolder
 					}
@@ -58,7 +57,6 @@ namespace CustomEmojis {
 			} else {
 				this.Monitor.Log("Making checksum...", LogLevel.Trace);
 				this.modData.Checksum(config.ImageExtensions);
-				this.Helper.WriteJsonFile("data.json", modData);
 			}
 			sw.Stop();
 			Monitor.Log($"[ModEntry] Timer Stoped! Elapsed time: {sw.Elapsed}");
@@ -70,16 +68,16 @@ namespace CustomEmojis {
 			if(modDebugData.ActAsHost()) {
 				this.Helper.WriteJsonFile("debugData.json", modDebugData);
 				Monitor.Log($"====> HOST <====");
-				emojiAssetsLoader = new EmojiAssetsLoader(helper, EmojiMenu.EMOJI_SIZE, this.config.ImageExtensions, this.modData.FilesChanged);
+				emojiAssetsLoader = new EmojiAssetsLoader(helper, modData, EmojiMenu.EMOJI_SIZE, this.config.ImageExtensions, this.modData.FilesChanged);
 			} else {
 				this.Helper.WriteJsonFile("debugData.json", modDebugData);
 				Monitor.Log($"====> CLIENT <====");
 				Assets.InputFolder = Assets.InputFolder + "CLIENT";
 				Assets.OutputFolder = Assets.OutputFile + "CLIENT";
-				emojiAssetsLoader = new EmojiAssetsLoader(helper, EmojiMenu.EMOJI_SIZE, this.config.ImageExtensions, true);
+				emojiAssetsLoader = new EmojiAssetsLoader(helper, modData,  EmojiMenu.EMOJI_SIZE, this.config.ImageExtensions, true);
 			}
 #else
-			emojiAssetsLoader = new EmojiAssetsLoader(helper, EmojiMenu.EMOJI_SIZE, this.config.ImageExtensions, this.modData.FilesChanged, true);
+			emojiAssetsLoader = new EmojiAssetsLoader(helper, modData, EmojiMenu.EMOJI_SIZE, this.config.ImageExtensions, this.modData.FilesChanged, true);
 #endif
 
 			helper.Content.AssetLoaders.Add(emojiAssetsLoader);
@@ -93,6 +91,13 @@ namespace CustomEmojis {
 
 			GraphicsEvents.OnPostRenderEvent += GraphicsEvents_OnPostRenderEvent;
 			GameEvents.FirstUpdateTick += GameEvents_FirstUpdateTick;
+
+
+			if(modData.ShouldSaveData()) {
+				this.Helper.WriteJsonFile(FilePaths.Data, modData);
+				modData.IsDataSaved = true;
+			}
+
 		}
 
 		private void GameEvents_UpdateTick(object sender, EventArgs e) {
@@ -122,7 +127,7 @@ namespace CustomEmojis {
 		}
 
 		private void MultiplayerExtension_OnRecieveEmojiTexture(object sender, RecievedEmojiTextureEventArgs e) {
-			emojiAssetsLoader.CustomEmojisTexture = e.EmojiTexture;
+			emojiAssetsLoader.CustomTexture = e.EmojiTexture;
 			//Helper.Reflection.GetField<Texture2D>(Game1.chatBox.emojiMenu, "emojiTexture").SetValue(e.EmojiTexture);
 			//ChatBox.emojiTexture = e.EmojiTexture;
 			//EmojiMenu.totalEmojis = e.NumberEmojis;
@@ -130,14 +135,14 @@ namespace CustomEmojis {
 			//string assetKey = Helper.Content.GetActualAssetKey(Path.Combine(emojiAssetsLoader.OutputFolder, emojiAssetsLoader.OutputFile));
 			//Helper.Content.InvalidateCache(assetKey);
 			//Helper.Content.InvalidateCache(asset => asset.DataType == typeof(Texture2D) && asset.AssetNameEquals(assetKey));
-			Helper.Content.InvalidateCache("LooseSprites/emojis");
+			Helper.Content.InvalidateCache("LooseSprites\\emojis");
 			//Helper.Content.InvalidateCache(asset => asset.DataType == typeof(Texture2D) && asset.AssetNameEquals(@"LooseSprites\emojis.xnb"));
 		}
 
 		private void MultiplayerExtension_OnRecieveEmojiTextureRequest(object sender, RecievedEmojiTextureRequestEventArgs e) {
 			this.Monitor.Log("OnRecieveEmojiTextureRequest...");
 			Multiplayer multiplayer = this.Helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
-			multiplayer.ResponseEmojiTexture(e.SourceFarmer, emojiAssetsLoader.CustomEmojisTexture, EmojiMenu.totalEmojis);
+			multiplayer.ResponseEmojiTexture(e.SourceFarmer, emojiAssetsLoader.CustomTexture, EmojiMenu.totalEmojis);
 		}
 
 		/*********
@@ -184,21 +189,26 @@ namespace CustomEmojis {
 			//modData.UpdateFilesChecksum(this.Helper.DirectoryPath, config.ImageExtensions);
 			if(modData.Checksum(config.ImageExtensions)) {
 				this.Monitor.Log("File changes detected. Saving mod data...", LogLevel.Trace);
-				modData.EmojisAdded = emojiAssetsLoader.UpdateTotalEmojis();
-				modData.FilesChanged = false;
-				this.Helper.WriteJsonFile("data.json", modData);
+				//emojiAssetsLoader.UpdateTotalEmojis();
+				//modData.EmojisAdded = emojiAssetsLoader.NumberCustomEmojisAdded;
+				//emojiAssetsLoader.ShouldGenerateTexture = true;
+				this.Monitor.Log($"Custom emojis found: {emojiAssetsLoader.NumberCustomEmojisAdded}");
+				emojiAssetsLoader.UpdateTotalEmojis();
+				this.Monitor.Log($"Total emojis counted by Stardew Valley: {EmojiMenu.totalEmojis}");
+				this.Monitor.Log($"Total emojis counted after ammount fix: {emojiAssetsLoader.TotalNumberEmojis}");
+				emojiAssetsLoader.ReloadAsset(); // FIXME: Cache not invalidating properly
 			} else {
 				this.Monitor.Log("No file changes detected.", LogLevel.Trace);
-				emojiAssetsLoader.NumberCustomEmojisAdded = modData.EmojisAdded;
+				emojiAssetsLoader.NumberCustomEmojisAdded = modData.FilesChecksums.Count;
 			}
+
 			Monitor.Log($"[After checksum] Time elapsed: {sw.Elapsed}");
 			sw.Reset();
 
-			this.Monitor.Log($"Custom emojis added: {emojiAssetsLoader.CustomEmojisAdded}");
-			if(emojiAssetsLoader.CustomEmojisAdded) {
-				this.Monitor.Log($"Custom emojis found: {emojiAssetsLoader.NumberCustomEmojisAdded}");
-				this.Monitor.Log($"Total emojis counted by Stardew Valley: {EmojiMenu.totalEmojis}");
-				this.Monitor.Log($"Total emojis counted after ammount fix: {emojiAssetsLoader.TotalNumberEmojis}");
+			this.Monitor.Log($"Custom emojis added: {emojiAssetsLoader.CustomTextureAdded}");
+			if(emojiAssetsLoader.CustomTextureAdded && modData.ShouldSaveData()) {
+				this.Helper.WriteJsonFile(FilePaths.Data, modData);
+				modData.IsDataSaved = true;
 			}
 			//if(emojiAssetsLoader.CustomEmojisAdded) {
 			//	this.Monitor.Log($"Custom emojis found: {emojiAssetsLoader.NumberCustomEmojisAdded}");
@@ -215,7 +225,7 @@ namespace CustomEmojis {
 			sw.Reset();
 
 
-			if(!Context.IsMainPlayer && emojiAssetsLoader.CustomEmojisAdded) {
+			if(!Context.IsMainPlayer && emojiAssetsLoader.CustomTextureAdded) {
 				Multiplayer multiplayer = this.Helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
 				multiplayer.RequestEmojiTexture();
 			}
@@ -229,16 +239,19 @@ namespace CustomEmojis {
 		private void ReloadEmojis(string command, string[] args) {
 			this.Monitor.Log($"Reloading emoji assets...");
 
-			Assets.InputFolder = "CustomAssetsCLIENT";
+			Assets.InputFolder = Assets.OutputFolder + "CLIENT";
 
 			bool cacheInvalidated = Helper.Content.InvalidateCache("LooseSprites/emojis");
 			//bool cacheInvalidated = Helper.Content.InvalidateCache(Helper.Content.GetActualAssetKey($"{Assets.OutputFolder}/{Assets.OutputFile}"));
 			emojiAssetsLoader.UpdateTotalEmojis();
 			//bool invalidated = Helper.Content.InvalidateCache(asset => asset.DataType == typeof(Texture2D) && asset.AssetNameEquals(@"emojis"));
 			this.Monitor.Log($"CacheInvalidated: {cacheInvalidated}");
+
+			/*
 			Helper.Reflection.GetField<Texture2D>(Game1.chatBox.emojiMenu, "emojiTexture").SetValue(Helper.Content.Load<Texture2D>($"{Assets.OutputFolder}/{Assets.OutputFile}"));
 			ChatBox.emojiTexture = Helper.Content.Load<Texture2D>($"{Assets.OutputFolder}/{Assets.OutputFile}");
-			//Helper.Content.Load<Texture2D>($"{Assets.OutputFolder}/{Assets.OutputFile}", ContentSource.ModFolder);
+			*/
+
 
 			//Helper.Content.InvalidateCache<Texture2D>();
 

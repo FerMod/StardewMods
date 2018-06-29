@@ -1,25 +1,38 @@
 ﻿
-using CustomEmojis;
 using CustomEmojis.Framework.Utilities;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using CustomEmojis.Framework.Types;
+using Newtonsoft.Json;
+using CustomEmojis;
 
 public class ModData {
 
-	public string ModFolder { get; set; }
-	public bool FilesChanged { get; set; }
-	public int EmojisAdded { get; set; }
-	public List<string> WatchedPaths { get; set; }
-	public Dictionary<string, string> FilesChecksums { get; set; }
+	[JsonIgnore]
+	public bool IsDataSaved { get; set; } = false;
+
+	public string ModFolder { get; set; } = Directory.GetCurrentDirectory();
+	public bool FilesChanged { get; set; } = true;
+	public List<string> WatchedPaths { get; set; } = new List<string>();
+	public BiDictionary<string, string> FilesChecksums { get; set; } = new BiDictionary<string, string>();
 
 	public ModData() {
+	}
 
-		FilesChanged = true;
-		EmojisAdded = 0;
-		WatchedPaths = new List<string>();
-		FilesChecksums = new Dictionary<string, string>();
+	public ModData(string modFolder) {
+		ModFolder = modFolder;
+	}
 
+	public bool ShouldSaveData() {
+		return FilesChanged || !IsDataSaved;
+	}
+
+	public bool ShouldGenerateTexture() {
+		return FilesChanged;
 	}
 
 	//public void UpdateFilesChecksum(string modFolder, string[] fileExtensions) {
@@ -82,18 +95,21 @@ public class ModData {
 		if(Directory.Exists(absolutePath)) {
 
 			IEnumerable<string> fileEnumeration = ModUtilities.GetFiles(absolutePath, imageExtensions, SearchOption.AllDirectories);
+			/*
 			ModEntry.ModMonitor.Log($"Found Files: ");
 			foreach(var item in fileEnumeration.ToList()) {
 				ModEntry.ModMonitor.Log($"{item}");
 			}
-			IEnumerable<string> differentValues = FilesChecksums.Keys.ToList().Except(fileEnumeration.Select(x => ModUtilities.GetRelativePath(ModFolder, x)));
-			ModEntry.ModMonitor.Log($"For each different value:");
-			foreach(string key in differentValues.ToList()) {
-				ModEntry.ModMonitor.Log($"{key}");
-				if(FilesChecksums.ContainsKey(key)) {
-					FilesChecksums.Remove(key);
-				}
-			}
+			*/
+			//IEnumerable<string> differentValues = FilesChecksums.FirstKeys.Except(fileEnumeration.Select(x => ModUtilities.GetRelativePath(ModFolder, x)));
+			//ModEntry.ModMonitor.Log($"For each different file:");
+			//foreach(string filePath in differentValues.ToList()) {
+			//	bool removed = FilesChecksums.TryRemoveByFirst(filePath);
+			//	ModEntry.ModMonitor.Log($"File(removed? {removed}): {filePath}");
+			//	//if(FilesChecksums.TryGetByFirst(filePath, out string hash)) {
+			//	//	FilesChecksums.RemoveByFirst(filePath);
+			//	//}
+			//}
 
 			foreach(string file in fileEnumeration.ToList()) {
 				string relativePath = ModUtilities.GetRelativePath(ModFolder, file);
@@ -104,31 +120,32 @@ public class ModData {
 
 			string fileHash = ModUtilities.CalculateFileHash(absolutePath);
 
-			string key;
-			if(FilesChecksums.ContainsValue(fileHash)) {
-				key = FilesChecksums.FirstOrDefault(x => x.Value == fileHash).Key;
-				if(path != key) {
-					FilesChecksums.Remove(key);
+			// Check if the calculated hash is already associated with a file path
+			if(FilesChecksums.TryGetBySecond(fileHash, out string filePath)) {
+				// If is different, remove the outdated path
+				if(path != filePath) {
+					FilesChecksums.RemoveByFirst(filePath);
+					IsDataSaved = false; // Mark as the file path changed
 				}
 			}
 
-			if(FilesChecksums.TryGetValue(path, out string hash)) {
-
+			// Check if the file path is already associated with a hash 
+			if(FilesChecksums.TryGetByFirst(path, out string hash)) {
+				// If the obtained hash is different than the calculated the file changed, remove the outdated hash
 				if(fileHash != hash) {
-					FilesChecksums[path] = fileHash;
-					FilesChanged = true;
+					FilesChecksums.RemoveBySecond(hash);
+					FilesChanged = true; // Mark as the files changed
 				}
-
-			} else {
-				FilesChecksums[path] = fileHash;
-				FilesChanged = true;
 			}
+
+			// Add the file to the checksum dictionary
+			FilesChecksums.TryAdd(path, fileHash);
 
 		} else {
 
+			// If it isnt a directory nor a file, and its in the checksum dictionary, remove from it
 			string relativePath = ModUtilities.GetRelativePath(ModFolder, absolutePath);
-			if(FilesChecksums.ContainsKey(relativePath)) {
-				FilesChecksums.Remove(relativePath);
+			if(FilesChecksums.TryRemoveByFirst(relativePath)) {
 				FilesChanged = true;
 			}
 
