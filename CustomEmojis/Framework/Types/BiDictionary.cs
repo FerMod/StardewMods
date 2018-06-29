@@ -208,4 +208,6 @@ namespace CustomEmojis.Framework.Types {
 			secondToFirst.Clear();
 		}
 
+	}
+
 }
