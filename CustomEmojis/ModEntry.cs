@@ -92,12 +92,6 @@ namespace CustomEmojis {
 			GraphicsEvents.OnPostRenderEvent += GraphicsEvents_OnPostRenderEvent;
 			GameEvents.FirstUpdateTick += GameEvents_FirstUpdateTick;
 
-
-			if(modData.ShouldSaveData()) {
-				this.Helper.WriteJsonFile(FilePaths.Data, modData);
-				modData.IsDataSaved = true;
-			}
-
 		}
 
 		private void GameEvents_UpdateTick(object sender, EventArgs e) {
@@ -192,10 +186,6 @@ namespace CustomEmojis {
 				//emojiAssetsLoader.UpdateTotalEmojis();
 				//modData.EmojisAdded = emojiAssetsLoader.NumberCustomEmojisAdded;
 				//emojiAssetsLoader.ShouldGenerateTexture = true;
-				this.Monitor.Log($"Custom emojis found: {emojiAssetsLoader.NumberCustomEmojisAdded}");
-				emojiAssetsLoader.UpdateTotalEmojis();
-				this.Monitor.Log($"Total emojis counted by Stardew Valley: {EmojiMenu.totalEmojis}");
-				this.Monitor.Log($"Total emojis counted after ammount fix: {emojiAssetsLoader.TotalNumberEmojis}");
 				emojiAssetsLoader.ReloadAsset(); // FIXME: Cache not invalidating properly
 			} else {
 				this.Monitor.Log("No file changes detected.", LogLevel.Trace);
@@ -206,9 +196,17 @@ namespace CustomEmojis {
 			sw.Reset();
 
 			this.Monitor.Log($"Custom emojis added: {emojiAssetsLoader.CustomTextureAdded}");
-			if(emojiAssetsLoader.CustomTextureAdded && modData.ShouldSaveData()) {
-				this.Helper.WriteJsonFile(FilePaths.Data, modData);
-				modData.IsDataSaved = true;
+			if(emojiAssetsLoader.CustomTextureAdded) {
+
+				this.Monitor.Log($"Custom emojis found: {emojiAssetsLoader.NumberCustomEmojisAdded}");
+				emojiAssetsLoader.UpdateTotalEmojis();
+				this.Monitor.Log($"Total emojis counted by Stardew Valley: {EmojiMenu.totalEmojis}");
+				this.Monitor.Log($"Total emojis counted after ammount fix: {emojiAssetsLoader.TotalNumberEmojis}");
+
+				if(modData.ShouldSaveData()) {
+					this.Helper.WriteJsonFile(FilePaths.Data, modData);
+					modData.IsDataSaved = true;
+				}
 			}
 			//if(emojiAssetsLoader.CustomEmojisAdded) {
 			//	this.Monitor.Log($"Custom emojis found: {emojiAssetsLoader.NumberCustomEmojisAdded}");
