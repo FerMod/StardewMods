@@ -269,3 +269,5 @@ CustomEmojis/Test
 /CustomEmojis/Framework/Exceptions
 /CustomEmojis/Framework/Overrides/ChatBoxOverride.cs
 /CustomEmojis/Framework/CustomEmojiDrawer.cs
+/CustomEmojis/logfile.txt
+/CustomEmojis/data.json

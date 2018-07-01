@@ -95,9 +95,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Framework\LogFile.cs" />
     <Compile Include="Framework\Logger.cs" />
-    <Compile Include="Framework\Types\JsonBidictionaryConverter.cs" />
     <Compile Include="Test\DataManager.cs" />
     <Compile Include="Framework\Constants\FilePaths.cs" />
     <Compile Include="Framework\Constants\Assets.cs" />

@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace CustomEmojis.Framework.Utilities {
 
@@ -35,7 +36,8 @@ namespace CustomEmojis.Framework.Utilities {
 		/// <summary>
 		///  Return a <code>IEnumerable<string></code> of file path that matches at least one of the patters. The search is executed in parallel.
 		/// </summary>
-		public static IEnumerable<string> GetFiles(string path, string[] searchPatterns, SearchOption searchOption = SearchOption.TopDirectoryOnly) {
+		public static IEnumerable<string> GetFiles(string path, SearchOption searchOption = SearchOption.TopDirectoryOnly, string[] searchPatterns = null) {
+			searchPatterns = searchPatterns ?? new string[] { "*" };
 			return searchPatterns.AsParallel().SelectMany(searchPattern => Directory.EnumerateFiles(path, "*.*", searchOption).Where(s => s.EndsWith(searchPattern)));
 		}
 
@@ -52,8 +54,66 @@ namespace CustomEmojis.Framework.Utilities {
 
 		}
 
+		public static Dictionary<string, string> GetFolderFilesHash(string path, SearchOption searchOption = SearchOption.TopDirectoryOnly, string[] searchPatterns = null) {
+
+			searchPatterns = searchPatterns ?? new string[] { "*" };
+
+			// Search files matching the pattern and return it ordered by name
+			IEnumerable<string> foundFiles = searchPatterns.AsParallel().SelectMany(searchPattern => Directory.EnumerateFiles(path, "*.*", searchOption).Where(s => s.EndsWith(searchPattern))).OrderBy(x => x);
+
+			Dictionary<string, string> fileHashDictionary = new Dictionary<string, string>();
+
+			using(HashAlgorithm hashAlgorithm = SHA256.Create()) {
+				foreach(string file in foundFiles.ToList()) {
+					byte[] fileHash = hashAlgorithm.ComputeHash(File.ReadAllBytes(file));
+					string hashValue = BitConverter.ToString(fileHash).Replace("-", "").ToLowerInvariant();
+					if(!fileHashDictionary.ContainsKey(hashValue)) {
+						fileHashDictionary[hashValue] = file;
+					}
+				}
+			}
+
+			return fileHashDictionary;
+		}
+
+		public static string CalculateFolderHash(string path, SearchOption searchOption = SearchOption.TopDirectoryOnly, string[] searchPatterns = null) {
+
+			searchPatterns = searchPatterns ?? new string[] { "*" };
+
+			// Search files matching the pattern and return it ordered by name
+			IEnumerable<string> foundFiles = searchPatterns.AsParallel().SelectMany(searchPattern => Directory.EnumerateFiles(path, "*.*", searchOption).Where(s => s.EndsWith(searchPattern))).OrderBy(x => x);
+
+			var temp = GetFolderFilesHash(path, searchOption, searchPatterns);
+
+			List<string> fileList = foundFiles.ToList();
+
+			using(HashAlgorithm hashAlgorithm = SHA256.Create()) {
+
+				for(int i = 0; i < fileList.Count; i++) {
+
+					string file = fileList[i];
+
+					// Hash path
+					string relativePath = file.Substring(path.Length + 1);
+					byte[] pathBytes = Encoding.UTF8.GetBytes(relativePath.ToLower());
+					hashAlgorithm.TransformBlock(pathBytes, 0, pathBytes.Length, pathBytes, 0);
+
+					// Hash contents
+					byte[] contentBytes = File.ReadAllBytes(file);
+					if(i == fileList.Count - 1) {
+						hashAlgorithm.TransformFinalBlock(contentBytes, 0, contentBytes.Length);
+					} else {
+						hashAlgorithm.TransformBlock(contentBytes, 0, contentBytes.Length, contentBytes, 0);
+					}
+				}
+
+				return BitConverter.ToString(hashAlgorithm.Hash).Replace("-", "").ToLower();
+			}
+
+		}
+
 		/// <summary>
-		/// Creates a relative path from one file or folder to another.
+		/// Get a relative path from one file or folder to another.
 		/// </summary>
 		/// <param name="fromPath">Contains the directory that defines the start of the relative path.</param>
 		/// <param name="toPath">Contains the path that defines the endpoint of the relative path.</param>

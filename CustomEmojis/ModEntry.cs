@@ -1,20 +1,18 @@
 
 using CustomEmojis.Framework.Extensions;
 using CustomEmojis.Framework.Events;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using CustomEmojis.Framework.Patches;
 using CustomEmojis.Framework;
+using MultiplayerEmojis;
 using CustomEmojis.Patches;
-using System.Collections.Generic;
 using CustomEmojis.Framework.Constants;
-using Newtonsoft.Json;
-using System.IO;
 
 namespace CustomEmojis {
 
@@ -37,12 +35,11 @@ namespace CustomEmojis {
 			ModMonitor = Monitor;
 
 #if(DEBUG)
-			Logger.SetOutput(helper.DirectoryPath + "\\logfile.txt", Monitor);
+			Logger.InitLogger(helper.DirectoryPath + "\\logfile.txt", true, Monitor);
 #endif
 			ModPatchControl PatchControl = new ModPatchControl(helper);
 			PatchControl.PatchList.Add(new MultiplayerPatch.ProcessIncomingMessagePatch());
 			PatchControl.ApplyPatch();
-
 			this.Monitor.Log("Loading mod config...", LogLevel.Trace);
 			this.config = helper.ReadConfig<ModConfig>();
 
@@ -50,31 +47,16 @@ namespace CustomEmojis {
 			this.modData = this.Helper.ReadJsonFile<ModData>(FilePaths.Data);
 			if(this.modData == null) {
 				this.Monitor.Log("Mod data file not found. (harmless info)", LogLevel.Trace);
-				this.modData = new ModData(this.Helper.DirectoryPath) {
-					WatchedPaths = new List<string>() {
-						Assets.InputFolder
-					}
-				};
-			}
-			//modData.FilesChecksums.TryAdd("path", "hash");
-			this.Helper.WriteJsonFile(FilePaths.Data, modData);
-
-			Monitor.Log($"[ModEntry] Timer started!", LogLevel.Trace);
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
-			if(this.modData == null) {
-				this.Monitor.Log("Mod data file not found. (harmless info)", LogLevel.Trace);
-				this.modData = new ModData(this.Helper.DirectoryPath) {
+				this.modData = new ModData(helper, config.ImageExtensions) {
 					WatchedPaths = new List<string>() {
 						Assets.InputFolder
 					}
 				};
 			} else {
-				this.Monitor.Log("Making checksum...", LogLevel.Trace);
-				this.modData.Checksum(config.ImageExtensions);
+				modData.FileExtensionsFilter = config.ImageExtensions;
+				modData.ModHelper = helper;
 			}
-			sw.Stop();
-			Monitor.Log($"[ModEntry] Timer Stoped! Elapsed time: {sw.Elapsed}");
+			//this.Helper.WriteJsonFile(FilePaths.Data, modData);
 
 #if(!DEBUG)
 			this.Monitor.Log("Loading debug data file...", LogLevel.Trace);
@@ -92,7 +74,7 @@ namespace CustomEmojis {
 				emojiAssetsLoader = new EmojiAssetsLoader(helper, modData,  EmojiMenu.EMOJI_SIZE, this.config.ImageExtensions, true);
 			}
 #else
-			emojiAssetsLoader = new EmojiAssetsLoader(helper, modData, EmojiMenu.EMOJI_SIZE, this.config.ImageExtensions, this.modData.FilesChanged, true);
+			emojiAssetsLoader = new EmojiAssetsLoader(helper, modData, EmojiMenu.EMOJI_SIZE, this.config.ImageExtensions);
 #endif
 
 			helper.Content.AssetLoaders.Add(emojiAssetsLoader);
@@ -196,7 +178,7 @@ namespace CustomEmojis {
 			Monitor.Log($"Timer started!");
 			sw.Start();
 			//modData.UpdateFilesChecksum(this.Helper.DirectoryPath, config.ImageExtensions);
-			if(modData.Checksum(config.ImageExtensions)) {
+			if(modData.Checksum()) {
 				this.Monitor.Log("File changes detected. Saving mod data...", LogLevel.Trace);
 				//emojiAssetsLoader.UpdateTotalEmojis();
 				//modData.EmojisAdded = emojiAssetsLoader.NumberCustomEmojisAdded;

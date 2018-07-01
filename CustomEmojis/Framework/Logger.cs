@@ -8,13 +8,14 @@ using System.Text;
 
 namespace CustomEmojis.Framework {
 
-	internal class Logger {
+	internal class Logger : IDisposable {
 
 		private static string FilePath { get; set; } = Directory.GetCurrentDirectory() + "\\Mods";
 		private static IMonitor ModMonitor { get; set; }
+		private static StreamWriter Stream { get; set; }
 
-		public static void SetOutput(string filePath, IMonitor monitor = null) {
-			SetFilePath(filePath);
+		public static void InitLogger(string filePath, bool append = true, IMonitor monitor = null) {
+			SetFilePath(filePath, append);
 			if(monitor != null) {
 				SetMonitor(monitor);
 			}
@@ -24,16 +25,19 @@ namespace CustomEmojis.Framework {
 			ModMonitor = monitor;
 		}
 
-		public static void SetFilePath(string filePath) {
+		public static void SetFilePath(string filePath, bool append = true) {
 			string folderPath = Path.GetDirectoryName(FilePath);
 			if(folderPath == null) {
 				throw new ArgumentException($"Log path '{FilePath}' not valid.");
 			}
 			Directory.CreateDirectory(folderPath);
 			FilePath = filePath;
+			Stream = new StreamWriter(FilePath, append) {
+				AutoFlush = true
+			};
 		}
 
-		public static void LogTrace(string message, bool append = true,
+		public static void LogTrace(string message,
 		[CallerMemberName] string memberName = "",
 		[CallerFilePath] string sourceFilePath = "",
 		[CallerLineNumber] int sourceLineNumber = 0) {
@@ -59,26 +63,34 @@ namespace CustomEmojis.Framework {
 			sb.AppendLine(callerFilePath.PadLeft(callerFilePath.Length + timeLength));
 			sb.Append(callerLineNumber.PadLeft(callerLineNumber.Length + timeLength));
 
-			WriteLine($"{time} {sb.ToString()}", append);
+			WriteLine($"{time} {sb.ToString()}");
 		}
 
-		public static void Log(string message, bool append = true) {
+		public static void Log(params string[] messages) {
+
 			string time = "[" + DateTime.Now.ToString("HH:mm:ss") + "]";
-			WriteLine($"{time} {message}", append);
-			ModMonitor?.Log(message);
-		}
+			int timeLength = time.Length + 1;
 
-		public static void WriteLine(string message, bool append = true) {
-			Write(message + "\r\n", append);
-		}
-
-		public static void Write(string message, bool append = true) {
-			using(StreamWriter stream = new StreamWriter(FilePath, append)) {
-				stream.AutoFlush = true;
-				stream.Write(message);
+			WriteLine($"{time} {messages[0]}");
+			ModMonitor?.Log(messages[0]);
+			for(int i = 1; i < messages.Length; i++) {
+				WriteLine($"{messages[i].PadLeft(messages[i].Length + timeLength)}");
+				ModMonitor?.Log(messages[i]);
 			}
+
 		}
 
+		public static void WriteLine(string message) {
+			Write(message + "\r\n");
+		}
+
+		public static void Write(string message) {
+			Stream.Write(message);
+		}
+
+		public void Dispose() {
+			Stream.Dispose();
+		}
 	}
 
 }

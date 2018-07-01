@@ -1,134 +1,93 @@
 ﻿
 using CustomEmojis.Framework.Utilities;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using CustomEmojis.Framework.Types;
 using Newtonsoft.Json;
-using CustomEmojis;
-using System.Diagnostics;
-using CustomEmojis.Framework;
+using StardewModdingAPI;
 
-public class ModData {
+namespace MultiplayerEmojis {
 
-	[JsonIgnore]
-	public bool DataChanged { get; set; } = false;
+	public class ModData {
 
-	public string ModFolder { get; set; } = Directory.GetCurrentDirectory();
-	public bool FilesChanged { get; set; } = true;
-	public List<string> WatchedPaths { get; set; } = new List<string>();
-	public BiDictionary<string, string> FilesChecksums { get; set; } = new BiDictionary<string, string>();
+		[JsonIgnore]
+		public bool DataChanged { get; set; } = false;
 
-	public ModData() {
-	}
+		[JsonIgnore]
+		public string FolderHash = "";
 
-	public ModData(string modFolder) {
-		ModFolder = modFolder;
-	}
+		[JsonIgnore]
+		public IModHelper ModHelper { get; set; }
+		[JsonIgnore]
+		public string[] FileExtensionsFilter { get; set; } = new string[] { ".png", ".jpg", ".jpeg", ".gif" };
+		public bool FilesChanged { get; set; } = false;
+		public List<string> WatchedPaths { get; set; } = new List<string>();
+		public Dictionary<string, string> FilesChecksums { get; set; } = new Dictionary<string, string>();
 
-	public bool ShouldSaveData() {
-		return FilesChanged || DataChanged;
-	}
-
-	public bool ShouldGenerateTexture() {
-		return FilesChanged;
-	}
-
-	public void ShouldGenerateTexture(bool generate) {
-		FilesChanged = generate;
-	}
-
-	public bool Checksum(string[] imageExtensions) {
-		if(!FilesChanged) {
-			foreach(string path in WatchedPaths) {
-				FilesChanged = Checksum(path, imageExtensions);
-			}
-		}
-		return FilesChanged;
-	}
-
-	public bool Checksum(string path, string[] imageExtensions) {
-
-		string absolutePath = Path.Combine(ModFolder, path);
-
-		if(Directory.Exists(absolutePath)) {
-
-			IEnumerable<string> fileEnumeration = ModUtilities.GetFiles(absolutePath, imageExtensions, SearchOption.AllDirectories);
-			fileEnumeration = fileEnumeration.OrderBy(s => s);
-
-			/*
-			ModEntry.ModMonitor.Log($"Found Files: ");
-			foreach(var item in fileEnumeration.ToList()) {
-				ModEntry.ModMonitor.Log($"{item}");
-			}
-			*/
-			IEnumerable<string> temp = fileEnumeration.Select(x => x = Path.Combine(ModFolder, x)).Except(FilesChecksums.FirstKeys);
-			List<string> t = temp.ToList();
-			foreach(var item in temp.ToList()) {
-				Logger.Log($"File checksum not found: {item}");
-			}
-			//IEnumerable<string> differentValues = FilesChecksums.FirstKeys.Except());
-			//foreach(var item in differentValues.ToList()) {
-			//	Logger.Log(item);
-			//}
-
-			//ModEntry.ModMonitor.Log($"For each different file:");
-			//foreach(string filePath in differentValues.ToList()) {
-			//	bool removed = FilesChecksums.TryRemoveByFirst(filePath);
-			//	ModEntry.ModMonitor.Log($"File(removed? {removed}): {filePath}");
-			//	//if(FilesChecksums.TryGetByFirst(filePath, out string hash)) {
-			//	//	FilesChecksums.RemoveByFirst(filePath);
-			//	//}
-			//}
-
-			foreach(string file in fileEnumeration.ToList()) {
-				string relativePath = ModUtilities.GetRelativePath(ModFolder, file);
-				FilesChanged = Checksum(relativePath, imageExtensions);
-			}
-
-		} else if(File.Exists(absolutePath)) {
-
-			string fileHash = ModUtilities.CalculateFileHash(absolutePath);
-
-			// Check if the calculated hash is already associated with a file path
-			if(FilesChecksums.TryGetBySecond(fileHash, out string filePath)) {
-				// If is different, remove the outdated path
-				if(path != filePath && !File.Exists(Path.Combine(ModFolder, filePath))) {
-					FilesChecksums.RemoveByFirst(filePath);
-					DataChanged = true; // Mark as the file path changed
-				}
-			}
-
-			// Check if the file path is already associated with a hash 
-			if(FilesChecksums.TryGetByFirst(path, out string hash)) {
-				// If the obtained hash is different than the calculated the file changed, remove the outdated hash
-				if(fileHash != hash) {
-					FilesChecksums.RemoveBySecond(hash);
-					FilesChanged = true; // Mark as the files changed
-				}
-			}
-
-			// Add the file to the checksum dictionary
-			if(FilesChecksums.TryAdd(path, fileHash)) {
-				DataChanged = true;
-				FilesChanged = true;
-			} else {
-				Logger.Log($"not added: {path} {fileHash}");
-			}
-
-		} else {
-			// If it isnt a directory nor a file, and its in the checksum dictionary, try removing from it
-			string relativePath = ModUtilities.GetRelativePath(ModFolder, absolutePath);
-			if(FilesChecksums.TryRemoveByFirst(relativePath)) {
-				FilesChanged = true;
-			}
-
+		public ModData() {
 		}
 
-		return FilesChanged;
+		public ModData(IModHelper modHelper, string[] fileExtensionsFilter) {
+			ModHelper = modHelper;
+			FileExtensionsFilter = fileExtensionsFilter;
+		}
+
+		public bool ShouldSaveData() {
+			return FilesChanged || DataChanged;
+		}
+
+		public bool ShouldGenerateTexture() {
+			return FilesChanged;
+		}
+
+		public void ShouldGenerateTexture(bool generate) {
+			FilesChanged = generate;
+		}
+
+		public bool Checksum() {
+			if(!FilesChanged) {
+				foreach(string path in WatchedPaths) {
+
+					string absolutePath = Path.Combine(ModHelper.DirectoryPath, path);
+
+					if(Directory.Exists(absolutePath)) {
+
+						Dictionary<string, string> currentFilesChecksum = ModUtilities.GetFolderFilesHash(absolutePath, SearchOption.AllDirectories, FileExtensionsFilter);
+
+						if(!EqualDictionaries(FilesChecksums, currentFilesChecksum)) {
+							FilesChecksums = currentFilesChecksum;
+							FilesChanged = true;
+						}
+
+					}
+
+				}
+			}
+			return FilesChanged;
+		}
+
+		private bool EqualDictionaries<TKey, TValue>(Dictionary<TKey, TValue> dict1, Dictionary<TKey, TValue> dict2) {
+
+			// Check equal ammount of elements
+			if(dict1.Count != dict2.Count) {
+				return false;
+			}
+
+			foreach(KeyValuePair<TKey, TValue> pair in dict1) {
+
+				if(dict2.TryGetValue(pair.Key, out TValue value)) {
+					// Requires value to be equal
+					if(!EqualityComparer<TValue>.Default.Equals(value, pair.Value)) {
+						return false;
+					}
+				} else {
+					// Requires key to be present
+					return false;
+				}
+
+			}
+			return true;
+		}
+
 	}
 
 }
