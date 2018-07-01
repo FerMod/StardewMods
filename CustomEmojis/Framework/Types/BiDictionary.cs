@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 
-
 namespace CustomEmojis.Framework.Types {
 
 	/// <summary>

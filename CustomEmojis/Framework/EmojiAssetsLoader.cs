@@ -38,7 +38,7 @@ namespace CustomEmojis.Framework {
 		private readonly ModData modData;
 		private readonly string[] imageExtensions;
 		private readonly bool saveCreatedTexture;
-		
+
 		public EmojiAssetsLoader(IModHelper modHelper, ModData modData, int emojisSize, string[] imageExtensions, bool saveCreatedTexture = true) {
 
 			this.modHelper = modHelper;
@@ -60,18 +60,30 @@ namespace CustomEmojis.Framework {
 
 		/// <summary>Get whether this instance can load the initial version of the given asset.</summary>
 		/// <param name="asset">Basic metadata about the asset being loaded.</param>
-		public bool CanLoad<T>(IAssetInfo asset) { 
+		public bool CanLoad<T>(IAssetInfo asset) {
 			return asset.AssetNameEquals(@"LooseSprites\emojis");
 		}
 
 		/// <summary>Load a matched asset.</summary>
 		/// <param name="asset">Basic metadata about the asset being loaded.</param>
 		public T Load<T>(IAssetInfo asset) {
+
+			Logger.Log($"Generate Texture? {modData.ShouldGenerateTexture()}");
+			Logger.Log($"Save Checksum Data? {modData.ShouldSaveData()}");
+
 			Stopwatch swTotal = new Stopwatch();
 			ModEntry.ModMonitor.Log($"[EmojiAssetsLoader TextureCreated/Loaded] Timer Started!");
 			swTotal.Start();
+
+			string outputFolderPath = Path.Combine(modHelper.DirectoryPath, Assets.OutputFolder);
+			Directory.CreateDirectory(outputFolderPath);
+
+			string inputFolderPath = Path.Combine(modHelper.DirectoryPath, Assets.InputFolder);
+
 			// If file changes are detected, make again the texture
-			if(modData.ShouldGenerateTexture()) {
+			if(!Directory.Exists(inputFolderPath)) {
+				Directory.CreateDirectory(inputFolderPath);
+			} else if(modData.ShouldGenerateTexture()) {
 
 				//if(!File.Exists(Path.Combine(modHelper.DirectoryPath, "vanillaEmojis.png"))) {
 				//	SaveTextureToPng(this.VanillaEmojisTexture, Path.Combine(modHelper.DirectoryPath, "vanillaEmojis.png"));
@@ -80,27 +92,17 @@ namespace CustomEmojis.Framework {
 				//List<Image> images = new List<Image> {
 				//	Image.FromFile(Path.Combine(modHelper.DirectoryPath, "vanillaEmojis.png"))
 				//};
-				string outputFolderPath = Path.Combine(modHelper.DirectoryPath, Assets.OutputFolder);
-				if(!Directory.Exists(outputFolderPath)) {
-					Directory.CreateDirectory(outputFolderPath);
+				Stopwatch sw = new Stopwatch();
+				ModEntry.ModMonitor.Log($"[EmojiAssetsLoader MergeEmojiImages] Timer started!");
+				sw.Start();
+				CustomTexture = MergeEmojiImages(inputFolderPath);
+				if(CustomTexture != null) {
+					SaveTextureToPng(this.CustomTexture, Path.Combine(modHelper.DirectoryPath, Assets.OutputFolder, Assets.OutputFile));
 				}
+				sw.Stop();
+				ModEntry.ModMonitor.Log($"[EmojiAssetsLoader MergeEmojiImages] Timer Stoped! Elapsed Time: {sw.Elapsed}");
 
-				string inputFolderPath = Path.Combine(modHelper.DirectoryPath, Assets.InputFolder);
-				if(!Directory.Exists(inputFolderPath)) {
-					Directory.CreateDirectory(inputFolderPath);
-				} else {
-					Stopwatch sw = new Stopwatch();
-					ModEntry.ModMonitor.Log($"[EmojiAssetsLoader MergeEmojiImages] Timer started!");
-					sw.Start();
-					CustomTexture = MergeEmojiImages(inputFolderPath);
-					if(CustomTexture != null) {
-						SaveTextureToPng(this.CustomTexture, Path.Combine(modHelper.DirectoryPath, Assets.OutputFolder, Assets.OutputFile));
-					}
-					sw.Stop();
-					ModEntry.ModMonitor.Log($"[EmojiAssetsLoader MergeEmojiImages] Timer Stoped! Elapsed Time: {sw.Elapsed}");
-				}
-
-			} else if(File.Exists(Path.Combine(modHelper.DirectoryPath, Assets.OutputFolder, Assets.OutputFile))) {
+			} else if(File.Exists(Path.Combine(modHelper.DirectoryPath, Assets.OutputFolder, Assets.OutputFile)) ) {
 				Stopwatch sw = new Stopwatch();
 				ModEntry.ModMonitor.Log($"[EmojiAssetsLoader loadTexture] Timer started!");
 				sw.Start();
@@ -110,8 +112,6 @@ namespace CustomEmojis.Framework {
 				swTotal.Stop();
 				ModEntry.ModMonitor.Log($"[AfterTextureCreated/Loaded] Time elapsed: {swTotal.Elapsed}");
 			}
-
-			modData.FilesChanged = false;
 
 			if(CustomTexture != null) {
 				this.CustomTextureAdded = true;

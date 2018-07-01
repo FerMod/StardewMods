@@ -13,6 +13,8 @@ using CustomEmojis.Framework;
 using CustomEmojis.Patches;
 using System.Collections.Generic;
 using CustomEmojis.Framework.Constants;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace CustomEmojis {
 
@@ -34,6 +36,9 @@ namespace CustomEmojis {
 
 			ModMonitor = Monitor;
 
+#if(DEBUG)
+			Logger.SetOutput(helper.DirectoryPath + "\\logfile.txt", Monitor);
+#endif
 			ModPatchControl PatchControl = new ModPatchControl(helper);
 			PatchControl.PatchList.Add(new MultiplayerPatch.ProcessIncomingMessagePatch());
 			PatchControl.ApplyPatch();
@@ -43,6 +48,16 @@ namespace CustomEmojis {
 
 			this.Monitor.Log("Loading mod data...", LogLevel.Trace);
 			this.modData = this.Helper.ReadJsonFile<ModData>(FilePaths.Data);
+			if(this.modData == null) {
+				this.Monitor.Log("Mod data file not found. (harmless info)", LogLevel.Trace);
+				this.modData = new ModData(this.Helper.DirectoryPath) {
+					WatchedPaths = new List<string>() {
+						Assets.InputFolder
+					}
+				};
+			}
+			//modData.FilesChecksums.TryAdd("path", "hash");
+			this.Helper.WriteJsonFile(FilePaths.Data, modData);
 
 			Monitor.Log($"[ModEntry] Timer started!", LogLevel.Trace);
 			Stopwatch sw = new Stopwatch();
@@ -197,17 +212,18 @@ namespace CustomEmojis {
 
 			this.Monitor.Log($"Custom emojis added: {emojiAssetsLoader.CustomTextureAdded}");
 			if(emojiAssetsLoader.CustomTextureAdded) {
-
 				this.Monitor.Log($"Custom emojis found: {emojiAssetsLoader.NumberCustomEmojisAdded}");
 				emojiAssetsLoader.UpdateTotalEmojis();
 				this.Monitor.Log($"Total emojis counted by Stardew Valley: {EmojiMenu.totalEmojis}");
 				this.Monitor.Log($"Total emojis counted after ammount fix: {emojiAssetsLoader.TotalNumberEmojis}");
-
-				if(modData.ShouldSaveData()) {
-					this.Helper.WriteJsonFile(FilePaths.Data, modData);
-					modData.IsDataSaved = true;
-				}
 			}
+
+			if(modData.ShouldSaveData()) {
+				modData.FilesChanged = false;
+				modData.DataChanged = false;
+				this.Helper.WriteJsonFile(FilePaths.Data, modData);
+			}
+
 			//if(emojiAssetsLoader.CustomEmojisAdded) {
 			//	this.Monitor.Log($"Custom emojis found: {emojiAssetsLoader.NumberCustomEmojisAdded}");
 			//	this.Monitor.Log($"Total emojis counted by Stardew Valley: {EmojiMenu.totalEmojis}");
