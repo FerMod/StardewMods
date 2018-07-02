@@ -174,59 +174,29 @@ namespace CustomEmojis {
 			Helper.ConsoleCommands.Trigger("world_settime", new string[] { "0900" });
 #endif
 
-			Stopwatch sw = new Stopwatch();
-			Monitor.Log($"Timer started!");
-			sw.Start();
-			//modData.UpdateFilesChecksum(this.Helper.DirectoryPath, config.ImageExtensions);
-			if(modData.Checksum()) {
-				this.Monitor.Log("File changes detected. Saving mod data...", LogLevel.Trace);
-				//emojiAssetsLoader.UpdateTotalEmojis();
-				//modData.EmojisAdded = emojiAssetsLoader.NumberCustomEmojisAdded;
-				//emojiAssetsLoader.ShouldGenerateTexture = true;
-				emojiAssetsLoader.ReloadAsset(); // FIXME: Cache not invalidating properly
-			} else {
-				this.Monitor.Log("No file changes detected.", LogLevel.Trace);
-				emojiAssetsLoader.NumberCustomEmojisAdded = modData.FilesChecksums.Count;
-			}
-
-			Monitor.Log($"[After checksum] Time elapsed: {sw.Elapsed}");
-			sw.Reset();
-
 			this.Monitor.Log($"Custom emojis added: {emojiAssetsLoader.CustomTextureAdded}");
 			if(emojiAssetsLoader.CustomTextureAdded) {
 				this.Monitor.Log($"Custom emojis found: {emojiAssetsLoader.NumberCustomEmojisAdded}");
-				emojiAssetsLoader.UpdateTotalEmojis();
 				this.Monitor.Log($"Total emojis counted by Stardew Valley: {EmojiMenu.totalEmojis}");
+				emojiAssetsLoader.UpdateTotalEmojis();
 				this.Monitor.Log($"Total emojis counted after ammount fix: {emojiAssetsLoader.TotalNumberEmojis}");
 			}
 
 			if(modData.ShouldSaveData()) {
+				this.Monitor.Log("File changes detected. Saving mod data...", LogLevel.Trace);
 				modData.FilesChanged = false;
 				modData.DataChanged = false;
 				this.Helper.WriteJsonFile(FilePaths.Data, modData);
+				emojiAssetsLoader.ReloadAsset(); // FIXME: Cache not invalidating properly
+			} else {
+				this.Monitor.Log("No file changes detected.", LogLevel.Trace);
 			}
-
-			//if(emojiAssetsLoader.CustomEmojisAdded) {
-			//	this.Monitor.Log($"Custom emojis found: {emojiAssetsLoader.NumberCustomEmojisAdded}");
-			//	this.Monitor.Log($"Total emojis counted by Stardew Valley: {EmojiMenu.totalEmojis}");
-			//	//int a = (int)Math.Ceiling((double)emojiAssetsLoader.NumberEmojisAdded / 14);
-			//	//int emojiPerRow = (emojiAssetsLoader.VanillaEmojisTexture.Width / emojiAssetsLoader.EmojisSize);
-			//	//int numberCustomEmojis = (emojiAssetsLoader.NumberEmojisAdded - emojiPerRow * a);
-			//	//EmojiMenu.totalEmojis += numberCustomEmojis;
-			//	emojiAssetsLoader.UpdateTotalEmojis();
-			//	this.Monitor.Log($"Total emojis counted after ammount fix: {emojiAssetsLoader.TotalNumberEmojis}");
-
-			//}
-			Monitor.Log($"[After UpdateTotalEmojis]Time elapsed: {sw.Elapsed}");
-			sw.Reset();
-
 
 			if(!Context.IsMainPlayer && emojiAssetsLoader.CustomTextureAdded) {
 				Multiplayer multiplayer = this.Helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
 				multiplayer.RequestEmojiTexture();
 			}
-			sw.Stop();
-			Monitor.Log($"[After Request] Time elapsed: {sw.Elapsed}");
+
 		}
 
 		/// <summary>Reload the game emojis with the new ones found in the mod folder.</summary>

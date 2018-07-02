@@ -20,7 +20,6 @@ namespace CustomEmojis.Framework.Extensions {
 				object[] objArray = new object[3] {
 					Message.Action.EmojiTextureBroadcast.ToString(),
 					numberEmojis,
-					//TextureConverter.TextureToByteArray(texture)
 					DataSerialization.Serialize(new TextureData(texture))
 				};
 				OutgoingMessage message = new OutgoingMessage(Message.TypeID, Game1.player, objArray);
@@ -47,7 +46,6 @@ namespace CustomEmojis.Framework.Extensions {
 				RecievedEmojiTextureEventArgs args = new RecievedEmojiTextureEventArgs {
 					SourceFarmer = msg.SourceFarmer,
 					NumberEmojis = msg.Reader.ReadInt32(),
-					//EmojiTexture = TextureConverter.ByteArrayToTexture2D(msg.Reader)
 					EmojiTexture = DataSerialization.Deserialize<TextureData>(msg.Reader.BaseStream).GetTexture()
 				};
 				OnRecieveEmojiTexture(null, args);
@@ -100,7 +98,6 @@ namespace CustomEmojis.Framework.Extensions {
 				object[] objArray = new object[3] {
 					Message.Action.EmojiTextureResponse.ToString(),
 					numberEmojis,
-					//TextureConverter.TextureToByteArray(texture)
 					DataSerialization.Serialize(new TextureData(texture))
 				};
 
@@ -118,7 +115,6 @@ namespace CustomEmojis.Framework.Extensions {
 				RecievedEmojiTextureEventArgs args = new RecievedEmojiTextureEventArgs {
 					SourceFarmer = msg.SourceFarmer,
 					NumberEmojis = msg.Reader.ReadInt32(),
-					//EmojiTexture = TextureConverter.ByteArrayToTexture2D(msg.Reader)
 					EmojiTexture = DataSerialization.Deserialize<TextureData>(msg.Reader.BaseStream).GetTexture()
 				};
 				OnRecieveEmojiTexture(null, args);

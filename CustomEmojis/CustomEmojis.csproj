@@ -106,7 +106,6 @@
     <Compile Include="Framework\Network\DataSerialization.cs" />
     <Compile Include="Framework\Overrides\ChatBoxOverride.cs" />
     <Compile Include="Framework\Types\BiDictionary.cs" />
-    <Compile Include="Framework\Utilities\LockBitmap.cs" />
     <Compile Include="ModDebugData.cs" />
     <Compile Include="Test\AccessPrivateWrapper.cs" />
     <Compile Include="Test\EmojiDraw.cs" />
@@ -118,7 +117,6 @@
     <Compile Include="Framework\Patches\IClassPatch.cs" />
     <Compile Include="Framework\Patches\ModPatchControl.cs" />
     <Compile Include="Framework\Patches\MultiplayerPatch.cs" />
-    <Compile Include="Framework\TextureConverter.cs" />
     <Compile Include="ModConfig.cs" />
     <Compile Include="ModData.cs" />
     <Compile Include="ModEntry.cs" />

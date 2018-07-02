@@ -4,22 +4,21 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using StardewModdingAPI;
+using System.Linq;
 
 namespace MultiplayerEmojis {
 
 	public class ModData {
 
-		[JsonIgnore]
+		[JsonIgnore] // Unused variable
 		public bool DataChanged { get; set; } = false;
-
-		[JsonIgnore]
-		public string FolderHash = "";
 
 		[JsonIgnore]
 		public IModHelper ModHelper { get; set; }
 		[JsonIgnore]
-		public string[] FileExtensionsFilter { get; set; } = new string[] { ".png", ".jpg", ".jpeg", ".gif" };
 		public bool FilesChanged { get; set; } = false;
+		[JsonIgnore]
+		public string[] FileExtensionsFilter { get; set; } = new string[] { ".png", ".jpg", ".jpeg", ".gif" };
 		public List<string> WatchedPaths { get; set; } = new List<string>();
 		public Dictionary<string, string> FilesChecksums { get; set; } = new Dictionary<string, string>();
 
@@ -52,7 +51,7 @@ namespace MultiplayerEmojis {
 					if(Directory.Exists(absolutePath)) {
 
 						Dictionary<string, string> currentFilesChecksum = ModUtilities.GetFolderFilesHash(absolutePath, SearchOption.AllDirectories, FileExtensionsFilter);
-
+						
 						if(!EqualDictionaries(FilesChecksums, currentFilesChecksum)) {
 							FilesChecksums = currentFilesChecksum;
 							FilesChanged = true;
