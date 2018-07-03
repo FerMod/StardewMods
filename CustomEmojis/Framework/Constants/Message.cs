@@ -7,9 +7,9 @@ namespace CustomEmojis.Framework.Constants {
 
 		internal enum Action {
 			None,
-			EmojiTextureRequest,
-			EmojiTextureResponse,
-			EmojiTextureBroadcast
+			RequestEmojiTexture,
+			SendEmojiTexture,
+			BroadcastEmojiTexture
 		};
 
 	}

@@ -83,8 +83,8 @@ namespace CustomEmojis {
 
 			SaveEvents.AfterLoad += this.OnAfterLoad;
 
-			MultiplayerExtension.OnRecieveEmojiTexture += MultiplayerExtension_OnRecieveEmojiTexture;
-			MultiplayerExtension.OnRecieveEmojiTextureRequest += MultiplayerExtension_OnRecieveEmojiTextureRequest;
+			MultiplayerExtension.OnReceiveEmojiTexture += MultiplayerExtension_OnRecieveEmojiTexture;
+			MultiplayerExtension.OnReceiveEmojiTextureRequest += MultiplayerExtension_OnRecieveEmojiTextureRequest;
 
 			GraphicsEvents.OnPostRenderEvent += GraphicsEvents_OnPostRenderEvent;
 			GameEvents.FirstUpdateTick += GameEvents_FirstUpdateTick;

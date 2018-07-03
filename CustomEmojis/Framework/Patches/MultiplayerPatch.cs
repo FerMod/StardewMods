@@ -35,14 +35,14 @@ namespace CustomEmojis.Patches {
 					if(Enum.TryParse(keyword, out Message.Action action)) {
 						if(Enum.IsDefined(typeof(Message.Action), action)) {
 							switch(action) {
-								case Message.Action.EmojiTextureRequest:
-									__instance.RecieveEmojiTextureRequest(msg);
+								case Message.Action.RequestEmojiTexture:
+									__instance.ReceiveEmojiTextureRequest(msg);
 									return false;
-								case Message.Action.EmojiTextureResponse:
-									__instance.RecieveEmojiTextureResponse(msg);
+								case Message.Action.SendEmojiTexture:
+									__instance.ReceiveEmojiTexture(msg);
 									return false;
-								case Message.Action.EmojiTextureBroadcast:
-									__instance.RecieveEmojiTextureBroadcast(msg);
+								case Message.Action.BroadcastEmojiTexture:
+									__instance.ReceiveEmojiTextureBroadcast(msg);
 									return false;
 							}
 						}

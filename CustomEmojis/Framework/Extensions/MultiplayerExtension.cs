@@ -11,14 +11,14 @@ namespace CustomEmojis.Framework.Extensions {
 
 	public static class MultiplayerExtension {
 
-		public static event EventHandler<RecievedEmojiTextureEventArgs> OnRecieveEmojiTexture = delegate { };
-		public static event EventHandler<RecievedEmojiTextureRequestEventArgs> OnRecieveEmojiTextureRequest = delegate { };
+		public static event EventHandler<RecievedEmojiTextureEventArgs> OnReceiveEmojiTexture = delegate { };
+		public static event EventHandler<RecievedEmojiTextureRequestEventArgs> OnReceiveEmojiTextureRequest = delegate { };
 
 		public static void BroadcastEmojiTexture(this Multiplayer multiplayer, Texture2D texture, int numberEmojis) {
 
 			if(Game1.IsMultiplayer) {
 				object[] objArray = new object[3] {
-					Message.Action.EmojiTextureBroadcast.ToString(),
+					Message.Action.BroadcastEmojiTexture.ToString(),
 					numberEmojis,
 					DataSerialization.Serialize(new TextureData(texture))
 				};
@@ -41,14 +41,14 @@ namespace CustomEmojis.Framework.Extensions {
 
 		}
 
-		public static void RecieveEmojiTextureBroadcast(this Multiplayer multiplayer, IncomingMessage msg) {
+		public static void ReceiveEmojiTextureBroadcast(this Multiplayer multiplayer, IncomingMessage msg) {
 			if(Game1.IsMultiplayer && msg.Data.Length > 0) {
 				RecievedEmojiTextureEventArgs args = new RecievedEmojiTextureEventArgs {
 					SourceFarmer = msg.SourceFarmer,
 					NumberEmojis = msg.Reader.ReadInt32(),
 					EmojiTexture = DataSerialization.Deserialize<TextureData>(msg.Reader.BaseStream).GetTexture()
 				};
-				OnRecieveEmojiTexture(null, args);
+				OnReceiveEmojiTexture(null, args);
 			}
 		}
 
@@ -69,7 +69,7 @@ namespace CustomEmojis.Framework.Extensions {
 		public static void RequestEmojiTexture(this Multiplayer multiplayer, long peerId) {
 			if(Game1.IsMultiplayer) {
 				object[] objArray = new object[1] {
-					Message.Action.EmojiTextureRequest.ToString()
+					Message.Action.RequestEmojiTexture.ToString()
 				};
 				OutgoingMessage message = new OutgoingMessage(Message.TypeID, Game1.player, objArray);
 				if(Game1.IsClient) {
@@ -80,23 +80,23 @@ namespace CustomEmojis.Framework.Extensions {
 			}
 		}
 
-		public static void RecieveEmojiTextureRequest(this Multiplayer multiplayer, IncomingMessage msg) {
+		public static void ReceiveEmojiTextureRequest(this Multiplayer multiplayer, IncomingMessage msg) {
 			if(Game1.IsMultiplayer && msg.Data.Length > 0) {
 				RecievedEmojiTextureRequestEventArgs args = new RecievedEmojiTextureRequestEventArgs {
 					SourceFarmer = msg.SourceFarmer
 				};
-				OnRecieveEmojiTextureRequest(null, args);
+				OnReceiveEmojiTextureRequest(null, args);
 			}
 		}
 
 		public static void ResponseEmojiTexture(this Multiplayer multiplayer, Farmer farmer, Texture2D texture, int numberEmojis) {
-			multiplayer.ResponseEmojiTexture(farmer.UniqueMultiplayerID, texture, numberEmojis);
+			multiplayer.SendEmojiTexture(farmer.UniqueMultiplayerID, texture, numberEmojis);
 		}
 
-		public static void ResponseEmojiTexture(this Multiplayer multiplayer, long peerId, Texture2D texture, int numberEmojis) {
+		public static void SendEmojiTexture(this Multiplayer multiplayer, long peerId, Texture2D texture, int numberEmojis) {
 			if(Game1.IsMultiplayer) {
 				object[] objArray = new object[3] {
-					Message.Action.EmojiTextureResponse.ToString(),
+					Message.Action.SendEmojiTexture.ToString(),
 					numberEmojis,
 					DataSerialization.Serialize(new TextureData(texture))
 				};
@@ -110,14 +110,14 @@ namespace CustomEmojis.Framework.Extensions {
 			}
 		}
 
-		public static void RecieveEmojiTextureResponse(this Multiplayer multiplayer, IncomingMessage msg) {
+		public static void ReceiveEmojiTexture(this Multiplayer multiplayer, IncomingMessage msg) {
 			if(Game1.IsMultiplayer && msg.Data.Length > 0) {
 				RecievedEmojiTextureEventArgs args = new RecievedEmojiTextureEventArgs {
 					SourceFarmer = msg.SourceFarmer,
 					NumberEmojis = msg.Reader.ReadInt32(),
 					EmojiTexture = DataSerialization.Deserialize<TextureData>(msg.Reader.BaseStream).GetTexture()
 				};
-				OnRecieveEmojiTexture(null, args);
+				OnReceiveEmojiTexture(null, args);
 			}
 		}
 
