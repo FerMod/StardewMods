@@ -5,8 +5,9 @@ using System.IO;
 using Newtonsoft.Json;
 using StardewModdingAPI;
 using System.Linq;
+using CustomEmojis.Framework.Constants;
 
-namespace MultiplayerEmojis {
+namespace CustomEmojis {
 
 	public class ModData {
 
@@ -35,7 +36,7 @@ namespace MultiplayerEmojis {
 		}
 
 		public bool ShouldGenerateTexture() {
-			return FilesChanged;
+			return FilesChanged || !File.Exists(Path.Combine(ModHelper.DirectoryPath, Assets.OutputFolder, Assets.OutputFile));
 		}
 
 		public void ShouldGenerateTexture(bool generate) {

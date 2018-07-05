@@ -21,6 +21,19 @@ namespace CustomEmojis.Patches {
 			//TODO: Checking for ussed MessageTypes ids. Possible?
 			private static bool ProcessIncomingMessage_Prefix(Multiplayer __instance, ref IncomingMessage msg) {
 
+				// Vanilla message types
+				switch(msg.MessageType) {
+					/*
+					// Not being used in the class 'Multiplayer'
+					case 2:
+						__instance.PlayerConnected(msg);
+						break;					
+					 */
+					case 19:
+						__instance.PlayerDisconnected(msg);
+						break;
+				}
+
 				if(msg.MessageType == Message.TypeID && msg.Data.Length > 0) {
 
 					String keyword = Message.Action.None.ToString();
@@ -43,6 +56,9 @@ namespace CustomEmojis.Patches {
 									return false;
 								case Message.Action.BroadcastEmojiTexture:
 									__instance.ReceiveEmojiTextureBroadcast(msg);
+									return false;
+								case Message.Action.SendEmojisTextureDataList:
+									__instance.ReceiveEmojisTextureDataList(msg);
 									return false;
 							}
 						}

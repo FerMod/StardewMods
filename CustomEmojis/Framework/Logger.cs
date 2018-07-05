@@ -8,24 +8,24 @@ using System.Text;
 
 namespace CustomEmojis.Framework {
 
-	internal class Logger : IDisposable {
+	public class Logger : IDisposable {
 
-		private static string FilePath { get; set; } = Directory.GetCurrentDirectory() + "\\Mods";
-		private static IMonitor ModMonitor { get; set; }
-		private static StreamWriter Stream { get; set; }
+		private string FilePath { get; set; } = Directory.GetCurrentDirectory() + "\\Mods";
+		private IMonitor ModMonitor { get; set; }
+		private StreamWriter Stream { get; set; }
 
-		public static void InitLogger(string filePath, bool append = true, IMonitor monitor = null) {
+		public Logger(string filePath, bool append = true, IMonitor monitor = null) {
 			SetFilePath(filePath, append);
 			if(monitor != null) {
 				SetMonitor(monitor);
 			}
 		}
 
-		public static void SetMonitor(IMonitor monitor) {
+		public void SetMonitor(IMonitor monitor) {
 			ModMonitor = monitor;
 		}
 
-		public static void SetFilePath(string filePath, bool append = true) {
+		public void SetFilePath(string filePath, bool append = true) {
 			string folderPath = Path.GetDirectoryName(FilePath);
 			if(folderPath == null) {
 				throw new ArgumentException($"Log path '{FilePath}' not valid.");
@@ -37,16 +37,16 @@ namespace CustomEmojis.Framework {
 			};
 		}
 
-		public static void LogTrace(string message,
+		public void LogTrace(string message = "Trace Message:",
 		[CallerMemberName] string memberName = "",
 		[CallerFilePath] string sourceFilePath = "",
 		[CallerLineNumber] int sourceLineNumber = 0) {
 
 			string time = "[" + DateTime.Now.ToString("HH:mm:ss") + "]";
 			int timeLength = time.Length + 1;
-			string callerMemberName = "member name: " + memberName;
-			string callerFilePath = "source file path: " + sourceFilePath;
-			string callerLineNumber = "source line number: " + sourceLineNumber;
+			string callerMemberName = "CallerMemberName: " + memberName;
+			string callerFilePath = "CallerFilePath: " + sourceFilePath;
+			string callerLineNumber = "CallerLineNumber: " + sourceLineNumber;
 
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine(message);
@@ -66,7 +66,7 @@ namespace CustomEmojis.Framework {
 			WriteLine($"{time} {sb.ToString()}");
 		}
 
-		public static void Log(params string[] messages) {
+		public void Log(params string[] messages) {
 
 			string time = "[" + DateTime.Now.ToString("HH:mm:ss") + "]";
 			int timeLength = time.Length + 1;
@@ -80,11 +80,11 @@ namespace CustomEmojis.Framework {
 
 		}
 
-		public static void WriteLine(string message) {
+		public void WriteLine(string message) {
 			Write(message + "\r\n");
 		}
 
-		public static void Write(string message) {
+		public void Write(string message) {
 			Stream.Write(message);
 		}
 

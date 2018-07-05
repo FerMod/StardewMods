@@ -9,7 +9,8 @@ namespace CustomEmojis.Framework.Constants {
 			None,
 			RequestEmojiTexture,
 			SendEmojiTexture,
-			BroadcastEmojiTexture
+			BroadcastEmojiTexture,
+			SendEmojisTextureDataList
 		};
 
 	}

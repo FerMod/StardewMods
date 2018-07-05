@@ -6,13 +6,19 @@ using System;
 using CustomEmojis.Framework.Events;
 using CustomEmojis.Framework.Constants;
 using CustomEmojis.Framework.Network;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CustomEmojis.Framework.Extensions {
 
 	public static class MultiplayerExtension {
 
-		public static event EventHandler<RecievedEmojiTextureEventArgs> OnReceiveEmojiTexture = delegate { };
-		public static event EventHandler<RecievedEmojiTextureRequestEventArgs> OnReceiveEmojiTextureRequest = delegate { };
+		public static event EventHandler<ReceivedEmojiTextureEventArgs> OnReceiveEmojiTexture = delegate { };
+		public static event EventHandler<ReceivedEmojiTextureRequestEventArgs> OnReceiveEmojiTextureRequest = delegate { };
+		public static event EventHandler<ReceivedEmojiTextureDataEventArgs> OnReceiveEmojiTextureData = delegate { };
+
+		public static event EventHandler<PlayerConnectedEventArgs> OnPlayerConnected = delegate { };
+		public static event EventHandler<PlayerDisconnectedEventArgs> OnPlayerDisconnected = delegate { };
 
 		public static void BroadcastEmojiTexture(this Multiplayer multiplayer, Texture2D texture, int numberEmojis) {
 
@@ -43,7 +49,7 @@ namespace CustomEmojis.Framework.Extensions {
 
 		public static void ReceiveEmojiTextureBroadcast(this Multiplayer multiplayer, IncomingMessage msg) {
 			if(Game1.IsMultiplayer && msg.Data.Length > 0) {
-				RecievedEmojiTextureEventArgs args = new RecievedEmojiTextureEventArgs {
+				ReceivedEmojiTextureEventArgs args = new ReceivedEmojiTextureEventArgs {
 					SourceFarmer = msg.SourceFarmer,
 					NumberEmojis = msg.Reader.ReadInt32(),
 					EmojiTexture = DataSerialization.Deserialize<TextureData>(msg.Reader.BaseStream).GetTexture()
@@ -82,12 +88,62 @@ namespace CustomEmojis.Framework.Extensions {
 
 		public static void ReceiveEmojiTextureRequest(this Multiplayer multiplayer, IncomingMessage msg) {
 			if(Game1.IsMultiplayer && msg.Data.Length > 0) {
-				RecievedEmojiTextureRequestEventArgs args = new RecievedEmojiTextureRequestEventArgs {
+				ReceivedEmojiTextureRequestEventArgs args = new ReceivedEmojiTextureRequestEventArgs {
 					SourceFarmer = msg.SourceFarmer
 				};
 				OnReceiveEmojiTextureRequest(null, args);
 			}
 		}
+
+		#region TextureData List
+
+		public static void SendEmojisTextureDataList(this Multiplayer multiplayer, Farmer farmer, IEnumerable<List<TextureData>> textureDataListEnumerable) {
+			multiplayer.SendEmojisTextureDataList(farmer.UniqueMultiplayerID, textureDataListEnumerable.SelectMany(x => x).ToList());
+		}
+
+		public static void SendEmojisTextureDataList(this Multiplayer multiplayer, Farmer farmer, List<TextureData> textureDataList) {
+			multiplayer.SendEmojisTextureDataList(farmer.UniqueMultiplayerID, textureDataList);
+		}
+
+		public static void SendEmojisTextureDataList(this Multiplayer multiplayer, long peerId, List<TextureData> textureDataList) {
+			if(Game1.IsMultiplayer) {
+				object[] objArray = new object[3] {
+					Message.Action.SendEmojisTextureDataList.ToString(),
+					peerId,
+					DataSerialization.Serialize(textureDataList)
+				};
+
+				OutgoingMessage message = new OutgoingMessage(Message.TypeID, Game1.player, objArray);
+				if(Game1.IsClient) {
+					Game1.client.sendMessage(message);
+				} else if(Game1.IsServer) {
+					Game1.server.sendMessage(peerId, message);
+				}
+			}
+		}
+
+		public static void ReceiveEmojisTextureDataList(this Multiplayer multiplayer, IncomingMessage msg) {
+
+			if(Game1.IsMultiplayer && msg.Data.Length > 0) {
+
+				long uniqueMultiplayerID = msg.Reader.ReadInt64();
+
+				ReceivedEmojiTextureDataEventArgs args = new ReceivedEmojiTextureDataEventArgs {
+					SourceFarmer = msg.SourceFarmer,
+					TextureDataList = DataSerialization.Deserialize<List<TextureData>>(msg.Reader.BaseStream)
+				};
+
+				if(Game1.player.UniqueMultiplayerID == uniqueMultiplayerID) {
+					OnReceiveEmojiTextureData(null, args);
+				} else if(Game1.IsServer) {
+					multiplayer.SendEmojisTextureDataList(uniqueMultiplayerID, args.TextureDataList);
+				}
+
+			}
+
+		}
+
+		#endregion
 
 		public static void ResponseEmojiTexture(this Multiplayer multiplayer, Farmer farmer, Texture2D texture, int numberEmojis) {
 			multiplayer.SendEmojiTexture(farmer.UniqueMultiplayerID, texture, numberEmojis);
@@ -112,7 +168,7 @@ namespace CustomEmojis.Framework.Extensions {
 
 		public static void ReceiveEmojiTexture(this Multiplayer multiplayer, IncomingMessage msg) {
 			if(Game1.IsMultiplayer && msg.Data.Length > 0) {
-				RecievedEmojiTextureEventArgs args = new RecievedEmojiTextureEventArgs {
+				ReceivedEmojiTextureEventArgs args = new ReceivedEmojiTextureEventArgs {
 					SourceFarmer = msg.SourceFarmer,
 					NumberEmojis = msg.Reader.ReadInt32(),
 					EmojiTexture = DataSerialization.Deserialize<TextureData>(msg.Reader.BaseStream).GetTexture()
@@ -120,6 +176,24 @@ namespace CustomEmojis.Framework.Extensions {
 				OnReceiveEmojiTexture(null, args);
 			}
 		}
+
+		#region Vanilla MessageTypes
+
+		public static void PlayerConnected(this Multiplayer multiplayer, IncomingMessage msg) {
+			PlayerConnectedEventArgs args = new PlayerConnectedEventArgs {
+				Player = multiplayer.readFarmer(msg.Reader).Value
+			};
+			OnPlayerConnected(null, args);
+		}
+
+		public static void PlayerDisconnected(this Multiplayer multiplayer, IncomingMessage msg) {
+			PlayerDisconnectedEventArgs args = new PlayerDisconnectedEventArgs {
+				Player = msg.SourceFarmer
+			};
+			OnPlayerDisconnected(null, args);
+		}
+
+		#endregion
 
 	}
 

@@ -8,9 +8,10 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using CustomEmojis.Framework.Constants;
+using CustomEmojis.Framework.Events;
+using CustomEmojis.Framework.Extensions;
 using CustomEmojis.Framework.Network;
 using Microsoft.Xna.Framework.Graphics;
-using MultiplayerEmojis;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
@@ -23,6 +24,7 @@ namespace CustomEmojis.Framework {
 		public Texture2D CustomTexture { get; set; }
 
 		public Texture2D CurrentTexture { get; set; }
+		public Dictionary<long, List<TextureData>> SynchronizedPlayerTextureData = new Dictionary<long, List<TextureData>>();
 		public List<TextureData> LoadedTextureData { get; set; } = new List<TextureData>();
 
 		public int EmojisSize { get; set; }
@@ -31,14 +33,14 @@ namespace CustomEmojis.Framework {
 		public int TotalNumberEmojis { get; private set; }
 		public bool SaveGeneratedTexture { get; set; }
 		public bool SaveCustomEmojiTexture { get; set; }
-		public bool ShouldGenerateTexture { get; set; }
+		public bool ForceTextureGeneration { get; set; }
 
 		private readonly IModHelper modHelper;
 		private readonly ModData modData;
 		private readonly string[] imageExtensions;
-		private readonly bool saveCreatedTexture;
+		private readonly bool ForceGeneratedTextureSave;
 
-		public EmojiAssetsLoader(IModHelper modHelper, ModData modData, int emojisSize, string[] imageExtensions, bool generateTexture = true, bool saveCreatedTexture = true) {
+		public EmojiAssetsLoader(IModHelper modHelper, ModData modData, int emojisSize, string[] imageExtensions, bool forceTextureGeneration = false, bool forceGeneratedTextureSave = false) {
 
 			this.modHelper = modHelper;
 			this.modData = modData;
@@ -49,8 +51,10 @@ namespace CustomEmojis.Framework {
 			this.EmojisSize = emojisSize;
 			this.imageExtensions = imageExtensions;
 
-			this.ShouldGenerateTexture = generateTexture;
-			this.saveCreatedTexture = saveCreatedTexture;
+			this.ForceTextureGeneration = forceTextureGeneration;
+			this.ForceGeneratedTextureSave = forceGeneratedTextureSave;
+
+			SubscribeEvents();
 
 		}
 
@@ -64,12 +68,12 @@ namespace CustomEmojis.Framework {
 		/// <param name="asset">Basic metadata about the asset being loaded.</param>
 		public T Load<T>(IAssetInfo asset) {
 
-			Logger.Log($"Generate Texture? {modData.ShouldGenerateTexture()}");
-			Logger.Log($"Save Checksum Data? {modData.ShouldSaveData()}");
+			ModEntry.ModLogger.Log($"Generate Texture? {modData.ShouldGenerateTexture()}");
+			ModEntry.ModLogger.Log($"Save Checksum Data? {modData.ShouldSaveData()}");
 
 			Stopwatch swTotal = new Stopwatch();
 			ModEntry.ModMonitor.Log($"[EmojiAssetsLoader TextureCreated/Loaded] Timer Started!");
-			Logger.Log("[Start Asset Load] Timer Started!");
+			ModEntry.ModLogger.Log("[Start Asset Load] Timer Started!");
 			swTotal.Start();
 
 			string outputFolderPath = Path.Combine(modHelper.DirectoryPath, Assets.OutputFolder);
@@ -80,40 +84,42 @@ namespace CustomEmojis.Framework {
 			// If file changes are detected, make again the texture
 			if(!Directory.Exists(inputFolderPath)) {
 				Directory.CreateDirectory(inputFolderPath);
-				Logger.Log("[In Assed Load] No directory", $"Total time Elapsed: {swTotal.Elapsed}");
-			} else if(modData.Checksum()) {
+				ModEntry.ModLogger.Log("[In Assed Load] No directory", $"Total time Elapsed: {swTotal.Elapsed}");
+			} else if(ForceTextureGeneration || modData.ShouldGenerateTexture() || modData.Checksum()) {
 
-				Logger.Log("[In Assed Load] [Generate Texture] Timer Started!", $"Total Time Elapsed: {swTotal.Elapsed}");
+				ModEntry.ModLogger.Log("[In Assed Load] [Generate Texture] Timer Started!", $"Total Time Elapsed: {swTotal.Elapsed}");
 
 				Stopwatch sw = new Stopwatch();
 				sw.Start();
 
-				Logger.Log("[In Assed Load] [Merging Images]");
+				ModEntry.ModLogger.Log("[In Assed Load] [Merging Images]");
 
-				CustomTexture = MergeEmojiImages(inputFolderPath);
+				LoadedTextureData = GetTextureDataList(modData.FilesChecksums.Values);
+				CustomTexture = MergeTextures(VanillaTexture, LoadedTextureData);
 
-				Logger.Log("[In Assed Load] [After Merging Images]", $"Time Elapsed: {sw.Elapsed}");
+				ModEntry.ModLogger.Log("[In Assed Load] [After Merging Images]", $"Time Elapsed: {sw.Elapsed}");
 
-				Logger.Log("[In Assed Load] [Saving Merged Image]");
+				ModEntry.ModLogger.Log("[In Assed Load] [Saving Merged Image]");
 				sw.Restart();
 
-				if(CustomTexture != null) {
+				if(ForceGeneratedTextureSave || CustomTexture != null) {
 					SaveTextureToPng(this.CustomTexture, Path.Combine(modHelper.DirectoryPath, Assets.OutputFolder, Assets.OutputFile));
 				}
 
 				sw.Stop();
-				Logger.Log("[In Assed Load] [After Saving Merged Image]", $"Time Elapsed: {sw.Elapsed}");
+				ModEntry.ModLogger.Log("[In Assed Load] [After Saving Merged Image]", $"Time Elapsed: {sw.Elapsed}");
 
 			} else if(File.Exists(Path.Combine(modHelper.DirectoryPath, Assets.OutputFolder, Assets.OutputFile))) {
 
-				Logger.Log("[In Assed Load] [Load Texture]");
+				ModEntry.ModLogger.Log("[In Assed Load] [Load Texture]");
 
 				Stopwatch sw = new Stopwatch();
 				sw.Start();
+				LoadedTextureData = GetTextureDataList(modData.FilesChecksums.Values);
 				CustomTexture = modHelper.Content.Load<Texture2D>(Path.Combine(Assets.OutputFolder, Assets.OutputFile), ContentSource.ModFolder);
 
 				sw.Stop();
-				Logger.Log("[In Assed Load] [After Load Texture]", $"Time Elapsed: {sw.Elapsed}");
+				ModEntry.ModLogger.Log("[In Assed Load] [After Load Texture]", $"Time Elapsed: {sw.Elapsed}");
 
 			}
 
@@ -125,46 +131,135 @@ namespace CustomEmojis.Framework {
 				this.CurrentTexture = this.VanillaTexture;
 			}
 			swTotal.Stop();
-			Logger.Log($"[End Asset Load]", $"Total Time Elapsed: {swTotal.Elapsed}");
+			ModEntry.ModLogger.Log($"[End Asset Load]", $"Total Time Elapsed: {swTotal.Elapsed}");
 			// (T)(object) is a trick to cast anything to T if we know it's compatible
 			return (T)(object)this.CurrentTexture;
 		}
 
-		public int UpdateTotalEmojis() {
-			if(TotalNumberEmojis != EmojiMenu.totalEmojis) {
-				EmojiMenu.totalEmojis += NumberCustomEmojisAdded - ((VanillaTexture.Width / EmojisSize) * (int)Math.Ceiling((double)NumberCustomEmojisAdded / 14));
-				TotalNumberEmojis = EmojiMenu.totalEmojis;
-			}
-			return TotalNumberEmojis;
+		private void SubscribeEvents() {
+			MultiplayerExtension.OnReceiveEmojiTextureData += MultiplayerExtension_OnReceiveEmojiTextureData;
+			MultiplayerExtension.OnReceiveEmojiTexture += MultiplayerExtension_OnReceiveEmojiTexture;
+			MultiplayerExtension.OnPlayerDisconnected += MultiplayerExtension_OnPlayerDisconnected;
 		}
 
+		private void UnsubscribeEvents() {
+			MultiplayerExtension.OnReceiveEmojiTextureData -= MultiplayerExtension_OnReceiveEmojiTextureData;
+			MultiplayerExtension.OnReceiveEmojiTexture -= MultiplayerExtension_OnReceiveEmojiTexture;
+			MultiplayerExtension.OnPlayerDisconnected -= MultiplayerExtension_OnPlayerDisconnected;
+		}
+
+		private void MultiplayerExtension_OnReceiveEmojiTextureData(object sender, ReceivedEmojiTextureDataEventArgs e) {
+
+			ModEntry.ModLogger.LogTrace();
+			
+			SynchronizedPlayerTextureData[e.SourceFarmer.UniqueMultiplayerID] = e.TextureDataList;
+			//emojiAssetsLoader.UpdateTotalEmojis();
+
+			CurrentTexture = MergeTextures(VanillaTexture, SynchronizedPlayerTextureData.Values);
+			UpdateTotalEmojis(TotalNumberEmojis + e.TextureDataList.Count);
+
+			// Replace with the new texture
+			modHelper.Reflection.GetField<Texture2D>(Game1.chatBox.emojiMenu, "emojiTexture").SetValue(CurrentTexture);
+			ChatBox.emojiTexture = CurrentTexture;
+
+			// Update client textures
+			Multiplayer multiplayer = modHelper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
+			multiplayer.BroadcastEmojiTexture(CurrentTexture, TotalNumberEmojis);
+
+		}
+
+		private void MultiplayerExtension_OnReceiveEmojiTexture(object sender, ReceivedEmojiTextureEventArgs e) {
+
+			CurrentTexture = e.EmojiTexture;
+			UpdateTotalEmojis(e.NumberEmojis);
+
+			modHelper.Reflection.GetField<Texture2D>(Game1.chatBox.emojiMenu, "emojiTexture").SetValue(CurrentTexture);
+			ChatBox.emojiTexture = CurrentTexture;
+
+		}
+
+		private void MultiplayerExtension_OnPlayerDisconnected(object sender, PlayerDisconnectedEventArgs e) {
+
+			ModEntry.ModLogger.LogTrace();
+
+			if(SynchronizedPlayerTextureData.ContainsKey(e.Player.UniqueMultiplayerID)) {
+				UpdateTotalEmojis(TotalNumberEmojis - SynchronizedPlayerTextureData[e.Player.UniqueMultiplayerID].Count);
+				SynchronizedPlayerTextureData.Remove(e.Player.UniqueMultiplayerID);
+			}
+
+			CurrentTexture = MergeTextures(VanillaTexture, SynchronizedPlayerTextureData.Values);
+
+			// Replace with the new texture
+			modHelper.Reflection.GetField<Texture2D>(Game1.chatBox.emojiMenu, "emojiTexture").SetValue(CurrentTexture);
+			ChatBox.emojiTexture = CurrentTexture;
+
+			// Update client textures
+			Multiplayer multiplayer = modHelper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
+			multiplayer.BroadcastEmojiTexture(CurrentTexture, TotalNumberEmojis);
+
+		}
+
+		public void SyncTextureData() {
+
+			if(Context.IsMultiplayer) {
+
+				long multiplayerID = Game1.player.UniqueMultiplayerID;
+
+				if(!SynchronizedPlayerTextureData.ContainsKey(multiplayerID)) {
+					SynchronizedPlayerTextureData[multiplayerID] = LoadedTextureData;
+				}
+
+				if(!Game1.IsMasterGame) {
+					Multiplayer multiplayer = modHelper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
+					multiplayer.SendEmojisTextureDataList(Game1.MasterPlayer, LoadedTextureData);
+				}
+
+			}
+
+		}
+
+		public void UpdateTotalEmojis() {
+			if(TotalNumberEmojis != EmojiMenu.totalEmojis) {
+				//int requiredRows = (int)Math.Ceiling((double)emojiAssetsLoader.NumberEmojisAdded / 14);
+				//int emojiPerRow = (emojiAssetsLoader.VanillaEmojisTexture.Width / emojiAssetsLoader.EmojisSize);
+				//int excessToRemove = (emojiAssetsLoader.NumberEmojisAdded - emojiPerRow * requiredRows);
+				//EmojiMenu.totalEmojis += excessToRemove;
+				EmojiMenu.totalEmojis += NumberCustomEmojisAdded - (VanillaTexture.Width / EmojisSize) * (int)Math.Ceiling((double)NumberCustomEmojisAdded / 14);
+				TotalNumberEmojis = EmojiMenu.totalEmojis;
+			}
+		}
+
+		public void UpdateTotalEmojis(int newAmmount) {
+			TotalNumberEmojis = newAmmount;
+			EmojiMenu.totalEmojis = TotalNumberEmojis;
+		}
 		private void SaveTextureToPng(Texture2D texture, string path) {
 			using(FileStream stream = File.Create(path)) {
 				texture.SaveAsPng(stream, texture.Width, texture.Height);
 			}
 		}
 
-		private Texture2D MergeEmojiImages(string inputPath) {
+		private List<Image> GetImageList(IEnumerable<string> imageFilePaths) {
+			return imageFilePaths.Select(x => (Image)ResizeImage(Image.FromFile(x), EmojisSize, EmojisSize)).ToList();
+		}
 
-			Texture2D outputTexture = null;
+		private List<TextureData> GetTextureDataList(IEnumerable<string> imageFilePaths) {
+			return GetTextureDataList(GetImageList(imageFilePaths));
+		}
 
-			List<Image> imagesList = modData.FilesChecksums.Values.Select(x => (Image)ResizeImage(Image.FromFile(x), EmojisSize, EmojisSize)).ToList();
+		private List<TextureData> GetTextureDataList(IEnumerable<Image> imageFilePaths) {
 
-			if(imagesList.Count > 0) {
-
-				LoadedTextureData = new List<TextureData>();
-				foreach(Image image in imagesList) {
+			List<TextureData> textureDataList = new List<TextureData>();
+			if(imageFilePaths.Count() > 0) {
+				foreach(Image image in imageFilePaths) {
 					using(MemoryStream stream = new MemoryStream()) {
 						image.Save(stream, ImageFormat.Png);
-						LoadedTextureData.Add(new TextureData(stream));
+						textureDataList.Add(new TextureData(stream));
 					}
 				}
-
-				outputTexture = MergeTextures(VanillaTexture, LoadedTextureData.Select(x => x.GetTexture()).ToList());
-
 			}
 
-			return outputTexture;
+			return textureDataList;
 		}
 
 		internal void ReloadAsset() {
@@ -177,14 +272,16 @@ namespace CustomEmojis.Framework {
 			//ChatBox.emojiTexture = modHelper.Content.Load<Texture2D>($"{Assets.OutputFolder}/{Assets.OutputFile}");
 		}
 
+		public Texture2D MergeTextures(Texture2D vanillaTexture, IEnumerable<List<TextureData>> textureDataListEnumerable) {
+			return MergeTextures(vanillaTexture, textureDataListEnumerable.SelectMany(x => x).ToList());
+		}
+
+		public Texture2D MergeTextures(Texture2D vanillaTexture, List<TextureData> textureList) {
+			return MergeTextures(vanillaTexture, textureList.Select(x => x.GetTexture()).ToList());
+		}
+
 		private Texture2D MergeTextures(Texture2D vanillaTexture, List<Texture2D> textureList) {
-
-			List<Image> textureImages = new List<Image>();
-			foreach(Texture2D texture in textureList) {
-				textureImages.Add(TextureToImage(texture));
-			}
-
-			return MergeTextures(vanillaTexture, textureImages);
+			return MergeTextures(vanillaTexture, textureList.Select(x => TextureToImage(x)).ToList());
 		}
 
 		private Texture2D MergeTextures(Texture2D vanillaTexture, List<Image> images) {

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace CustomEmojis.Framework.Constants {
 
 	internal static class FilePaths {
-		internal const string Data = "data.json";
+		internal static string Data = "data.json"; //TODO: make const in the release version 
 	}
 
 }

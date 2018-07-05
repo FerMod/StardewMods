@@ -95,13 +95,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Framework\Events\PlayerDisconnectedEventArgs.cs" />
+    <Compile Include="Framework\Events\PlayerConnectedEventArgs.cs" />
+    <Compile Include="Framework\Events\ReceivedEmojiTextureDataEventArgs.cs" />
     <Compile Include="Framework\Logger.cs" />
     <Compile Include="Test\DataManager.cs" />
     <Compile Include="Framework\Constants\FilePaths.cs" />
     <Compile Include="Framework\Constants\Assets.cs" />
     <Compile Include="Framework\CustomEmojiDrawer.cs" />
     <Compile Include="Framework\Exceptions\CustomEmojisException.cs" />
-    <Compile Include="Framework\Events\RecievedEmojiTextureRequestEventArgs.cs" />
+    <Compile Include="Framework\Events\ReceivedEmojiTextureRequestEventArgs.cs" />
     <Compile Include="Framework\Network\TextureData.cs" />
     <Compile Include="Framework\Network\DataSerialization.cs" />
     <Compile Include="Framework\Overrides\ChatBoxOverride.cs" />
@@ -112,7 +115,7 @@
     <Compile Include="Test\EmojiSprite.cs" />
     <Compile Include="Test\EmoteAnimation.cs" />
     <Compile Include="Framework\Constants\Message.cs" />
-    <Compile Include="Framework\Events\RecievedEmojiTextureEventArgs.cs" />
+    <Compile Include="Framework\Events\ReceivedEmojiTextureEventArgs.cs" />
     <Compile Include="Framework\Patches\ClassPatch.cs" />
     <Compile Include="Framework\Patches\IClassPatch.cs" />
     <Compile Include="Framework\Patches\ModPatchControl.cs" />
