@@ -32,9 +32,26 @@ namespace CustomEmojis.Framework {
 			}
 			Directory.CreateDirectory(folderPath);
 			FilePath = filePath;
-			Stream = new StreamWriter(FilePath, append) {
-				AutoFlush = true
-			};
+			try {
+				Stream = new StreamWriter(FilePath, append) {
+					AutoFlush = true
+				};
+			} catch(IOException) {
+				string dir = Path.GetDirectoryName(filePath);
+				string fileName = Path.GetFileNameWithoutExtension(filePath);
+				string fileExt = Path.GetExtension(filePath);
+				FilePath = Path.Combine(dir, fileName + "2", fileExt);
+			}
+			try {
+				Stream = new StreamWriter(FilePath, append) {
+					AutoFlush = true
+				};
+			} catch(IOException) {
+				string dir = Path.GetDirectoryName(filePath);
+				string fileName = Path.GetFileNameWithoutExtension(filePath);
+				string fileExt = Path.GetExtension(filePath);
+				FilePath = Path.Combine(dir, fileName + "2", fileExt);
+			}
 		}
 
 		public void LogTrace(string message = "Trace Message:",
@@ -89,8 +106,22 @@ namespace CustomEmojis.Framework {
 		}
 
 		public void Dispose() {
-			Stream.Dispose();
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
+
+		protected virtual void Dispose(bool disposing) {
+
+			if(disposing) {
+				// free managed resources  
+				if(Stream != null) {
+					Stream.Dispose();
+					Stream = null;
+				}
+			}
+
+		}
+
 	}
 
 }
