@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using StardewModdingAPI;
 using System.Linq;
 using CustomEmojis.Framework.Constants;
+using System.Diagnostics;
 
 namespace CustomEmojis {
 
@@ -36,7 +37,7 @@ namespace CustomEmojis {
 		}
 
 		public bool ShouldGenerateTexture() {
-			return FilesChanged || !File.Exists(Path.Combine(ModHelper.DirectoryPath, Assets.OutputFolder, Assets.OutputFile));
+			return FilesChanged || !File.Exists(Path.Combine(ModHelper.DirectoryPath, Sprites.CustomEmojis.AssetName));
 		}
 
 		public void ShouldGenerateTexture(bool generate) {
@@ -44,6 +45,11 @@ namespace CustomEmojis {
 		}
 
 		public bool Checksum() {
+#if DEBUG
+			Stopwatch sw = new Stopwatch();
+			ModEntry.ModLogger.Log("[Checksum] Timer started.");
+			sw.Start();
+#endif
 			if(!FilesChanged) {
 				foreach(string path in WatchedPaths) {
 
@@ -52,7 +58,7 @@ namespace CustomEmojis {
 					if(Directory.Exists(absolutePath)) {
 
 						Dictionary<string, string> currentFilesChecksum = ModUtilities.GetFolderFilesHash(absolutePath, SearchOption.AllDirectories, FileExtensionsFilter);
-						
+
 						if(!EqualDictionaries(FilesChecksums, currentFilesChecksum)) {
 							FilesChecksums = currentFilesChecksum;
 							FilesChanged = true;
@@ -62,6 +68,10 @@ namespace CustomEmojis {
 
 				}
 			}
+#if DEBUG
+			sw.Stop();
+			ModEntry.ModLogger.Log("[Checksum] Timer stoped.", $"Elapsed Time: {sw.Elapsed}");
+#endif
 			return FilesChanged;
 		}
 
