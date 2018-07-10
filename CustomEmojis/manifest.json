@@ -1,9 +1,9 @@
 ﻿{
 	"Name": "Custom Emojis",
 	"Author": "FerMod",
-	"Version": "1.0.0-beta.1",
-	"Description": "Allows to add custom emojis that can be sent by chat, and to use other players emojis when in the same server.",
+	"Version": "1.0.0-beta",
+	"Description": "Allows to add custom emojis that can be sent to other players.",
 	"UniqueID": "FerMod.CustomEmojis",
 	"EntryDll": "CustomEmojis.dll",
-	"UpdateKeys": ["Nexus:2435"]
+	"UpdateKeys": [ "Nexus:2435" ]
 }
