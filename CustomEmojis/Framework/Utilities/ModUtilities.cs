@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -38,10 +39,11 @@ namespace CustomEmojis.Framework.Utilities {
 		/// </summary>
 		public static IEnumerable<string> GetFiles(string path, SearchOption searchOption = SearchOption.TopDirectoryOnly, string[] searchPatterns = null) {
 			searchPatterns = searchPatterns ?? new string[] { "*" };
+			Directory.EnumerateFiles(path, "*.*", searchOption).Where(s => searchPatterns.Any(e => s.EndsWith(e, StringComparison.OrdinalIgnoreCase)));
 			return searchPatterns.AsParallel().SelectMany(searchPattern => Directory.EnumerateFiles(path, "*.*", searchOption).Where(s => s.EndsWith(searchPattern)));
 		}
 
-		public static string CalculateFileHash(string filePath) {
+		public static string GetFileHash(string filePath) {
 
 			using(HashAlgorithm hashAlgorithm = SHA256.Create()) {
 
@@ -50,6 +52,15 @@ namespace CustomEmojis.Framework.Utilities {
 					return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
 				}
 
+			}
+
+		}
+
+		public static string GetHash(Stream stream) {
+
+			using(HashAlgorithm hashAlgorithm = SHA256.Create()) {
+				byte[] hash = hashAlgorithm.ComputeHash(stream);
+				return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
 			}
 
 		}
@@ -76,7 +87,7 @@ namespace CustomEmojis.Framework.Utilities {
 			return fileHashDictionary;
 		}
 
-		public static string CalculateFolderHash(string path, SearchOption searchOption = SearchOption.TopDirectoryOnly, string[] searchPatterns = null) {
+		public static string GetFolderHash(string path, SearchOption searchOption = SearchOption.TopDirectoryOnly, string[] searchPatterns = null) {
 
 			searchPatterns = searchPatterns ?? new string[] { "*" };
 
