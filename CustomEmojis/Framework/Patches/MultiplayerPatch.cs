@@ -8,6 +8,7 @@ using System.IO;
 using CustomEmojis.Framework.Patches;
 using CustomEmojis.Framework.Extensions;
 using CustomEmojis.Framework.Constants;
+using StardewModdingAPI;
 
 namespace CustomEmojis.Patches {
 
@@ -21,18 +22,24 @@ namespace CustomEmojis.Patches {
 			//TODO: Checking for ussed MessageTypes ids. Possible?
 			private static bool ProcessIncomingMessage_Prefix(Multiplayer __instance, ref IncomingMessage msg) {
 
-				// Vanilla message types
+				if(msg.MessageType != 0) {
+					ModEntry.ModLogger.Log($"MessageType: {msg.MessageType}");
+				}
+
+				// Incomming vanilla message MessageType
+				/*
 				switch(msg.MessageType) {
-					/*
-					// Not being used in the class 'Multiplayer'
+					// "playerIntroduction" never reaches to the 'Multiplayer' class 
 					case 2:
 						__instance.PlayerConnected(msg);
-						break;					
-					 */
+						break;
+
+					// "disconnecting" never reaches to the 'Multiplayer' class when forced to disconnect
 					case 19:
 						__instance.PlayerDisconnected(msg);
 						break;
 				}
+				*/
 
 				if(msg.MessageType == Message.TypeID && msg.Data.Length > 0) {
 
@@ -71,6 +78,44 @@ namespace CustomEmojis.Patches {
 			}
 
 		}
+
+		// Player connected
+		internal class AddPlayerPatch : ClassPatch {
+
+			public override MethodInfo Original => AccessTools.Method(typeof(Multiplayer), nameof(Multiplayer.addPlayer), new Type[] { typeof(NetFarmerRoot) });
+			public override MethodInfo Postfix => AccessTools.Method(this.GetType(), nameof(AddPlayerPatch.AddPlayer_Postfix));
+
+			private static void AddPlayer_Postfix(Multiplayer __instance, ref NetFarmerRoot f) {
+				__instance.PlayerConnected(f.Value);
+			}
+
+		}
+
+		// Player disconnected
+		internal class PlayerDisconnectedPatch : ClassPatch {
+
+			public override MethodInfo Original => AccessTools.Method(typeof(Multiplayer), nameof(Multiplayer.playerDisconnected), new Type[] { typeof(long) });
+			public override MethodInfo Prefix => AccessTools.Method(this.GetType(), nameof(PlayerDisconnectedPatch.PlayerDisconnected_Prefix));
+
+			private static void PlayerDisconnected_Prefix(Multiplayer __instance, ref long id) {
+				__instance.PlayerDisconnected(Game1.getFarmer(id));
+			}
+
+		}
+
+		/*
+		// Player connected
+		internal class ReceivePlayerIntroductionPatch : ClassPatch {
+
+			public override MethodInfo Original => AccessTools.Method(typeof(Multiplayer), nameof(Multiplayer.receivePlayerIntroduction), new Type[] { typeof(BinaryReader) });
+			public override MethodInfo Postfix => AccessTools.Method(this.GetType(), nameof(ReceivePlayerIntroductionPatch.ReceivePlayerIntroduction_Postfix));
+
+			private static void ReceivePlayerIntroduction_Postfix(Multiplayer __instance, ref BinaryReader reader) {
+				__instance.PlayerConnected(__instance.readFarmer(reader).Value);
+			}
+
+		}
+		*/
 
 	}
 
