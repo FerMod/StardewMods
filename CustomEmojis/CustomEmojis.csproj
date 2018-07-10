@@ -86,6 +86,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -95,13 +96,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Framework\Constants\Sprites.cs" />
     <Compile Include="Framework\Events\PlayerDisconnectedEventArgs.cs" />
     <Compile Include="Framework\Events\PlayerConnectedEventArgs.cs" />
     <Compile Include="Framework\Events\ReceivedEmojiTextureDataEventArgs.cs" />
+    <Compile Include="Framework\Extensions\ObjectExtension.cs" />
     <Compile Include="Framework\Logger.cs" />
+    <Compile Include="Framework\Menu\CachedMessageEmojis.cs" />
+    <Compile Include="Framework\Patches\Game1Patch.cs" />
+    <Compile Include="Test\ModCache.cs" />
     <Compile Include="Test\DataManager.cs" />
-    <Compile Include="Framework\Constants\FilePaths.cs" />
-    <Compile Include="Framework\Constants\Assets.cs" />
+    <Compile Include="Framework\Constants\ModPaths.cs" />
     <Compile Include="Framework\CustomEmojiDrawer.cs" />
     <Compile Include="Framework\Exceptions\CustomEmojisException.cs" />
     <Compile Include="Framework\Events\ReceivedEmojiTextureRequestEventArgs.cs" />
@@ -136,6 +141,8 @@
   <ItemGroup>
     <None Include="manifest.json" />
     <None Include="packages.config" />
+    <None Include="README.md" />
+    <None Include="release-notes.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="assets\" />
@@ -164,7 +171,7 @@
     <Content Include="vanillaEmojis.png" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180625\analyzers\dotnet\cs\StardewModdingAPI.ModBuildConfig.Analyzer.dll" />
+    <Analyzer Include="..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180630\analyzers\dotnet\cs\StardewModdingAPI.ModBuildConfig.Analyzer.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -172,11 +179,11 @@
     </PreBuildEvent>
     <!-- <PostBuildEvent Condition="$(Configuration) != 'Release'">xcopy "$(GamePath)\Mods\$(ProjectName)" "$(GamePath)\Mods\$(ProjectName)Dummy" /Y /E /D</PostBuildEvent> -->
   </PropertyGroup>
-  <Import Project="..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180625\build\Pathoschild.Stardew.ModBuildConfig.targets" Condition="Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180625\build\Pathoschild.Stardew.ModBuildConfig.targets')" />
+  <Import Project="..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180630\build\Pathoschild.Stardew.ModBuildConfig.targets" Condition="Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180630\build\Pathoschild.Stardew.ModBuildConfig.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180625\build\Pathoschild.Stardew.ModBuildConfig.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180625\build\Pathoschild.Stardew.ModBuildConfig.targets'))" />
+    <Error Condition="!Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180630\build\Pathoschild.Stardew.ModBuildConfig.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180630\build\Pathoschild.Stardew.ModBuildConfig.targets'))" />
   </Target>
 </Project>
