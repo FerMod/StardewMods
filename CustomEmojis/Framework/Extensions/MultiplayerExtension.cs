@@ -179,16 +179,34 @@ namespace CustomEmojis.Framework.Extensions {
 
 		#region Vanilla MessageTypes
 
+		//TODO: Not in use, remove if not needed
 		public static void PlayerConnected(this Multiplayer multiplayer, IncomingMessage msg) {
 			PlayerConnectedEventArgs args = new PlayerConnectedEventArgs {
 				Player = multiplayer.readFarmer(msg.Reader).Value
 			};
+			ModEntry.ModMonitor.Log("PlayerConnected(this Multiplayer multiplayer, IncomingMessage msg)");
 			OnPlayerConnected(null, args);
 		}
 
+		public static void PlayerConnected(this Multiplayer multiplayer, Farmer farmer) {
+			PlayerConnectedEventArgs args = new PlayerConnectedEventArgs {
+				Player = farmer
+			};
+			OnPlayerConnected(null, args);
+		}
+
+		//TODO: Not in use, remove if not needed
 		public static void PlayerDisconnected(this Multiplayer multiplayer, IncomingMessage msg) {
 			PlayerDisconnectedEventArgs args = new PlayerDisconnectedEventArgs {
 				Player = msg.SourceFarmer
+			};
+			ModEntry.ModMonitor.Log("PlayerDisconnected(this Multiplayer multiplayer, IncomingMessage msg)");
+			OnPlayerDisconnected(null, args);
+		}
+
+		public static void PlayerDisconnected(this Multiplayer multiplayer, Farmer farmer) {
+			PlayerDisconnectedEventArgs args = new PlayerDisconnectedEventArgs {
+				Player = farmer
 			};
 			OnPlayerDisconnected(null, args);
 		}
