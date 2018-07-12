@@ -1,10 +1,13 @@
 ﻿
 using System;
+using System.IO;
 using System.Reflection;
+using MultiplayerEmotes.Framework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MultiplayerEmotes.Events;
+using MultiplayerEmotes.Framework.Constants;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -60,12 +63,12 @@ namespace MultiplayerEmotes.Menus {
 			this.width = targetRect.Width;
 			this.height = targetRect.Height;
 
-			this.emoteMenuTexture = helper.Content.Load<Texture2D>("assets\\emoteBox.png", ContentSource.ModFolder);
-			this.emoteTexture = helper.Content.Load<Texture2D>("TileSheets\\emotes", ContentSource.GameContent);
+			this.emoteMenuTexture = helper.Content.Load<Texture2D>(Sprites.Menu.AssetName, ContentSource.ModFolder);
+			this.emoteTexture = Sprites.Emotes.Texture;
 			this.emoteMenuIcon = new ClickableTextureComponent(new Rectangle(this.targetRect.X, this.targetRect.Y, this.width, this.height), Game1.mouseCursors, sourceRect, 4f, false);
 
-			Texture2D chatBoxTexture = helper.Content.Load<Texture2D>("LooseSprites\\chatBox", ContentSource.GameContent);
-			this.emoteMenu = new EmoteMenu(helper, this, emoteMenuTexture, chatBoxTexture, emoteTexture, new Vector2(this.targetRect.X, this.targetRect.Y));
+			//Texture2D chatBoxTexture = helper.Content.Load<Texture2D>(Sprites.ChatBox.AssetName, ContentSource.GameContent);
+			this.emoteMenu = new EmoteMenu(helper, this, emoteMenuTexture, Sprites.ChatBox.Texture, emoteTexture, new Vector2(this.targetRect.X, this.targetRect.Y));
 
 			IsBeingDragged = false;
 
@@ -73,7 +76,7 @@ namespace MultiplayerEmotes.Menus {
 			animationTimer = AnimationCooldownTime;
 			AnimatedEmoteIcon = modConfig.AnimateEmoteButtonIcon;
 			AnimationOnHover = true; // Not in use
-			iconAnimation = new TemporaryAnimatedSprite("TileSheets\\emotes", new Rectangle(0, 0, 16, 16), 250f, 4, 0, new Vector2(this.emoteMenuIcon.bounds.X + 15, this.emoteMenuIcon.bounds.Y + 15), false, false, 0.9f, 0f, Color.White, 2.0f, 0f, 0f, 0f, true);
+			iconAnimation = new TemporaryAnimatedSprite(Sprites.Emotes.AssetName, new Rectangle(0, 0, 16, 16), 250f, 4, 0, new Vector2(this.emoteMenuIcon.bounds.X + 15, this.emoteMenuIcon.bounds.Y + 15), false, false, 0.9f, 0f, Color.White, 2.0f, 0f, 0f, 0f, true);
 
 			ShowTooltipOnHover = modConfig.ShowTooltipOnHover;
 			hoverText = "Emotes";

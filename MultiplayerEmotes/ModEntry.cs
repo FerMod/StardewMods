@@ -5,9 +5,8 @@ using MultiplayerEmotes.Patches;
 using StardewModdingAPI.Events;
 using System;
 using MultiplayerEmotes.Menus;
-using StardewValley.Network;
-using Netcode;
-using System.Reflection;
+using MultiplayerEmotes.Framework;
+using System.IO;
 
 namespace MultiplayerEmotes {
 
@@ -20,7 +19,9 @@ namespace MultiplayerEmotes {
 
 		// TODO: Remove. Used for debugging
 		public static IMonitor ModMonitor { get; private set; }
-
+#if DEBUG
+		public static Logger ModLogger { get; private set; }
+#endif
 		/*
 		 Emotes only visible by others with the mod.
 		 The host needs to have the mod, to others with the mod use it.
@@ -30,6 +31,9 @@ namespace MultiplayerEmotes {
 
 			ModMonitor = Monitor;
 
+#if DEBUG
+			ModLogger = new Logger(Path.Combine(helper.DirectoryPath, "logfile.txt"), true, Monitor);
+#endif
 			ModPatchControl PatchContol = new ModPatchControl(helper);
 			PatchContol.PatchList.Add(new FarmerPatch.DoEmotePatch(helper.Reflection));
 			PatchContol.PatchList.Add(new MultiplayerPatch.ProcessIncomingMessagePatch());
@@ -44,9 +48,9 @@ namespace MultiplayerEmotes {
 			SaveEvents.AfterLoad += this.AfterLoad;
 
 			helper.ConsoleCommands.Add("emote", "Play the emote animation with the passed id.\n\nUsage: emote <value>\n- value: a integer representing the animation id.", this.Emote);
-			helper.ConsoleCommands.Add("stop_emote", "Stop any playing emote.\n\nUsage: stop_emote", this.StopEmote);
-			helper.ConsoleCommands.Add("stop_all_emotes", "Stop any playing emote by players.\n\nUsage: stop_all_emotes", this.StopAllEmotes);
-			
+			helper.ConsoleCommands.Add("stop_emote", "Stop any emote being played by you.\n\nUsage: stop_emote", this.StopEmote);
+			helper.ConsoleCommands.Add("stop_all_emotes", "Stop any emote being played.\n\nUsage: stop_all_emotes", this.StopAllEmotes);
+
 		}
 
 		/*********
@@ -59,7 +63,7 @@ namespace MultiplayerEmotes {
 			// Add EmoteMenuButton to the screen menus
 			Game1.onScreenMenus.Insert(0, emoteMenuButton);
 
-#if(DEBUG)
+#if DEBUG
 			// Pause time and set it to 09:00
 			Helper.ConsoleCommands.Trigger("world_freezetime", new string[] { "1" });
 			Helper.ConsoleCommands.Trigger("world_settime", new string[] { "0900" });
@@ -73,7 +77,13 @@ namespace MultiplayerEmotes {
 				if(int.TryParse(args[0], out int id)) {
 					if(id > 0) {
 						Game1.player.doEmote(id * 4);
-						this.Monitor.Log($"Playing emote: {args[0]}");
+						this.Monitor.Log($"Playing emote: {id}");
+#if DEBUG
+					} else if(id < 0) {
+						EmoteTemporaryAnimation emoteTempAnim = new EmoteTemporaryAnimation(Helper.Reflection);
+						emoteTempAnim.BroadcastEmote(id * -1);
+						this.Monitor.Log($"Playing emote (workarround): {id * -1}");
+#endif
 					} else {
 						this.Monitor.Log($"The emote id value must be grater than 0.");
 					}
