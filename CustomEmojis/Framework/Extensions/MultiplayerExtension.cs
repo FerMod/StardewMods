@@ -8,6 +8,8 @@ using CustomEmojis.Framework.Constants;
 using CustomEmojis.Framework.Network;
 using System.Collections.Generic;
 using System.Linq;
+using Netcode;
+using System.IO;
 
 namespace CustomEmojis.Framework.Extensions {
 
@@ -20,8 +22,10 @@ namespace CustomEmojis.Framework.Extensions {
 		public static event EventHandler<PlayerConnectedEventArgs> OnPlayerConnected = delegate { };
 		public static event EventHandler<PlayerDisconnectedEventArgs> OnPlayerDisconnected = delegate { };
 
-		public static void BroadcastEmojiTexture(this Multiplayer multiplayer, Texture2D texture, int numberEmojis) {
+		public static event EventHandler<ChatMessageEventArgs> OnReceiveChatMessage = delegate { };
+		public static event EventHandler<ChatMessageEventArgs> OnSendChatMessage = delegate { };
 
+		public static void BroadcastEmojiTexture(this Multiplayer multiplayer, Texture2D texture, int numberEmojis) {
 			if(Game1.IsMultiplayer) {
 				object[] objArray = new object[3] {
 					Message.Action.BroadcastEmojiTexture.ToString(),
@@ -36,9 +40,11 @@ namespace CustomEmojis.Framework.Extensions {
 						}
 					}
 				} else if(Game1.IsClient) {
+					// TODO: Test code
+					//new NotImplementedException("The client emoji texture broadcast is not implemented yet.");
 					foreach(Farmer farmer in Game1.getAllFarmers()) {
 						if(farmer != Game1.player) {
-							Game1.server.sendMessage(farmer.UniqueMultiplayerID, message);
+							Game1.client.sendMessage(new OutgoingMessage(Message.TypeID, farmer, objArray));
 						}
 					}
 				}
@@ -209,6 +215,34 @@ namespace CustomEmojis.Framework.Extensions {
 				Player = farmer
 			};
 			OnPlayerDisconnected(null, args);
+		}
+
+		#endregion
+
+		#region Chat Messages
+
+		public static void ReceivedChatMessage(this Multiplayer multiplayer, Farmer farmer, LocalizedContentManager.LanguageCode language, string message) {
+			ChatMessageEventArgs args = new ChatMessageEventArgs {
+				SourcePlayer = farmer,
+				Language = language,
+				Message = message
+			};
+#if DEBUG
+			ModEntry.ModLogger.LogTrace();
+#endif
+			OnReceiveChatMessage(null, args);
+		}
+
+		public static void SendedChatMessage(this Multiplayer multiplayer, Farmer farmer, LocalizedContentManager.LanguageCode language, string message) {
+			ChatMessageEventArgs args = new ChatMessageEventArgs {
+				SourcePlayer = farmer,
+				Language = language,
+				Message = message
+			};
+#if DEBUG
+			ModEntry.ModLogger.LogTrace();
+#endif
+			OnSendChatMessage(null, args);
 		}
 
 		#endregion

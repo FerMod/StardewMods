@@ -27,19 +27,21 @@ namespace CustomEmojis.Patches {
 				}
 
 				// Incomming vanilla message MessageType
-				/*
 				switch(msg.MessageType) {
 					// "playerIntroduction" never reaches to the 'Multiplayer' class 
-					case 2:
-						__instance.PlayerConnected(msg);
-						break;
+					//case 2:
+					//	__instance.PlayerConnected(msg);
+					//	break;
+
+					//case 10:
+					//	__instance.ReceivedChatMessage(msg);
+					//	break;
 
 					// "disconnecting" never reaches to the 'Multiplayer' class when forced to disconnect
-					case 19:
-						__instance.PlayerDisconnected(msg);
-						break;
+					//case 19:
+					//	__instance.PlayerDisconnected(msg);
+					//	break;
 				}
-				*/
 
 				if(msg.MessageType == Message.TypeID && msg.Data.Length > 0) {
 
@@ -116,6 +118,28 @@ namespace CustomEmojis.Patches {
 
 		}
 		*/
+
+		internal class SendChatMessagePatch : ClassPatch {
+
+			public override MethodInfo Original => AccessTools.Method(typeof(Multiplayer), nameof(Multiplayer.sendChatMessage), new Type[] { typeof(LocalizedContentManager.LanguageCode), typeof(string) });
+			public override MethodInfo Postfix => AccessTools.Method(this.GetType(), nameof(SendChatMessagePatch.SendChatMessage_Postfix));
+
+			private static void SendChatMessage_Postfix(Multiplayer __instance, ref LocalizedContentManager.LanguageCode language, ref string message) {
+				__instance.SendedChatMessage(Game1.player, language, message);
+			}
+
+		}
+
+		internal class ReceiveChatMessagePatch : ClassPatch {
+
+			public override MethodInfo Original => AccessTools.Method(typeof(Multiplayer), nameof(Multiplayer.receiveChatMessage), new Type[] { typeof(Farmer), typeof(LocalizedContentManager.LanguageCode), typeof(string) });
+			public override MethodInfo Postfix => AccessTools.Method(this.GetType(), nameof(ReceiveChatMessagePatch.ReceiveChatMessage_Postfix));
+
+			private static void ReceiveChatMessage_Postfix(Multiplayer __instance, ref Farmer sourceFarmer, ref LocalizedContentManager.LanguageCode language, ref string message) {
+				__instance.ReceivedChatMessage(sourceFarmer, language, message);
+			}
+
+		}
 
 	}
 
