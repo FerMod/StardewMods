@@ -24,19 +24,19 @@ namespace CustomEmojis.Patches {
 
 			private static void DrawOverlays_Postfix(Game1 __instance, ref SpriteBatch spriteBatch) {
 
-				if(Game1.chatBox != null && Game1.chatBox.isActive()) {
+				if(Game1.chatBox != null) {
 
 					spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
 					
 					foreach(IClickableMenu menu in Game1.onScreenMenus) {
-						if(menu is CachedMessageEmojis) {
-							menu.draw(spriteBatch);
+						if(menu is CachedMessageEmojis cachedMessageEmojis) {
+							cachedMessageEmojis.DrawMessages(spriteBatch);
 						}
 					}
 
-					if((Game1.displayHUD || Game1.eventUp) && (Game1.currentBillboard == 0 && Game1.gameMode == (byte)3) && (!Game1.freezeControls && !Game1.panMode)) {
-						__instance.drawMouseCursor();
-					}
+					//if((Game1.displayHUD || Game1.eventUp) && (Game1.currentBillboard == 0 && Game1.gameMode == (byte)3) && (!Game1.freezeControls && !Game1.panMode)) {
+					//	__instance.drawMouseCursor();
+					//}
 
 					spriteBatch.End();
 
