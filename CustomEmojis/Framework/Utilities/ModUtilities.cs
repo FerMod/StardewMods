@@ -1,11 +1,7 @@
 ﻿
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -63,6 +59,10 @@ namespace CustomEmojis.Framework.Utilities {
 				return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
 			}
 
+		}
+
+		internal static string[] BreakLines(string str) {
+			return str.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 		}
 
 		public static Dictionary<string, string> GetFolderFilesHash(string path, SearchOption searchOption = SearchOption.TopDirectoryOnly, string[] searchPatterns = null) {
