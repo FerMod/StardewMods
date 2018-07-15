@@ -67,20 +67,13 @@ namespace CustomEmojis.Framework {
 
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine(message);
-			sb.AppendLine(callerMemberName.PadLeft(callerMemberName.Length));
-			sb.AppendLine(callerFilePath.PadLeft(callerFilePath.Length));
-			sb.Append(callerLineNumber.PadLeft(callerLineNumber.Length));
-
-			ModMonitor?.Log(sb.ToString());
-
-			sb.Clear();
-
-			sb.AppendLine(message);
 			sb.AppendLine(callerMemberName.PadLeft(callerMemberName.Length + timeLength));
 			sb.AppendLine(callerFilePath.PadLeft(callerFilePath.Length + timeLength));
 			sb.Append(callerLineNumber.PadLeft(callerLineNumber.Length + timeLength));
 
 			WriteLine($"{time} {sb.ToString()}");
+			ModMonitor?.Log(sb.ToString());
+
 		}
 
 		public void Log(params string[] messages) {

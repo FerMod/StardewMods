@@ -7,11 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiplayerEmotes", "Multip
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomEmojis", "CustomEmojis\CustomEmojis.csproj", "{DBBDBD72-9FBD-4594-AFED-5CE4501CD5DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dummy", "..\CustomEmojis\Dummy\Dummy.csproj", "{DB944FF1-1AC4-4131-A8D0-A3F3E85CC249}"
-	ProjectSection(ProjectDependencies) = postProject
-		{DBBDBD72-9FBD-4594-AFED-5CE4501CD5DF} = {DBBDBD72-9FBD-4594-AFED-5CE4501CD5DF}
-		{23F1DA89-0C7F-4015-96F3-5C4A6FD5500D} = {23F1DA89-0C7F-4015-96F3-5C4A6FD5500D}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomEmojis.Tests", "CustomEmojis.Tests\CustomEmojis.Tests.csproj", "{B2AEB792-62F6-421D-B64D-5065A2F8250B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dummy", "Dummy\Dummy.csproj", "{DB944FF1-1AC4-4131-A8D0-A3F3E85CC249}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +25,10 @@ Global
 		{DBBDBD72-9FBD-4594-AFED-5CE4501CD5DF}.Debug|x86.Build.0 = Debug|x86
 		{DBBDBD72-9FBD-4594-AFED-5CE4501CD5DF}.Release|x86.ActiveCfg = Release|x86
 		{DBBDBD72-9FBD-4594-AFED-5CE4501CD5DF}.Release|x86.Build.0 = Release|x86
+		{B2AEB792-62F6-421D-B64D-5065A2F8250B}.Debug|x86.ActiveCfg = Debug|x86
+		{B2AEB792-62F6-421D-B64D-5065A2F8250B}.Debug|x86.Build.0 = Debug|x86
+		{B2AEB792-62F6-421D-B64D-5065A2F8250B}.Release|x86.ActiveCfg = Release|x86
+		{B2AEB792-62F6-421D-B64D-5065A2F8250B}.Release|x86.Build.0 = Release|x86
 		{DB944FF1-1AC4-4131-A8D0-A3F3E85CC249}.Debug|x86.ActiveCfg = Debug|x86
 		{DB944FF1-1AC4-4131-A8D0-A3F3E85CC249}.Release|x86.ActiveCfg = Release|x86
 	EndGlobalSection

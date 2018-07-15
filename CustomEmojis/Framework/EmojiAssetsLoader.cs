@@ -209,6 +209,8 @@ namespace CustomEmojis.Framework {
 			// Replace with the new texture
 			modHelper.Reflection.GetField<Texture2D>(Game1.chatBox.emojiMenu, "emojiTexture").SetValue(CurrentTexture);
 			ChatBox.emojiTexture = CurrentTexture;
+			//Game1.chatBox.emojiMenu.receiveScrollWheelAction(1);
+			//Game1.chatBox.emojiMenu.receiveScrollWheelAction(-1);
 
 			// Update client textures
 			Multiplayer multiplayer = modHelper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();

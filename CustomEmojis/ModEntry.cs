@@ -11,7 +11,6 @@ using CustomEmojis.Framework;
 using CustomEmojis.Patches;
 using CustomEmojis.Framework.Constants;
 using CustomEmojis.Framework.Menu;
-using Newtonsoft.Json;
 using System.IO;
 
 namespace CustomEmojis {
@@ -41,6 +40,10 @@ namespace CustomEmojis {
 			PatchControl.PatchList.Add(new MultiplayerPatch.ProcessIncomingMessagePatch());
 			PatchControl.PatchList.Add(new MultiplayerPatch.AddPlayerPatch());
 			PatchControl.PatchList.Add(new MultiplayerPatch.PlayerDisconnectedPatch());
+			//PatchControl.PatchList.Add(new MultiplayerPatch.SendChatMessagePatch());
+			//PatchControl.PatchList.Add(new MultiplayerPatch.ReceiveChatMessagePatch());
+			PatchControl.PatchList.Add(new ChatBoxPatch.AddMessagePatch());
+			PatchControl.PatchList.Add(new ChatBoxPatch.ReceiveChatMessagePatch());
 			PatchControl.PatchList.Add(new Game1Patch.DrawOverlaysPatch());
 			/*
 			PatchControl.PatchList.Add(new MultiplayerPatch.ReceivePlayerIntroductionPatch());
@@ -50,7 +53,7 @@ namespace CustomEmojis {
 			this.Monitor.Log("Loading mod config...", LogLevel.Trace);
 			this.config = helper.ReadConfig<ModConfig>();
 
-#if DEBUG
+#if !DEBUG
 			ModLogger = new Logger(helper.DirectoryPath + "\\logfile.txt", false, Monitor);
 			this.Monitor.Log("Loading mod data...", LogLevel.Trace);
 			this.modData = this.Helper.ReadJsonFile<ModData>(ModPaths.Data.Path);
@@ -84,7 +87,7 @@ namespace CustomEmojis {
 			//}
 			//string output = Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
 			//File.WriteAllText(configPath, output);
-			
+
 			if(modDebugData.ActAsHost()) {
 
 				this.Helper.WriteJsonFile("debugData.json", modDebugData);
@@ -156,10 +159,7 @@ namespace CustomEmojis {
 			Helper.ConsoleCommands.Trigger("world_freezetime", new string[] { "1" });
 			Helper.ConsoleCommands.Trigger("world_settime", new string[] { "0900" });
 			ModLogger.Log($"Player UniqueMultiplayerID: {Game1.player.UniqueMultiplayerID}");
-#endif
-
-			cachedMessages = new CachedMessageEmojis(Helper.Reflection);
-			Game1.onScreenMenus.Add(cachedMessages);
+#endif			
 
 			if(modData.ShouldSaveData()) {
 				this.Monitor.Log("File changes detected. Saving mod data...", LogLevel.Trace);
@@ -178,6 +178,9 @@ namespace CustomEmojis {
 				emojiAssetsLoader.UpdateTotalEmojis();
 				this.Monitor.Log($"Total emojis counted after ammount fix: {emojiAssetsLoader.TotalNumberEmojis}");
 			}
+
+			cachedMessages = new CachedMessageEmojis(Helper, emojiAssetsLoader.TotalNumberEmojis - emojiAssetsLoader.NumberCustomEmojisAdded);
+			Game1.onScreenMenus.Add(cachedMessages);
 
 			if(!Game1.IsMasterGame && emojiAssetsLoader.CustomTextureAdded) {
 				Multiplayer multiplayer = this.Helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
