@@ -21,9 +21,11 @@ namespace CustomEmojis.Framework.Extensions {
 				Message = message
 			};
 #if DEBUG
-			ModEntry.ModLogger.LogTrace();
+            ModEntry.ModLogger.LogToMonitor = false;
+            ModEntry.ModLogger.LogTrace();
+            ModEntry.ModLogger.LogToMonitor = true;
 #endif
-			OnChatBoxReceivedMessage(null, args);
+            OnChatBoxReceivedMessage(null, args);
 		}
 
 		public static void ChatBoxAddedMessage(this ChatBox chatBox, string message, Color color) {
@@ -44,9 +46,11 @@ namespace CustomEmojis.Framework.Extensions {
 				Message = message
 			};
 #if DEBUG
-			ModEntry.ModLogger.LogTrace();
+            ModEntry.ModLogger.LogToMonitor = false;
+            ModEntry.ModLogger.LogTrace();
+            ModEntry.ModLogger.LogToMonitor = true;
 #endif
-			OnChatBoxAddedMessage(null, args);
+            OnChatBoxAddedMessage(null, args);
 		}
 
 	}

@@ -74,15 +74,16 @@ namespace CustomEmojis.Framework {
 		/// <param name="asset">Basic metadata about the asset being loaded.</param>
 		public T Load<T>(IAssetInfo asset) {
 
-			ModEntry.ModLogger.Log($"Generate Texture? {modData.ShouldGenerateTexture()}");
+#if DEBUG
+            ModEntry.ModLogger.Log($"Generate Texture? {modData.ShouldGenerateTexture()}");
 			ModEntry.ModLogger.Log($"Save Checksum Data? {modData.ShouldSaveData()}");
 
 			Stopwatch swTotal = new Stopwatch();
 			ModEntry.ModMonitor.Log($"[EmojiAssetsLoader TextureCreated/Loaded] Timer Started!");
 			ModEntry.ModLogger.Log("[Start Asset Load] Timer Started!");
 			swTotal.Start();
-
-			string outputFolderPath = Path.Combine(modHelper.DirectoryPath, ModPaths.Assets.Folder);
+#endif
+            string outputFolderPath = Path.Combine(modHelper.DirectoryPath, ModPaths.Assets.Folder);
 			Directory.CreateDirectory(outputFolderPath);
 
 			string inputFolderPath = Path.Combine(modHelper.DirectoryPath, ModPaths.Assets.InputFolder);
@@ -90,45 +91,47 @@ namespace CustomEmojis.Framework {
 			// If file changes are detected, make again the texture
 			if(!Directory.Exists(inputFolderPath)) {
 				Directory.CreateDirectory(inputFolderPath);
-				ModEntry.ModLogger.Log("[In Assed Load] No directory", $"Total time Elapsed: {swTotal.Elapsed}");
-			} else if(ForceTextureGeneration || modData.ShouldGenerateTexture() || modData.Checksum()) {
-
-				ModEntry.ModLogger.Log("[In Assed Load] [Generate Texture] Timer Started!", $"Total Time Elapsed: {swTotal.Elapsed}");
+#if DEBUG
+                ModEntry.ModLogger.Log("[In Assed Load] No directory", $"Total time Elapsed: {swTotal.Elapsed}");
+#endif
+            } else if(ForceTextureGeneration || modData.ShouldGenerateTexture() || modData.Checksum()) {
+#if DEBUG
+                ModEntry.ModLogger.Log("[In Assed Load] [Generate Texture] Timer Started!", $"Total Time Elapsed: {swTotal.Elapsed}");
 
 				Stopwatch sw = new Stopwatch();
 				sw.Start();
 
 				ModEntry.ModLogger.Log("[In Assed Load] [Merging Images]");
-
-				LoadedTextureData = GetTextureDataList(modData.FilesChecksums.Values);
+#endif
+                LoadedTextureData = GetTextureDataList(modData.FilesChecksums.Values);
 				CustomTexture = MergeTextures(VanillaTexture, LoadedTextureData);
-
-				ModEntry.ModLogger.Log("[In Assed Load] [After Merging Images]", $"Time Elapsed: {sw.Elapsed}");
+#if DEBUG
+                ModEntry.ModLogger.Log("[In Assed Load] [After Merging Images]", $"Time Elapsed: {sw.Elapsed}");
 
 				ModEntry.ModLogger.Log("[In Assed Load] [Saving Merged Image]");
 				sw.Restart();
-
-				if(ForceGeneratedTextureSave || CustomTexture != null) {
+#endif
+                if(ForceGeneratedTextureSave || CustomTexture != null) {
 					SaveTextureToPng(this.CustomTexture, Path.Combine(modHelper.DirectoryPath, Sprites.CustomEmojis.AssetName));
 				}
-
-				sw.Stop();
+#if DEBUG
+                sw.Stop();
 				ModEntry.ModLogger.Log("[In Assed Load] [After Saving Merged Image]", $"Time Elapsed: {sw.Elapsed}");
-
-			} else if(File.Exists(Path.Combine(modHelper.DirectoryPath, Sprites.CustomEmojis.AssetName))) {
-
-				ModEntry.ModLogger.Log("[In Assed Load] [Load Texture]");
+#endif
+            } else if(File.Exists(Path.Combine(modHelper.DirectoryPath, Sprites.CustomEmojis.AssetName))) {
+#if DEBUG
+                ModEntry.ModLogger.Log("[In Assed Load] [Load Texture]");
 
 				Stopwatch sw = new Stopwatch();
 				sw.Start();
-
-				LoadedTextureData = GetTextureDataList(modData.FilesChecksums.Values);
+#endif
+                LoadedTextureData = GetTextureDataList(modData.FilesChecksums.Values);
 				CustomTexture = modHelper.Content.Load<Texture2D>(Sprites.CustomEmojis.AssetName, ContentSource.ModFolder);
-
-				sw.Stop();
+#if DEBUG
+                sw.Stop();
 				ModEntry.ModLogger.Log("[In Assed Load] [After Load Texture]", $"Time Elapsed: {sw.Elapsed}");
-
-			}
+#endif
+            }
 
 			if(CustomTexture != null) {
 				this.CustomTextureAdded = true;
@@ -137,10 +140,12 @@ namespace CustomEmojis.Framework {
 				this.CustomTextureAdded = false;
 				this.CurrentTexture = this.VanillaTexture;
 			}
-			swTotal.Stop();
+#if DEBUG
+            swTotal.Stop();
 			ModEntry.ModLogger.Log($"[End Asset Load]", $"Total Time Elapsed: {swTotal.Elapsed}");
-			// (T)(object) is a trick to cast anything to T if we know it's compatible
-			return (T)(object)this.CurrentTexture;
+#endif
+            // (T)(object) is a trick to cast anything to T if we know it's compatible
+            return (T)(object)this.CurrentTexture;
 		}
 
 		private void SubscribeEvents() {
@@ -196,10 +201,10 @@ namespace CustomEmojis.Framework {
 		}
 
 		private void MultiplayerExtension_OnPlayerDisconnected(object sender, PlayerDisconnectedEventArgs e) {
-
-			ModEntry.ModLogger.LogTrace();
-
-			if(SynchronizedPlayerTextureData.ContainsKey(e.Player.UniqueMultiplayerID)) {
+#if DEBUG
+            ModEntry.ModLogger.LogTrace();
+#endif
+            if(SynchronizedPlayerTextureData.ContainsKey(e.Player.UniqueMultiplayerID)) {
 				UpdateTotalEmojis(TotalNumberEmojis - SynchronizedPlayerTextureData[e.Player.UniqueMultiplayerID].Count);
 				SynchronizedPlayerTextureData.Remove(e.Player.UniqueMultiplayerID);
 			}

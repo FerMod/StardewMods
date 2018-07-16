@@ -4,7 +4,7 @@
   <PropertyGroup>
     <EnableModZip Condition="$(Configuration) != 'Release'">False</EnableModZip>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{DBBDBD72-9FBD-4594-AFED-5CE4501CD5DF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -103,7 +103,8 @@
     <Compile Include="Framework\Events\PlayerConnectedEventArgs.cs" />
     <Compile Include="Framework\Events\ReceivedEmojiTextureDataEventArgs.cs" />
     <Compile Include="Framework\Extensions\ChatBoxExtension.cs" />
-    <Compile Include="Framework\Extensions\ObjectExtension.cs" />
+    <Compile Include="Framework\Patches\ModSupportPatch.cs" />
+    <Compile Include="Test\ObjectExtension.cs" />
     <Compile Include="Framework\Logger.cs" />
     <Compile Include="Framework\Menu\CachedMessageEmojis.cs" />
     <Compile Include="Framework\Patches\ChatBoxPatch.cs" />
@@ -114,12 +115,10 @@
     <Compile Include="Test\ModCache.cs" />
     <Compile Include="Test\DataManager.cs" />
     <Compile Include="Framework\Constants\ModPaths.cs" />
-    <Compile Include="Framework\CustomEmojiDrawer.cs" />
     <Compile Include="Framework\Exceptions\CustomEmojisException.cs" />
     <Compile Include="Framework\Events\ReceivedEmojiTextureRequestEventArgs.cs" />
     <Compile Include="Framework\Network\TextureData.cs" />
     <Compile Include="Framework\Network\DataSerialization.cs" />
-    <Compile Include="Framework\Overrides\ChatBoxOverride.cs" />
     <Compile Include="Framework\Types\BiDictionary.cs" />
     <Compile Include="ModDebugData.cs" />
     <Compile Include="Test\AccessPrivateWrapper.cs" />

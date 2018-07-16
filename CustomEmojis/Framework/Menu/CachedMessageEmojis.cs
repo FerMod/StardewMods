@@ -18,175 +18,205 @@ using StardewValley.Menus;
 
 namespace CustomEmojis.Framework.Menu {
 
-	public class CachedMessageEmojis : IClickableMenu {
+    public class CachedMessageEmojis : IClickableMenu {
 
-		private readonly IReflectionHelper Reflection;
+        private readonly IReflectionHelper Reflection;
 
-		private readonly IReflectedField<List<ChatMessage>> messagesField;
-		private readonly IReflectedField<int> cheatHistoryPositionField;
-		private readonly IReflectedField<bool> choosingEmojiField;
-		private readonly IReflectedField<ClickableTextureComponent> emojiMenuIconField;
+        private readonly IReflectedField<List<ChatMessage>> messagesField;
+        private readonly IReflectedField<int> cheatHistoryPositionField;
+        private readonly IReflectedField<bool> choosingEmojiField;
+        private readonly IReflectedField<ClickableTextureComponent> emojiMenuIconField;
 
-		private readonly IReflectedField<int> displayLineIndexField;
+        private readonly IReflectedMethod formatMessageMethod;
+        private readonly IReflectedMethod messageColorMethod;
 
-		private readonly IReflectedMethod formatMessageMethod;
-		private readonly IReflectedMethod messageColorMethod;
+        private List<PlayerMessage> PlayerMessageList;
 
-		private List<PlayerMessage> PlayerMessageList;
+        public int NumberVanillaEmoji { get; private set; }
 
-		public int NumberVanillaEmoji { get; private set; }
+        // ChatCommands support
+        private readonly IReflectedMethod getEndDisplayIndexMethod;
+        private readonly IReflectedField<int> displayLineIndexField;
+        private readonly bool chatCommandsIsLoaded;
 
-		public CachedMessageEmojis(IModHelper helper, int numberVanillaEmojis) {
+        public CachedMessageEmojis(IModHelper helper, int numberVanillaEmojis) {
 
-			Reflection = helper.Reflection;
+            Reflection = helper.Reflection;
 
-			messagesField = Reflection.GetField<List<ChatMessage>>(Game1.chatBox, "messages");
-			cheatHistoryPositionField = Reflection.GetField<int>(Game1.chatBox, "cheatHistoryPosition");
-			choosingEmojiField = Reflection.GetField<bool>(Game1.chatBox, "choosingEmoji");
-			emojiMenuIconField = Reflection.GetField<ClickableTextureComponent>(Game1.chatBox, "emojiMenuIcon");
+            messagesField = Reflection.GetField<List<ChatMessage>>(Game1.chatBox, "messages");
+            cheatHistoryPositionField = Reflection.GetField<int>(Game1.chatBox, "cheatHistoryPosition");
+            choosingEmojiField = Reflection.GetField<bool>(Game1.chatBox, "choosingEmoji");
+            emojiMenuIconField = Reflection.GetField<ClickableTextureComponent>(Game1.chatBox, "emojiMenuIcon");
 
-			formatMessageMethod = Reflection.GetMethod(Game1.chatBox, "formatMessage");
-			messageColorMethod = Reflection.GetMethod(Game1.chatBox, "messageColor");
+            formatMessageMethod = Reflection.GetMethod(Game1.chatBox, "formatMessage");
+            messageColorMethod = Reflection.GetMethod(Game1.chatBox, "messageColor");
 
-			//if(helper.ModRegistry.IsLoaded("cat.chatcommands")) {
-			//	displayLineIndexField = Reflection.GetField<int>(Game1.chatBox, "displayLineIndex");
-			//}
-			PlayerMessageList = new List<PlayerMessage>();
+            PlayerMessageList = new List<PlayerMessage>();
 
-			NumberVanillaEmoji = numberVanillaEmojis;
+            NumberVanillaEmoji = numberVanillaEmojis;
 
-			SubscribeEvents();
+            chatCommandsIsLoaded = helper.ModRegistry.IsLoaded("cat.chatcommands");
+            if(chatCommandsIsLoaded) {
+                displayLineIndexField = Reflection.GetField<int>(Game1.chatBox, "displayLineIndex");
+                getEndDisplayIndexMethod = Reflection.GetMethod(Game1.chatBox, "GetEndDisplayIndex");
+            }
 
-		}
+            SubscribeEvents();
 
-		private void SubscribeEvents() {
-			MenuEvents.MenuChanged += MenuEvents_MenuChanged;
-			ChatBoxExtension.OnChatBoxAddedMessage += AddPlayerChatMessage;
-			ChatBoxExtension.OnChatBoxReceivedMessage += AddPlayerChatMessage;
-		}
+        }
 
-		private void UnsubscribeEvents() {
-			MenuEvents.MenuChanged -= MenuEvents_MenuChanged;
-			ChatBoxExtension.OnChatBoxAddedMessage -= AddPlayerChatMessage;
-			ChatBoxExtension.OnChatBoxReceivedMessage -= AddPlayerChatMessage;
-		}
+        private void SubscribeEvents() {
+            MenuEvents.MenuChanged += MenuEvents_MenuChanged;
+            ChatBoxExtension.OnChatBoxAddedMessage += AddPlayerChatMessage;
+            ChatBoxExtension.OnChatBoxReceivedMessage += AddPlayerChatMessage;
+        }
 
-		private void MenuEvents_MenuChanged(object sender, EventArgsClickableMenuChanged e) {
-			if(e.NewMenu is TitleMenu) {
-				UnsubscribeEvents();
-				MemoryCache.Default.Dispose();
-			}
-		}
+        private void UnsubscribeEvents() {
+            MenuEvents.MenuChanged -= MenuEvents_MenuChanged;
+            ChatBoxExtension.OnChatBoxAddedMessage -= AddPlayerChatMessage;
+            ChatBoxExtension.OnChatBoxReceivedMessage -= AddPlayerChatMessage;
+        }
 
-		private void AddPlayerChatMessage(object sender, ChatMessageEventArgs e) {
+        private void MenuEvents_MenuChanged(object sender, EventArgsClickableMenuChanged e) {
+            if(e.NewMenu is TitleMenu) {
+                UnsubscribeEvents();
+                MemoryCache.Default.Dispose();
+            }
+        }
 
-			int messageHash = messagesField.GetValue().Last().GetHashCode();
+        private void AddPlayerChatMessage(object sender, ChatMessageEventArgs e) {
 
-			RemoveExcedentMessages(messageHash);
+            int messageHash = messagesField.GetValue().Last().GetHashCode();
 
-			string message = formatMessageMethod.Invoke<string>(e.SourcePlayer.UniqueMultiplayerID, e.ChatKind, e.Message);
+            RemoveExcedentMessages(messageHash);
 
-			int witdh = Game1.chatBox.chatBox.Width;
-			if(e.ChatKind == Constants.ChatMessageKind.Normal) {
-				witdh -= 8;
-			}
+            string message = formatMessageMethod.Invoke<string>(e.SourcePlayer.UniqueMultiplayerID, e.ChatKind, e.Message);
 
-			message = Game1.parseText(message, Game1.chatBox.chatBox.Font, witdh - 8);
+            int witdh = Game1.chatBox.chatBox.Width;
+            if(e.ChatKind == Constants.ChatMessageKind.Normal) {
+                witdh -= 8;
+            }
 
-			PlayerMessageList.Add(new PlayerMessage(e.SourcePlayer, e.Language, message, messageHash));
+            message = Game1.parseText(message, Game1.chatBox.chatBox.Font, witdh - 8);
 
-			foreach(ChatSnippet item in messagesField.GetValue().Last().message) {
-				if(item.emojiIndex >= NumberVanillaEmoji) {
-					item.emojiIndex = -1;
-				}
-			}
+            PlayerMessageList.Add(new PlayerMessage(e.SourcePlayer, e.Language, message, messageHash));
 
-		}
+            foreach(ChatSnippet item in messagesField.GetValue().Last().message) {
+                if(item.emojiIndex >= NumberVanillaEmoji) {
+                    item.emojiIndex = -1;
+                }
+            }
 
-		private void RemoveExcedentMessages(int messageHash) {
+        }
 
-			if(PlayerMessageList.Count >= messagesField.GetValue().Count) {
+        private void RemoveExcedentMessages(int messageHash) {
 
-				if(PlayerMessageList[0].MessageHash != messageHash) {
+            if(PlayerMessageList.Count >= messagesField.GetValue().Count) {
 
-					ObjectCache cache = MemoryCache.Default;
+                if(PlayerMessageList[0].MessageHash != messageHash) {
 
-					ModEntry.ModLogger.Log("Removed from cache:", $"{PlayerMessageList[0].MessageHash}_playerMessage");
-					cache.Remove($"{PlayerMessageList[0].MessageHash}_playerMessage");
+                    ObjectCache cache = MemoryCache.Default;
+#if DEBUG
+                    ModEntry.ModLogger.LogToMonitor = false;
+                    ModEntry.ModLogger.Log("Removed from cache:", $"{PlayerMessageList[0].MessageHash}_playerMessage");
+                    ModEntry.ModLogger.LogToMonitor = true;
+#endif
+                    cache.Remove($"{PlayerMessageList[0].MessageHash}_playerMessage");
 
-					ModEntry.ModLogger.Log("Removed from message list:", $"{PlayerMessageList[0].Message}");
-					PlayerMessageList.RemoveAt(0);
+#if DEBUG
+                    ModEntry.ModLogger.LogToMonitor = false;
+                    ModEntry.ModLogger.Log("Removed from message list:", $"{PlayerMessageList[0].Message}");
+                    ModEntry.ModLogger.LogToMonitor = true;
+#endif
+                    PlayerMessageList.RemoveAt(0);
 
-					// Because of commands like 'clear', could be more
-					RemoveExcedentMessages(messagesField.GetValue().Last().GetHashCode());
+                    // Because of commands like 'clear', could be more
+                    RemoveExcedentMessages(messagesField.GetValue().Last().GetHashCode());
 
-				}
+                }
 
-			}
+            }
 
-		}
+        }
 
-		public void DrawMessages(SpriteBatch b) {
+        public void DrawMessages(SpriteBatch b) {
 
-			if(Game1.chatBox != null) {
+            if(Game1.chatBox != null) {
 
-				ObjectCache cache = MemoryCache.Default;
-				long uniqueMultiplayerID = Game1.player.UniqueMultiplayerID;
+                ObjectCache cache = MemoryCache.Default;
+                long uniqueMultiplayerID = Game1.player.UniqueMultiplayerID;
 
-				int verticalPosAcum = 0;
-				for(int i = messagesField.GetValue().Count - 1; i >= 0; --i) {
+                int startIndex = chatCommandsIsLoaded ? displayLineIndexField.GetValue() : messagesField.GetValue().Count - 1;
+                int endIndex = chatCommandsIsLoaded ? getEndDisplayIndexMethod.Invoke<int>() : 0;
 
-					ChatMessage message = messagesField.GetValue()[i];
-					verticalPosAcum += message.verticalSize;
+                int verticalPosAcum = 0;
+                for(int i = startIndex; i >= endIndex; --i) {
 
-					int messageHash = message.GetHashCode();
-					if(!(cache[$"{messageHash}_message"] is PlayerMessage cachedPlayerMessage)) {
+                    ChatMessage message = messagesField.GetValue()[i];
+                    verticalPosAcum += message.verticalSize;
 
-						ModEntry.ModMonitor.Log($"Message hash: {messageHash}");
+                    int messageHash = message.GetHashCode();
+                    if(!(cache[$"{messageHash}_message"] is PlayerMessage cachedPlayerMessage)) {
 
-						cachedPlayerMessage = PlayerMessageList.Find(msg => msg.MessageHash == messageHash);
-						if(cachedPlayerMessage == null) {
-							string msg = string.Concat(message.message.Select(chatSnippet => chatSnippet.message));
-							cachedPlayerMessage = new PlayerMessage(Game1.player, LocalizedContentManager.CurrentLanguageCode, msg, messageHash);
-							PlayerMessageList.Add(cachedPlayerMessage);
-						}
+#if DEBUG
+                        ModEntry.ModLogger.LogToMonitor = false;
+                        ModEntry.ModLogger.Log($"Message hash: {messageHash}");
+                        ModEntry.ModLogger.LogToMonitor = true;
+#endif
 
-						// Cache message for later
-						cache[$"{messageHash}_message"] = cachedPlayerMessage;
+                        cachedPlayerMessage = PlayerMessageList.Find(msg => msg.MessageHash == messageHash);
+                        if(cachedPlayerMessage == null) {
+                            string msg = string.Concat(message.message.Select(chatSnippet => chatSnippet.message));
+                            cachedPlayerMessage = new PlayerMessage(Game1.player, LocalizedContentManager.CurrentLanguageCode, msg, messageHash);
+                            PlayerMessageList.Add(cachedPlayerMessage);
+                        }
 
-					}
+                        // Cache message for later
+                        cache[$"{messageHash}_message"] = cachedPlayerMessage;
 
-					int x = 12;
-					int y = Game1.chatBox.yPositionOnScreen - verticalPosAcum - 8 + (Game1.chatBox.chatBox.Selected ? 0 : Game1.chatBox.chatBox.Height);
+#if DEBUG
+                        ModEntry.ModLogger.LogToMonitor = false;
+                        ModEntry.ModLogger.Log($"vvvvvv Cached {cache.GetCount()} elements vvvvvv");
+                        foreach(var item in cache) {
+                            ModEntry.ModLogger.Log($"Message hash: {item}");
+                        }
+                        ModEntry.ModLogger.Log($"^^^^^^ Cached {cache.GetCount()} elements ^^^^^^");
+                        ModEntry.ModLogger.LogToMonitor = true;
+#endif
 
-					foreach(MessageEmoji msgEmoji in cachedPlayerMessage.MessageEmojis) {
+                    }
+
+                    int x = 12;
+                    int y = Game1.chatBox.yPositionOnScreen - verticalPosAcum - 8 + (Game1.chatBox.chatBox.Selected ? 0 : Game1.chatBox.chatBox.Height);
+
+                    foreach(MessageEmoji msgEmoji in cachedPlayerMessage.MessageEmojis) {
 
 
-						Vector2 position = new Vector2(msgEmoji.HorizontalPosition + x + 1.0f, msgEmoji.VerticalPosition + y - 4.0f);
-						bool playerLeft = Game1.getAllFarmers().Any(farmer => farmer.UniqueMultiplayerID == cachedPlayerMessage.Player.UniqueMultiplayerID);
+                        Vector2 position = new Vector2(msgEmoji.HorizontalPosition + x + 1.0f, msgEmoji.VerticalPosition + y - 4.0f);
+                        bool playerLeft = Game1.getAllFarmers().Any(farmer => farmer.UniqueMultiplayerID == cachedPlayerMessage.Player.UniqueMultiplayerID);
 
-						if(playerLeft && Game1.chatBox.isWithinBounds((int)position.X, (int)position.Y) && msgEmoji.Index >= NumberVanillaEmoji) {
-							msgEmoji.DrawEmoji(b, position, message.alpha);
-						}
+                        if(playerLeft && Game1.chatBox.isWithinBounds((int)position.X, (int)position.Y) && msgEmoji.Index >= NumberVanillaEmoji) {
+                            msgEmoji.DrawEmoji(b, position, message.alpha);
+                        }
 
-					}
+                    }
 
-				}
+                }
 
-				// Draw the emoji menu
-				if(choosingEmojiField.GetValue()) {
-					Game1.chatBox.emojiMenu.draw(b);
-				}
+                // Draw the emoji menu
+                if(choosingEmojiField.GetValue()) {
+                    Game1.chatBox.emojiMenu.draw(b);
+                }
 
-				// Draw the cursor on top
-				if((Game1.chatBox.isWithinBounds(Game1.getMouseX(), Game1.getMouseY()) || Game1.chatBox.isActive()) && !Game1.options.hardwareCursor) {
-					b.Draw(Game1.mouseCursors, new Vector2((float)Game1.getOldMouseX(), (float)Game1.getOldMouseY()), new Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, Game1.options.gamepadControls ? 44 : 0, 16, 16)), Color.White, 0.0f, Vector2.Zero, (float)(4.0 + Game1.dialogueButtonScale / 150.0), SpriteEffects.None, 1f);
-				}
+                // Draw the cursor on top
+                if((Game1.chatBox.isWithinBounds(Game1.getMouseX(), Game1.getMouseY()) || Game1.chatBox.isActive()) && !Game1.options.hardwareCursor) {
+                    b.Draw(Game1.mouseCursors, new Vector2((float)Game1.getOldMouseX(), (float)Game1.getOldMouseY()), new Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, Game1.options.gamepadControls ? 44 : 0, 16, 16)), Color.White, 0.0f, Vector2.Zero, (float)(4.0 + Game1.dialogueButtonScale / 150.0), SpriteEffects.None, 1f);
+                }
 
-			}
+            }
 
-		}
+        }
 
-	}
+    }
 
 }

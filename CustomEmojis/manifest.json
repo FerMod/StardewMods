@@ -5,5 +5,11 @@
 	"Description": "Allows to add custom emojis that can be sent to other players.",
 	"UniqueID": "FerMod.CustomEmojis",
 	"EntryDll": "CustomEmojis.dll",
-	"UpdateKeys": [ "Nexus:2435" ]
+	"UpdateKeys": [ "Nexus:2435" ],
+	"Dependencies": [
+		{
+			"UniqueID": "cat.chatcommands",
+			"IsRequired": false
+		}
+	]
 }

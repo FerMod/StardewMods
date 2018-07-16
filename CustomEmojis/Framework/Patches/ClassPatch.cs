@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Reflection;
 using Harmony;
 
@@ -19,6 +20,6 @@ namespace CustomEmojis.Framework.Patches {
 			harmony.RemovePatch(Original, patchType, harmony.Id);
 		}
 
-	}
+    }
 
 }

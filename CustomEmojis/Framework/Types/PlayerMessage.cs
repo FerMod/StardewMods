@@ -65,9 +65,11 @@ namespace CustomEmojis.Framework.Types {
 					string messageSubstring = Message.Substring(lastIndex, match.Index - lastIndex);
 					string[] breakedLines = ModUtilities.BreakLines(messageSubstring);
 #if DEBUG
-					ModEntry.ModLogger.Log($"Message: \"{Message}\"", $"Substring Message: {messageSubstring}", $"Current Index: {lastIndex}", $"message.Length: {message.Length}", $"match.Index: {match.Index}", $"match.Length: {match.Length}");
+                    ModEntry.ModLogger.LogToMonitor = false;
+                    ModEntry.ModLogger.Log($"Message: \"{Message}\"", $"Substring Message: {messageSubstring}", $"Current Index: {lastIndex}", $"message.Length: {message.Length}", $"match.Index: {match.Index}", $"match.Length: {match.Length}");
+                    ModEntry.ModLogger.LogToMonitor = true;
 #endif
-					int stringMeasure = (int)MeasureString(Language, breakedLines.Last()).X;
+                    int stringMeasure = (int)MeasureString(Language, breakedLines.Last()).X;
 
 					if(breakedLines.Count() > 1) {
 						horizontalPosition = 0;

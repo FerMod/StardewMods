@@ -22,12 +22,13 @@ namespace CustomEmojis.Patches {
 			//TODO: Checking for ussed MessageTypes ids. Possible?
 			private static bool ProcessIncomingMessage_Prefix(Multiplayer __instance, ref IncomingMessage msg) {
 
-				if(msg.MessageType != 0) {
+#if DEBUG
+                if(msg.MessageType != 0) {
 					ModEntry.ModLogger.Log($"MessageType: {msg.MessageType}");
 				}
-
-				// Incomming vanilla message MessageType
-				switch(msg.MessageType) {
+#endif
+                // Incomming vanilla message MessageType
+                switch(msg.MessageType) {
 					// "playerIntroduction" never reaches to the 'Multiplayer' class 
 					//case 2:
 					//	__instance.PlayerConnected(msg);
