@@ -1,12 +1,12 @@
 ﻿
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI;
 using StardewValley;
+using System.IO;
 
 namespace MultiplayerEmotes.Framework.Constants {
 
-	internal static class Sprites {
+    internal static class Sprites {
 
 		public static class Emotes {
 
@@ -18,9 +18,9 @@ namespace MultiplayerEmotes.Framework.Constants {
 
 		public static class Menu {
 
-			public static string PrototypeAssetName = "assets/emoteBoxPrototype.png";
+			public static string PrototypeAssetName = Path.Combine("assets", "emoteBoxPrototype.png");
 
-			public static string AssetName = "assets/emoteBox.png";
+			public static string AssetName = Path.Combine("assets", "emoteBox.png");
 
 			public static readonly Rectangle EmoteBox = new Rectangle(0, 0, 228, 300);
 
@@ -36,7 +36,7 @@ namespace MultiplayerEmotes.Framework.Constants {
 
 		public static class ChatBox {
 
-			public static string AssetName = "LooseSprites\\chatBox";
+			public static string AssetName = @"LooseSprites\\chatBox";
 
 			public static Texture2D Texture => Game1.content.Load<Texture2D>(AssetName);
 

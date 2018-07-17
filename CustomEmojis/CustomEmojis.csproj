@@ -174,7 +174,6 @@
     <Content Include="emojis\square18.png" />
     <Content Include="emojis\square19.png" />
     <Content Include="emojis\square20.png" />
-    <Content Include="vanillaEmojis.png" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Pathoschild.Stardew.ModBuildConfig.2.1.0-beta-20180630\analyzers\dotnet\cs\StardewModdingAPI.ModBuildConfig.Analyzer.dll" />

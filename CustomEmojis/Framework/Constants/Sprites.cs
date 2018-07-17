@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
+using System.IO;
+
 namespace CustomEmojis.Framework.Constants {
 
 	internal static class Sprites {
@@ -16,7 +18,7 @@ namespace CustomEmojis.Framework.Constants {
 
 		public static class CustomEmojis {
 
-			public static string AssetName = $"{ModPaths.Assets.Folder}\\{ModPaths.Assets.OutputFile}";
+            public static string AssetName = Path.Combine(ModPaths.Assets.Folder, ModPaths.Assets.OutputFile);
 
 		}
 

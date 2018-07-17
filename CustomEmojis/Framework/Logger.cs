@@ -10,7 +10,7 @@ namespace CustomEmojis.Framework {
 
     public class Logger : IDisposable {
 
-        private string FilePath { get; set; } = Directory.GetCurrentDirectory() + "\\Mods";
+        private string FilePath { get; set; }
         private IMonitor ModMonitor { get; set; }
         private StreamWriter Stream { get; set; }
 
@@ -29,15 +29,19 @@ namespace CustomEmojis.Framework {
         }
 
         public void SetFilePath(string filePath, bool append = true) {
+
+            FilePath = filePath;
+
             string folderPath = Path.GetDirectoryName(FilePath);
             if(folderPath == null) {
                 throw new ArgumentException($"Log path '{FilePath}' not valid.");
             }
             Directory.CreateDirectory(folderPath);
-            FilePath = filePath;
+
             Stream = new StreamWriter(FilePath, append) {
                 AutoFlush = true
             };
+
         }
 
         public void LogTrace(string message = "Trace Message:",

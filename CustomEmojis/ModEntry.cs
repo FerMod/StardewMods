@@ -69,7 +69,7 @@ namespace CustomEmojis {
 
 #if !DEBUG || TRUE
 #if DEBUG
-            ModLogger = new Logger(helper.DirectoryPath + "\\logfile.txt", false, Monitor);
+            ModLogger = new Logger(Path.Combine(helper.DirectoryPath, "logfile.txt"), false, Monitor);
 #endif
             this.Monitor.Log("Loading mod data...", LogLevel.Trace);
             this.modData = this.Helper.ReadJsonFile<ModData>(ModPaths.Data.Path);
