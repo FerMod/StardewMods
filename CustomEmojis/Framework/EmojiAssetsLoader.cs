@@ -408,11 +408,17 @@ namespace CustomEmojis.Framework {
             var destRect = new Rectangle(0, 0, width, height);
             var destImage = new Bitmap(width, height);
 
-            // For some reason sometimes the resolution is 0, check that isnt the case
+            float imageHorizontalResolution = 96;
+            float imageVerticalResolution = 96;
+
+            // Sometimes files dont have embedded DPI data, check that isnt the case
             if(image.HorizontalResolution > 0 && image.VerticalResolution > 0) {
-                // Maintains DPI regardless of physical size -- may increase quality when reducing image dimensions or when printing
-                destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+				imageHorizontalResolution = image.HorizontalResolution;
+				imageVerticalResolution = image.VerticalResolution;
             }
+
+            // Maintains DPI regardless of physical size -- may increase quality when reducing image dimensions or when printing
+            destImage.SetResolution(imageHorizontalResolution, imageVerticalResolution);
 
             // Composite controls how pixels are blended with the background -- might not be needed since we're only drawing one thing.
             using(var graphics = Graphics.FromImage(destImage)) {
