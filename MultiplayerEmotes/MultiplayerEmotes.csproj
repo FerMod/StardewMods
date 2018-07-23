@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MultiplayerEmotes</RootNamespace>
     <AssemblyName>MultiplayerEmotes</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -103,20 +103,10 @@
     <Compile Include="Framework\Patches\ClassPatch.cs" />
     <Compile Include="Framework\Patches\IClassPatch.cs" />
     <Compile Include="Framework\Extensions\MultiplayerExtension.cs" />
-    <Compile Include="Test\NetTest.cs" />
     <Compile Include="Framework\Patches\FarmerPatch.cs" />
     <Compile Include="Framework\Patches\MultiplayerPatch.cs" />
     <Compile Include="Framework\Patches\ModPatchControl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Test\PropertyChangeEvent.cs" />
-    <Compile Include="Test\SpriteAnimation.cs" />
-    <Compile Include="Test\SyncVar.cs" />
-    <Compile Include="Test\DynamicExtension.cs" />
-    <Compile Include="Test\FarmerEmoteEventHelper.cs" />
-    <Compile Include="Test\FarmerEmotedEventArgs.cs" />
-    <Compile Include="Test\ITestNetwork.cs" />
-    <Compile Include="Test\ObserverClass.cs" />
-    <Compile Include="Test\TestNetwork.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\emoteBox.png">
@@ -125,11 +115,6 @@
     <Content Include="assets\emoteBoxPrototype.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Test\images\MenuClose.png" />
-    <Content Include="Test\images\MenuOpen.png" />
-    <Content Include="Test\images\MultiplayerEmotesHeader.png" />
-    <Content Include="Test\images\PlayerEmoting.png" />
-    <Content Include="Test\images\TwoPlayers.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="manifest.json" />
