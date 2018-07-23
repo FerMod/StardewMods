@@ -1,6 +1,5 @@
 ﻿
 using CustomEmojis.Framework.Utilities;
-using MultiplayerEmotes;
 using StardewModdingAPI;
 using System;
 using System.Collections.Generic;
