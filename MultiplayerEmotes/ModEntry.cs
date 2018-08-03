@@ -17,7 +17,6 @@ namespace MultiplayerEmotes {
 
 		private EmoteMenuButton emoteMenuButton;
 
-		// TODO: Remove. Used for debugging
 		public static IMonitor ModMonitor { get; private set; }
 #if DEBUG
 		public static Logger ModLogger { get; private set; }

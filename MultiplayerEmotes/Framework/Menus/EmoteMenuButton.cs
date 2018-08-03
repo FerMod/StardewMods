@@ -33,7 +33,7 @@ namespace MultiplayerEmotes.Menus {
 		public bool AnimationOnHover { get; set; }
 		public int AnimationCooldownTime { get; set; }
 
-		TemporaryAnimatedSprite iconAnimation;
+		private TemporaryAnimatedSprite iconAnimation;
 		private int animationTimer;
 		public bool playAnimation;
 

@@ -12,7 +12,6 @@ namespace MultiplayerEmotes.Patches {
 
 	internal static class MultiplayerPatch {
 
-
 		internal class ProcessIncomingMessagePatch : ClassPatch {
 
 			public override MethodInfo Original => AccessTools.Method(typeof(Multiplayer), nameof(Multiplayer.processIncomingMessage), new Type[] { typeof(IncomingMessage) });
