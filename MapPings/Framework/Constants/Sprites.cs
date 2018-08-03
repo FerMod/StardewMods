@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
 using StardewValley;
 
 using System.IO;
@@ -20,6 +21,20 @@ namespace MapPings.Framework.Constants {
 		}
 
 		public static class PingArrow {
+
+			public static string AssetName = Path.Combine(ModPaths.Assets.Folder, ModPaths.Assets.Ping);
+
+			//public static Texture2D Texture => ModEntry.ModHelper.Content.Load<Texture2D>(AssetName, ContentSource.ModFolder);
+
+			public static Texture2D Texture(IModHelper helper) {
+				return helper.Content.Load<Texture2D>(AssetName, ContentSource.ModFolder);
+			}
+
+			public static Rectangle SourceRectangle = new Rectangle(0, 0, 9, 9);
+
+		}
+
+		public static class VanillaPingArrow {
 
 			public static string AssetName = "LooseSprites\\Cursors";
 

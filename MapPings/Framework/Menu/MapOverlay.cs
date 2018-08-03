@@ -11,21 +11,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Rectangle = xTile.Dimensions.Rectangle;
 
 namespace MapPings.Framework {
 
-	public class MapOverlay : IClickableMenu {
+	public class MapOverlay : IDisposable {
 
 		public bool DrawMapOverlay { get; set; }
-		public TemporaryAnimatedSprite PingArrow { get; set; }
-		public bool PingArrowAnimating { get; set; }
+		//public TemporaryAnimatedSprite PingArrow { get; set; }
+		//public bool PingArrowAnimating { get; set; }
 		public bool MapPinged { get; set; }
-		public Vector2 PingedCoords { get; set; }
 
 		private readonly ModConfig config;
 
 		private readonly IReflectionHelper Reflection;
+
+		public bool UpdatePingsPosition { get; set; }
+		public Rectangle LastViewport { get; set; }
+
 		private readonly IModHelper modHelper;
+
+		public bool IsMapOpen { get; set; }
+
+		private MapPage mapPage;
+		private IReflectedField<int> mapXField;
+		private IReflectedField<int> mapYField;
+
+		public Dictionary<Farmer, PlayerMapPing> MapPings { get; set; }
 
 		public MapOverlay(IModHelper helper, ModConfig modConfig) {
 
@@ -33,12 +45,20 @@ namespace MapPings.Framework {
 			config = modConfig;
 			Reflection = helper.Reflection;
 
+			this.LastViewport = new Rectangle(Game1.viewport.X, Game1.viewport.Y, Game1.viewport.Width, Game1.viewport.Height);
+
+			MapPings = new Dictionary<Farmer, PlayerMapPing>();
+
+			if(!MapPings.ContainsKey(Game1.player)) {
+				MapPings.Add(Game1.player, new PlayerMapPing());
+			}
+
 			SubscribeEvents();
 
 		}
 
 		private void SubscribeEvents() {
-			//MenuEvents.MenuChanged += MenuEvents_MenuChanged;
+			MenuEvents.MenuChanged += MenuEvents_MenuChanged;
 			GameEvents.UpdateTick += GameEvents_UpdateTick;
 			GraphicsEvents.OnPostRenderGuiEvent += GraphicsEvents_OnPostRenderGuiEvent;
 			GraphicsEvents.Resize += GraphicsEvents_Resize;
@@ -46,35 +66,49 @@ namespace MapPings.Framework {
 		}
 
 		private void UnsubscribeEvents() {
-			//MenuEvents.MenuChanged -= MenuEvents_MenuChanged;
+			MenuEvents.MenuChanged -= MenuEvents_MenuChanged;
 			GameEvents.UpdateTick -= GameEvents_UpdateTick;
 			GraphicsEvents.OnPostRenderGuiEvent -= GraphicsEvents_OnPostRenderGuiEvent;
 			GraphicsEvents.Resize -= GraphicsEvents_Resize;
 			InputEvents.ButtonPressed -= InputEvents_ButtonPressed;
 		}
 
+		private void MenuEvents_MenuChanged(object sender, EventArgsClickableMenuChanged e) {
+
+			if(Game1.activeClickableMenu is GameMenu gameMenu) {
+				if(gameMenu.currentTab == GameMenu.mapTab) {
+
+					mapPage = (MapPage)Reflection.GetField<List<IClickableMenu>>(gameMenu, "pages").GetValue()[GameMenu.mapTab];
+					mapXField = Reflection.GetField<int>(mapPage, "mapX");
+					mapYField = Reflection.GetField<int>(mapPage, "mapY");
+
+					IsMapOpen = true;
+				} else {
+					IsMapOpen = false;
+				}
+			}
+
+		}
+
 		private void GameEvents_UpdateTick(object sender, EventArgs e) {
-			update(Game1.currentGameTime);
+			Update(Game1.currentGameTime);
 		}
 
 		private void GraphicsEvents_OnPostRenderGuiEvent(object sender, EventArgs e) {
-			draw(Game1.spriteBatch);
+			Draw(Game1.spriteBatch);
 		}
 
 		private void GraphicsEvents_Resize(object sender, EventArgs e) {
-			//TODO: On resize update pinged coords
-		}
 
-		private void MenuEvents_MenuChanged(object sender, EventArgsClickableMenuChanged e) {
+			Rectangle newViewport = Game1.viewport;
+			if(this.LastViewport.Width != newViewport.Width || this.LastViewport.Height != newViewport.Height) {
+				newViewport = new Rectangle(newViewport.X, newViewport.Y, newViewport.Width, newViewport.Height);
 
-			if(DrawMapOverlay) {
-				if(Game1.activeClickableMenu is GameMenu gameMenu) {
-					if(gameMenu.currentTab == GameMenu.mapTab) {
-						//DrawOverlay(b);
-					}
-				}
+				UpdatePingsPosition = true;
 
+				this.LastViewport = newViewport;
 			}
+
 		}
 
 		private void InputEvents_ButtonPressed(object sender, EventArgsInput e) {
@@ -83,16 +117,12 @@ namespace MapPings.Framework {
 				if(gameMenu.currentTab == GameMenu.mapTab) {
 					if(modHelper.Input.IsDown(SButton.LeftAlt) && modHelper.Input.IsDown(SButton.MouseLeft)) {
 
-						MapPage mapPage = (MapPage)Reflection.GetField<List<IClickableMenu>>(gameMenu, "pages").GetValue()[GameMenu.mapTab];
-						IReflectedField<int> mapXField = Reflection.GetField<int>(mapPage, "mapX");
-						IReflectedField<int> mapYField = Reflection.GetField<int>(mapPage, "mapY");
+						Vector2 mapPos = Utility.getTopLeftPositionForCenteringOnScreen(Sprites.Map.SourceRectangle.Width * Game1.pixelZoom, Sprites.Map.SourceRectangle.Height * Game1.pixelZoom);
+						Vector2 pingedCoord = new Vector2(e.Cursor.ScreenPixels.X - mapPos.X, e.Cursor.ScreenPixels.Y - mapPos.Y);
 
-						Rectangle map = new Rectangle(mapXField.GetValue(), mapYField.GetValue(), Constants.Sprites.Map.SourceRectangle.Width * 4, Constants.Sprites.Map.SourceRectangle.Height * 4);
-
-						Vector2 pingedMapCoords = new Vector2(e.Cursor.ScreenPixels.X - mapXField.GetValue(), e.Cursor.ScreenPixels.Y - mapYField.GetValue());
-						if(IsPingWithinMapBounds(map, pingedMapCoords)) {
-
-							PingedCoords = e.Cursor.ScreenPixels;
+						int mapWidth = Sprites.Map.SourceRectangle.Width * Game1.pixelZoom;
+						int mapHeight = Sprites.Map.SourceRectangle.Height * Game1.pixelZoom;
+						if(IsPingWithinMapBounds(mapWidth, mapHeight, pingedCoord)) {
 
 							//TODO: Send ping to players
 
@@ -104,8 +134,14 @@ namespace MapPings.Framework {
 									hoverText = $"\"{GetHoverTextLocationName(hoverText)}\"";
 								}
 
+								if(!MapPings.ContainsKey(Game1.player)) {
+									MapPings.Add(Game1.player, new PlayerMapPing(Color.Red));
+								}
+
+								MapPings[Game1.player].AddPing(Game1.player, pingedCoord, hoverText);
+
 								string messageKey = "UserNotificationMessageFormat";
-								string messageText = $"{Game1.player.Name} pinged {hoverText} [X:{pingedMapCoords.X}, Y:{pingedMapCoords.Y}]";
+								string messageText = $"{Game1.player.Name} pinged {hoverText} [X:{pingedCoord.X}, Y:{pingedCoord.Y}]";
 
 								if(Game1.IsMultiplayer) {
 									Multiplayer multiplayer = Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
@@ -113,15 +149,15 @@ namespace MapPings.Framework {
 								} else {
 									Game1.chatBox.addInfoMessage(Game1.content.LoadString("Strings\\UI:Chat_" + messageKey, messageText));
 								}
+
 							}
-
-							MapPinged = true;
-
-							ModEntry.ModLogger.Log($"MapCoords => (x: {pingedMapCoords.X}, y: {pingedMapCoords.Y})");
+#if DEBUG
+							ModEntry.ModLogger.Log($"MapCoords => (x: {pingedCoord.X}, y: {pingedCoord.Y})");
+							ModEntry.ModLogger.Log($"Map (X: {mapPos.X}, Y: {mapPos.Y})");
+#endif
 
 						}
 
-						MapPinged = true;
 						e.SuppressButton(SButton.MouseLeft);
 
 					}
@@ -130,11 +166,11 @@ namespace MapPings.Framework {
 
 		}
 
-		private bool IsPingWithinMapBounds(Rectangle map, Vector2 pingedCoords) {
+		private bool IsPingWithinMapBounds(int mapWidth, int mapHeight, Vector2 pingedCoords) {
 #if DEBUG
-			ModEntry.ModLogger.Log($"map(X: {map.X}, Y: {map.Y}, Width: {map.Width}, Height: {map.Height})", $"pingedCoords(X: {pingedCoords.X}, Y: {pingedCoords.Y})");
+			ModEntry.ModLogger.Log($"map(Width: {mapWidth}, Height: {mapHeight})", $"pingedCoords(X: {pingedCoords.X}, Y: {pingedCoords.Y})");
 #endif
-			return (pingedCoords.X >= 0 && pingedCoords.X <= map.Width) && (pingedCoords.Y >= 0 && pingedCoords.Y <= map.Height);
+			return (pingedCoords.X >= 0 && pingedCoords.X <= mapWidth) && (pingedCoords.Y >= 0 && pingedCoords.Y <= mapHeight);
 		}
 
 		private string GetHoverTextLocationName(string hoverText) {
@@ -145,32 +181,19 @@ namespace MapPings.Framework {
 
 		}
 
-		public override void update(GameTime time) {
+		public void Update(GameTime time) {
 
-			if(MapPinged) {
-
-				Vector2 pingArrowPos = new Vector2(PingedCoords.X - (Sprites.PingArrow.SourceRectangle.Width * Game1.pixelZoom) / 2, PingedCoords.Y - Sprites.PingArrow.SourceRectangle.Height * Game1.pixelZoom);
-
-				PingArrow = new TemporaryAnimatedSprite(Sprites.PingArrow.AssetName, Sprites.PingArrow.SourceRectangle, 90f, 6, 999999, pingArrowPos, false, false, 0.89f, 0.0f, Color.White, 4f, 0.0f, 0.0f, 0.0f, true) {
-					yPeriodic = true,
-					yPeriodicLoopTime = 1500f,
-					yPeriodicRange = 8f
-					//xPeriodic = true,
-					//xPeriodicLoopTime = 1500f,
-					//xPeriodicRange = 8f
-				};
-
-				PingArrowAnimating = true;
-				MapPinged = false;
+			foreach(PlayerMapPing playerMapPing in MapPings.Values) {
+				if(UpdatePingsPosition) {
+					playerMapPing.UpdatePingPosition();
+				}
+				playerMapPing.update(time);
 			}
 
-			if(PingArrowAnimating) {
-				PingArrow.update(time);
-			}
-
+			UpdatePingsPosition = false;
 		}
 
-		public override void draw(SpriteBatch b) {
+		public void Draw(SpriteBatch b) {
 
 			if(Game1.activeClickableMenu is GameMenu gameMenu) {
 				if(gameMenu.currentTab == GameMenu.mapTab) {
@@ -179,15 +202,35 @@ namespace MapPings.Framework {
 						DrawOverlay(b);
 					}
 
-					if(PingArrowAnimating) {
-						PingArrow.draw(b);
-
+					foreach(PlayerMapPing playerMapPing in MapPings.Values) {
+						playerMapPing.draw(b);
 					}
+
 				}
 
 			}
 
 		}
+
+		#region IDisposable Support
+
+		private bool disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing) {
+			if(!disposedValue) {
+				if(disposing) {
+					UnsubscribeEvents();
+				}
+
+				disposedValue = true;
+			}
+		}
+
+		public void Dispose() {
+			Dispose(true);
+		}
+
+		#endregion
 
 	}
 
