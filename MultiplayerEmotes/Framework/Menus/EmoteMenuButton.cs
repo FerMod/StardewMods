@@ -383,7 +383,7 @@ namespace MultiplayerEmotes.Menus {
 		}
 
 		public void Draw(SpriteBatch b) {
-			if(Game1.activeClickableMenu == null) {
+			if(Context.IsPlayerFree && Game1.activeClickableMenu == null) {
 				this.updatePosition();
 				this.DrawAnimatedIcon(b);
 				this.DrawTooltipText(b);
