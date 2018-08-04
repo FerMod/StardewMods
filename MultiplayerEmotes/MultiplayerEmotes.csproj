@@ -93,6 +93,7 @@
     <Compile Include="Framework\Constants\ModNetwork.cs" />
     <Compile Include="Framework\Constants\Sprites.cs" />
     <Compile Include="Framework\EmoteTemporaryAnimation.cs" />
+    <Compile Include="Framework\Patches\CharacterPatch.cs" />
     <Compile Include="Framework\StateMonitor\MouseStateMonitor.cs" />
     <Compile Include="Framework\Menus\EmoteMenuButton.cs" />
     <Compile Include="Framework\Menus\EmoteMenu.cs" />

@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework;
 using Netcode;
 using StardewValley.Network;
 
-namespace MultiplayerEmotes.Patches {
+namespace MultiplayerEmotes.Framework.Patches {
 
 	internal static class FarmerPatch {
 
@@ -26,7 +26,7 @@ namespace MultiplayerEmotes.Patches {
 			}
 
 			private static void DoEmote_Postfix(Farmer __instance, int whichEmote) {
-				if(Context.IsMultiplayer && __instance.IsLocalPlayer && __instance.IsEmoting) {
+				if(Context.IsMultiplayer && __instance is Farmer && __instance.IsLocalPlayer && __instance.IsEmoting) {
 					// Traverse.Create(typeof(Game1)).Field("multiplayer").GetValue<Multiplayer>().BroadcastEmote(whichEmote);
 					Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue().BroadcastEmote(whichEmote);
 				}

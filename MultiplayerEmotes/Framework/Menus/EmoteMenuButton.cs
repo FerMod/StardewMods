@@ -209,8 +209,9 @@ namespace MultiplayerEmotes.Menus {
 			updatePosition();
 			Rectangle component = new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height);
 
-			//ModEntry.ModMonitor.Log($"(x: {x}, y: {y}) (xPositionOnScreen: {xPositionOnScreen}, yPositionOnScreen: {yPositionOnScreen}), (width: {width}, height: {height})");
-
+//#if DEBUG
+//			ModEntry.ModMonitor.Log($"(x: {x}, y: {y}) (xPositionOnScreen: {xPositionOnScreen}, yPositionOnScreen: {yPositionOnScreen}), (width: {width}, height: {height})");
+//#endif
 			if(component.Contains(x, y)) {
 				return true;
 			} else if(emoteMenu.IsOpen) {
@@ -279,12 +280,12 @@ namespace MultiplayerEmotes.Menus {
 				IsBeingDragged = false;
 			}
 
-			if((playAnimation && AnimatedEmoteIcon) || (isHovering && AnimationOnHover)) {
+			if((playAnimation && AnimatedEmoteIcon) /*|| (isHovering && AnimationOnHover)*/) {
 				if(IsPlayingAnimation()) {
 					iconAnimation.update(time);
 				} else {
-					iconAnimation.reset();
 					playAnimation = false;
+					iconAnimation.reset();
 				}
 			}
 
@@ -335,19 +336,18 @@ namespace MultiplayerEmotes.Menus {
 		*/
 
 		public void UpdateAnimationTimer(GameTime time) {
-			if(ShouldPlayAnimation()) {
+
+			if(ShouldPlayAnimation() && !playAnimation) {
 				// If there is no animation playing start countdown for next animation
-				if(this.animationTimer >= 0 && !playAnimation) {
+				if(this.animationTimer > 0) {
+					playAnimation = false;
 					this.animationTimer -= time.ElapsedGameTime.Milliseconds;
-				}
-				// Check if timer reached 0
-				if(this.animationTimer < 0) {
-					this.animationTimer = AnimationCooldownTime;
+				} else { // If timer is less or equal to 0
 					playAnimation = true;
+					this.animationTimer = AnimationCooldownTime;
 				}
-			} else {
-				playAnimation = false;
 			}
+
 		}
 
 		private void DrawAnimatedIcon(SpriteBatch b) {

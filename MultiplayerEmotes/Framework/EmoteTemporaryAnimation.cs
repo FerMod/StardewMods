@@ -8,6 +8,10 @@ using System.Collections.Generic;
 
 namespace MultiplayerEmotes.Framework {
 
+	/// <summary>
+	/// TEST - Animation trough sprite broadcast.
+	/// Issue: Sprite position does not change for other players.
+	/// </summary>
 	public class EmoteTemporaryAnimation {
 
 		private readonly IReflectionHelper Reflection;

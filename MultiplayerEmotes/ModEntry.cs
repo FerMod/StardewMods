@@ -1,12 +1,11 @@
 
 using StardewModdingAPI;
 using StardewValley;
-using MultiplayerEmotes.Patches;
+using MultiplayerEmotes.Framework.Patches;
 using StardewModdingAPI.Events;
 using System;
 using MultiplayerEmotes.Menus;
 using MultiplayerEmotes.Framework;
-using System.IO;
 
 namespace MultiplayerEmotes {
 
@@ -18,9 +17,7 @@ namespace MultiplayerEmotes {
 		private EmoteMenuButton emoteMenuButton;
 
 		public static IMonitor ModMonitor { get; private set; }
-#if DEBUG
-		public static Logger ModLogger { get; private set; }
-#endif
+
 		/*
 		 Emotes only visible by others with the mod.
 		 The host needs to have the mod, to others with the mod use it.
@@ -30,11 +27,9 @@ namespace MultiplayerEmotes {
 
 			ModMonitor = Monitor;
 
-#if DEBUG
-			ModLogger = new Logger(Path.Combine(helper.DirectoryPath, "logfile.txt"), true, Monitor);
-#endif
 			ModPatchControl PatchContol = new ModPatchControl(helper);
 			PatchContol.PatchList.Add(new FarmerPatch.DoEmotePatch(helper.Reflection));
+			PatchContol.PatchList.Add(new CharacterPatch.DoEmotePatch(helper.Reflection));
 			PatchContol.PatchList.Add(new MultiplayerPatch.ProcessIncomingMessagePatch());
 			PatchContol.ApplyPatch();
 
@@ -46,6 +41,7 @@ namespace MultiplayerEmotes {
 
 			SaveEvents.AfterLoad += this.AfterLoad;
 
+			// TODO: Command to stop emotes from NPC and FarmAnimals
 			helper.ConsoleCommands.Add("emote", "Play the emote animation with the passed id.\n\nUsage: emote <value>\n- value: a integer representing the animation id.", this.Emote);
 			helper.ConsoleCommands.Add("stop_emote", "Stop any emote being played by you.\n\nUsage: stop_emote", this.StopEmote);
 			helper.ConsoleCommands.Add("stop_all_emotes", "Stop any emote being played.\n\nUsage: stop_all_emotes", this.StopAllEmotes);

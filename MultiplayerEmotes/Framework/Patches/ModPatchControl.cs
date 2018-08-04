@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MultiplayerEmotes.Patches {
+namespace MultiplayerEmotes.Framework.Patches {
 
 	public class ModPatchControl {
 

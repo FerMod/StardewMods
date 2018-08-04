@@ -12,7 +12,8 @@ namespace MultiplayerEmotes.Framework.Constants {
 
 		internal enum MessageAction {
 			None,
-			EmoteBroadcast
+			EmoteBroadcast,
+			CharacterEmoteBroadcast
 		};
 	}
 

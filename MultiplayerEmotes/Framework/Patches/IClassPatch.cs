@@ -3,7 +3,7 @@ using Harmony;
 using StardewModdingAPI;
 using System.Reflection;
 
-namespace MultiplayerEmotes.Patches {
+namespace MultiplayerEmotes.Framework.Patches {
 
 
 	public interface IClassPatch {

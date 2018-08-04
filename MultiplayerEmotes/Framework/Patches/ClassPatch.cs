@@ -2,7 +2,7 @@
 using System.Reflection;
 using Harmony;
 
-namespace MultiplayerEmotes.Patches {
+namespace MultiplayerEmotes.Framework.Patches {
 
 	public abstract class ClassPatch : IClassPatch {
 

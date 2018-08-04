@@ -8,7 +8,7 @@ using System;
 using System.IO;
 using MultiplayerEmotes.Framework.Constants;
 
-namespace MultiplayerEmotes.Patches {
+namespace MultiplayerEmotes.Framework.Patches {
 
 	internal static class MultiplayerPatch {
 
@@ -35,7 +35,11 @@ namespace MultiplayerEmotes.Patches {
 						if(Enum.IsDefined(typeof(ModNetwork.MessageAction), action)) {
 							switch(action) {
 								case ModNetwork.MessageAction.EmoteBroadcast:
-									__instance.ProcessBroadcastEmote(msg);
+									__instance.ReceiveEmoteBroadcast(msg);
+									// Dont let to execute the vanilla method
+									return false;
+								case ModNetwork.MessageAction.CharacterEmoteBroadcast:
+									__instance.ReceiveCharacterEmoteBroadcast(msg);
 									// Dont let to execute the vanilla method
 									return false;
 							}
