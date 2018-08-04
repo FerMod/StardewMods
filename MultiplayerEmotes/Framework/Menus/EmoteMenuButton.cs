@@ -1,10 +1,13 @@
 ﻿
 using System;
+using System.IO;
 using System.Reflection;
+using MultiplayerEmotes.Framework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MultiplayerEmotes.Events;
+using MultiplayerEmotes.Framework.Constants;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -30,7 +33,7 @@ namespace MultiplayerEmotes.Menus {
 		public bool AnimationOnHover { get; set; }
 		public int AnimationCooldownTime { get; set; }
 
-		TemporaryAnimatedSprite iconAnimation;
+		private TemporaryAnimatedSprite iconAnimation;
 		private int animationTimer;
 		public bool playAnimation;
 
@@ -60,12 +63,12 @@ namespace MultiplayerEmotes.Menus {
 			this.width = targetRect.Width;
 			this.height = targetRect.Height;
 
-			this.emoteMenuTexture = helper.Content.Load<Texture2D>("assets\\emoteBox.png", ContentSource.ModFolder);
-			this.emoteTexture = helper.Content.Load<Texture2D>("TileSheets\\emotes", ContentSource.GameContent);
+			this.emoteMenuTexture = helper.Content.Load<Texture2D>(Sprites.Menu.AssetName, ContentSource.ModFolder);
+			this.emoteTexture = Sprites.Emotes.Texture;
 			this.emoteMenuIcon = new ClickableTextureComponent(new Rectangle(this.targetRect.X, this.targetRect.Y, this.width, this.height), Game1.mouseCursors, sourceRect, 4f, false);
 
-			Texture2D chatBoxTexture = helper.Content.Load<Texture2D>("LooseSprites\\chatBox", ContentSource.GameContent);
-			this.emoteMenu = new EmoteMenu(helper, this, emoteMenuTexture, chatBoxTexture, emoteTexture, new Vector2(this.targetRect.X, this.targetRect.Y));
+			//Texture2D chatBoxTexture = helper.Content.Load<Texture2D>(Sprites.ChatBox.AssetName, ContentSource.GameContent);
+			this.emoteMenu = new EmoteMenu(helper, this, emoteMenuTexture, Sprites.ChatBox.Texture, emoteTexture, new Vector2(this.targetRect.X, this.targetRect.Y));
 
 			IsBeingDragged = false;
 
@@ -73,7 +76,7 @@ namespace MultiplayerEmotes.Menus {
 			animationTimer = AnimationCooldownTime;
 			AnimatedEmoteIcon = modConfig.AnimateEmoteButtonIcon;
 			AnimationOnHover = true; // Not in use
-			iconAnimation = new TemporaryAnimatedSprite("TileSheets\\emotes", new Rectangle(0, 0, 16, 16), 250f, 4, 0, new Vector2(this.emoteMenuIcon.bounds.X + 15, this.emoteMenuIcon.bounds.Y + 15), false, false, 0.9f, 0f, Color.White, 2.0f, 0f, 0f, 0f, true);
+			iconAnimation = new TemporaryAnimatedSprite(Sprites.Emotes.AssetName, new Rectangle(0, 0, 16, 16), 250f, 4, 0, new Vector2(this.emoteMenuIcon.bounds.X + 15, this.emoteMenuIcon.bounds.Y + 15), false, false, 0.9f, 0f, Color.White, 2.0f, 0f, 0f, 0f, true);
 
 			ShowTooltipOnHover = modConfig.ShowTooltipOnHover;
 			hoverText = "Emotes";
@@ -206,8 +209,9 @@ namespace MultiplayerEmotes.Menus {
 			updatePosition();
 			Rectangle component = new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height);
 
-			//ModEntry.ModMonitor.Log($"(x: {x}, y: {y}) (xPositionOnScreen: {xPositionOnScreen}, yPositionOnScreen: {yPositionOnScreen}), (width: {width}, height: {height})");
-
+//#if DEBUG
+//			ModEntry.ModMonitor.Log($"(x: {x}, y: {y}) (xPositionOnScreen: {xPositionOnScreen}, yPositionOnScreen: {yPositionOnScreen}), (width: {width}, height: {height})");
+//#endif
 			if(component.Contains(x, y)) {
 				return true;
 			} else if(emoteMenu.IsOpen) {
@@ -276,12 +280,12 @@ namespace MultiplayerEmotes.Menus {
 				IsBeingDragged = false;
 			}
 
-			if((playAnimation && AnimatedEmoteIcon) || (isHovering && AnimationOnHover)) {
+			if((playAnimation && AnimatedEmoteIcon) /*|| (isHovering && AnimationOnHover)*/) {
 				if(IsPlayingAnimation()) {
 					iconAnimation.update(time);
 				} else {
-					iconAnimation.reset();
 					playAnimation = false;
+					iconAnimation.reset();
 				}
 			}
 
@@ -332,19 +336,18 @@ namespace MultiplayerEmotes.Menus {
 		*/
 
 		public void UpdateAnimationTimer(GameTime time) {
-			if(ShouldPlayAnimation()) {
+
+			if(ShouldPlayAnimation() && !playAnimation) {
 				// If there is no animation playing start countdown for next animation
-				if(this.animationTimer >= 0 && !playAnimation) {
+				if(this.animationTimer > 0) {
+					playAnimation = false;
 					this.animationTimer -= time.ElapsedGameTime.Milliseconds;
-				}
-				// Check if timer reached 0
-				if(this.animationTimer < 0) {
-					this.animationTimer = AnimationCooldownTime;
+				} else { // If timer is less or equal to 0
 					playAnimation = true;
+					this.animationTimer = AnimationCooldownTime;
 				}
-			} else {
-				playAnimation = false;
 			}
+
 		}
 
 		private void DrawAnimatedIcon(SpriteBatch b) {
@@ -380,7 +383,7 @@ namespace MultiplayerEmotes.Menus {
 		}
 
 		public void Draw(SpriteBatch b) {
-			if(Game1.activeClickableMenu == null) {
+			if(Context.IsPlayerFree && Game1.activeClickableMenu == null) {
 				this.updatePosition();
 				this.DrawAnimatedIcon(b);
 				this.DrawTooltipText(b);

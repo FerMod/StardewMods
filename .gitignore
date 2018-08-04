@@ -263,4 +263,12 @@ __pycache__/
 # Ignore some files and folders
 MultiplayerEmotes/Framework/Utilities/
 MultiplayerEmotes/Test/
-NetworkFramework/
+NetworkFramework
+CustomEmojis/Test
+/CustomEmojis/Framework/Utilities/LockBitmap.cs
+/CustomEmojis/Framework/Exceptions
+/CustomEmojis/Framework/Overrides/ChatBoxOverride.cs
+/CustomEmojis/Framework/CustomEmojiDrawer.cs
+/CustomEmojis/logfile.txt
+/CustomEmojis/data.json
+/CustomEmojis/Framework/Extensions/ObjectExtension.cs

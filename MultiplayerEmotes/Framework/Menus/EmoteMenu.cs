@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MultiplayerEmotes.Framework.Constants;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
@@ -26,9 +27,13 @@ namespace MultiplayerEmotes.Menus {
 		public int animationFrames = 4;
 		public int maxRowComponents = 3;
 		public int maxColComponents = 3;
+		// Static arrow test
+		//private Texture2D menuTexture;
 
 		public EmoteMenu(IModHelper helper, EmoteMenuButton emoteMenuButton, Texture2D emoteMenuTexture, Texture2D chatBoxTexture, Texture2D emoteTexture, Vector2 position) {
 
+			// Static arrow test
+			//this.menuTexture = helper.Content.Load<Texture2D>("assets\\emoteBoxPrototype.png", ContentSource.ModFolder);
 			this.emoteMenuButton = emoteMenuButton;
 			this.emoteMenuTexture = emoteMenuTexture;
 			this.chatBoxTexture = chatBoxTexture;
@@ -45,8 +50,8 @@ namespace MultiplayerEmotes.Menus {
 				}
 			}
 
-			this.upArrow = new ClickableComponent(new Rectangle(256, 20, 32, 20), "");
-			this.downArrow = new ClickableComponent(new Rectangle(256, 200, 32, 20), "");
+			this.upArrow = new ClickableComponent(Sprites.ChatBox.UpArrow, nameof(Sprites.ChatBox.UpArrow));
+			this.downArrow = new ClickableComponent(Sprites.ChatBox.DownArrow, nameof(Sprites.ChatBox.DownArrow));
 
 			totalEmotes = (emoteTexture.Width / (animationFrames * emoteSize)) * ((emoteTexture.Height - emoteSize) / emoteSize);
 
@@ -133,9 +138,17 @@ namespace MultiplayerEmotes.Menus {
 		}
 
 		public override void draw(SpriteBatch b) {
+			/*// Static arrow test
+			int xPosition = this.emoteMenuButton.xPositionOnScreen + this.emoteMenuButton.emoteMenuIcon.bounds.Width;
+			int yPosition = this.yPositionOnScreen + (this.emoteMenuButton.yPositionOnScreen + (this.emoteMenuButton.height / 2)) - (this.yPositionOnScreen - 2 + (Sprites.Menu.LeftArrow.Height / 2));//this.emoteMenuIcon.bounds.Y - 248;
+			int arrowWidth = Sprites.Menu.LeftArrow.Width;
+			int arrowHeight = Sprites.Menu.LeftArrow.Height;
 
+			b.Draw(menuTexture, new Rectangle(xPosition + arrowWidth - 6, yPositionOnScreen, this.width - arrowWidth, this.height), new Rectangle?(Sprites.Menu.EmoteBox), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
+			b.Draw(menuTexture, new Rectangle(xPosition, yPosition, Sprites.Menu.LeftArrow.Width, Sprites.Menu.LeftArrow.Height), new Rectangle?(Sprites.Menu.LeftArrow), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0.9f);
+			*/
 			b.Draw(this.emoteMenuTexture, new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height), new Rectangle?(new Rectangle(0, 0, 244, 300)), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
-
+			
 			for(int index = 0; index < this.emoteSelectionButtons.Count; ++index) {
 				b.Draw(this.emoteTexture, new Vector2((float)(this.emoteSelectionButtons[index].bounds.X + this.xPositionOnScreen + 4), (this.emoteSelectionButtons[index].bounds.Y + this.yPositionOnScreen + 4)), new Rectangle?(new Rectangle((emoteSize * (animationFrames - 1)), (this.pageStartIndex + index + 1) * emoteSize, emoteSize, emoteSize)), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 0.9f);
 			}
@@ -150,6 +163,11 @@ namespace MultiplayerEmotes.Menus {
 
 			b.Draw(this.chatBoxTexture, new Vector2((this.upArrow.bounds.X + this.xPositionOnScreen + 16), (float)(this.upArrow.bounds.Y + this.yPositionOnScreen + 16)), new Rectangle?(new Rectangle(156, 300, 32, 20)), Color.White * (this.pageStartIndex == 0 ? 0.25f : 1f), 0.0f, new Vector2(16f, 10f), this.upArrow.scale, SpriteEffects.None, 0.9f);
 			b.Draw(this.chatBoxTexture, new Vector2((this.downArrow.bounds.X + this.xPositionOnScreen + 16), (float)(this.downArrow.bounds.Y + this.yPositionOnScreen + 16)), new Rectangle?(new Rectangle(192, 304, 32, 20)), Color.White * (this.pageStartIndex == this.totalEmotes - getAmmountToScroll() ? 0.25f : 1f), 0.0f, new Vector2(16f, 10f), this.downArrow.scale, SpriteEffects.None, 0.9f);
+
+			//TODO: Change cursor to indicate clicable element
+			if(isWithinBounds(Game1.getMouseX(), Game1.getMouseY())) {
+
+			}
 
 		}
 

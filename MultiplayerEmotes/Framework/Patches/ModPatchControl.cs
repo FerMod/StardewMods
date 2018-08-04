@@ -8,18 +8,16 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MultiplayerEmotes.Patches {
+namespace MultiplayerEmotes.Framework.Patches {
 
 	public class ModPatchControl {
 
 		public List<IClassPatch> PatchList { get; set; }
 		public static HarmonyInstance Harmony { get; set; }
-		private readonly IReflectionHelper reflection;
 
 		public ModPatchControl(IModHelper helper) {
 			Harmony = HarmonyInstance.Create(helper.ModRegistry.ModID);
 			PatchList = new List<IClassPatch>();
-			reflection = helper.Reflection;
 		}
 
 		public void ApplyPatch() {
