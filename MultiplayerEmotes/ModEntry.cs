@@ -14,9 +14,10 @@ namespace MultiplayerEmotes {
 		public static ModConfig Config { get; private set; }
 		public static ModData Data { get; private set; }
 
-		private EmoteMenuButton emoteMenuButton;
+		private EmotesMenuButton emoteMenuButton;
 
 		public static IMonitor ModMonitor { get; private set; }
+		public static IModHelper ModHelper { get; private set; }
 
 		/*
 		 Emotes only visible by others with the mod.
@@ -26,6 +27,7 @@ namespace MultiplayerEmotes {
 		public override void Entry(IModHelper helper) {
 
 			ModMonitor = Monitor;
+			ModHelper = Helper;
 
 			ModPatchControl PatchContol = new ModPatchControl(helper);
 			PatchContol.PatchList.Add(new FarmerPatch.DoEmotePatch(helper.Reflection));
@@ -53,7 +55,7 @@ namespace MultiplayerEmotes {
 		*********/
 		private void AfterLoad(object sender, EventArgs e) {
 
-			emoteMenuButton = new EmoteMenuButton(Helper, Config, Data);
+			emoteMenuButton = new EmotesMenuButton(Helper, Config, Data);
 
 			// Add EmoteMenuButton to the screen menus
 			Game1.onScreenMenus.Insert(0, emoteMenuButton);
