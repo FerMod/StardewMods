@@ -8,9 +8,9 @@ namespace MultiplayerEmotes.Framework.Constants {
 
 	internal static class ModNetwork {
 
-		internal static byte MessageTypeID = 50;
+		public static byte MessageTypeID = 50;
 
-		internal enum MessageAction {
+		public enum MessageAction {
 			None,
 			EmoteBroadcast,
 			CharacterEmoteBroadcast
