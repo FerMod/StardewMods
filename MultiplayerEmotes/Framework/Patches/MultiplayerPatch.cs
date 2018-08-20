@@ -12,6 +12,46 @@ namespace MultiplayerEmotes.Framework.Patches {
 
 	internal static class MultiplayerPatch {
 
+		/*
+		 MessageTypes:
+
+		 0	farmerDelta				(ClientBroadcast type)
+		 1	serverIntroduction		
+		 2	playerIntroduction		(ClientBroadcast type)
+		 3	locationIntroduction
+		 4	forceEvent				(ClientBroadcast type)
+		 5	warpFarmer
+		 6	locationDelta			(ClientBroadcast type)
+		 7	locationSprites			(ClientBroadcast type)
+		 8	characterWarp
+		 9	availableFarmhands
+		 10	chatMessage				(ClientBroadcast type)
+		 11	connectionMessage
+		 12	worldDelta
+		 13	teamDelta				(ClientBroadcast type)
+		 14	newDaySync				(ClientBroadcast type)
+		 15	chatInfoMessage			(ClientBroadcast type)
+		 16	userNameUpdate
+		 17	farmerGainExperience
+		 18	serverToClientsMessage
+		 19 disconnecting			(ClientBroadcast type)
+		
+		 Handled by GameServer:
+		 2 (playerIntroduction)		(call to Multiplayer)
+		 5 (warpFarmer)
+		 defult handled in: Multiplayer
+
+		 Handled by Client:
+		 1 (serverIntroduction)
+		 2 (playerIntroduction)		(call to Multiplayer)
+		 3 (locationIntroduction)	(call to Multiplayer)
+		 9 (availableFarmhands)
+		 11 (connectionMessage) 
+		 16 (userNameUpdate)
+		 defult handled in: Multiplayer
+
+		*/
+
 		internal class ProcessIncomingMessagePatch : ClassPatch {
 
 			public override MethodInfo Original => AccessTools.Method(typeof(Multiplayer), nameof(Multiplayer.processIncomingMessage), new Type[] { typeof(IncomingMessage) });

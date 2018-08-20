@@ -74,16 +74,16 @@ namespace MapPings.Framework {
 		}
 
 		private void MenuEvents_MenuChanged(object sender, EventArgsClickableMenuChanged e) {
-
+			
 			if(Game1.activeClickableMenu is GameMenu gameMenu) {
-				if(gameMenu.currentTab == GameMenu.mapTab) {
-
+				if(gameMenu.currentTab == GameMenu.mapTab && !IsMapOpen) {
+					
 					mapPage = (MapPage)Reflection.GetField<List<IClickableMenu>>(gameMenu, "pages").GetValue()[GameMenu.mapTab];
 					mapXField = Reflection.GetField<int>(mapPage, "mapX");
 					mapYField = Reflection.GetField<int>(mapPage, "mapY");
 
 					IsMapOpen = true;
-				} else {
+				} else if(IsMapOpen) {
 					IsMapOpen = false;
 				}
 			}
@@ -115,6 +115,12 @@ namespace MapPings.Framework {
 
 			if(Game1.activeClickableMenu is GameMenu gameMenu) {
 				if(gameMenu.currentTab == GameMenu.mapTab) {
+
+					// TODO: Fix variables not getting initialized
+					mapPage = (MapPage)Reflection.GetField<List<IClickableMenu>>(gameMenu, "pages").GetValue()[GameMenu.mapTab];
+					mapXField = Reflection.GetField<int>(mapPage, "mapX");
+					mapYField = Reflection.GetField<int>(mapPage, "mapY");
+
 					if(modHelper.Input.IsDown(SButton.LeftAlt) && modHelper.Input.IsDown(SButton.MouseLeft)) {
 
 						Vector2 mapPos = Utility.getTopLeftPositionForCenteringOnScreen(Sprites.Map.SourceRectangle.Width * Game1.pixelZoom, Sprites.Map.SourceRectangle.Height * Game1.pixelZoom);
