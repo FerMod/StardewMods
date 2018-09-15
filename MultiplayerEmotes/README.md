@@ -8,7 +8,7 @@ The interface is a button to open and close the emote list, and the button can b
 
 To know what changed between versions you can go to the [Release Notes](https://github.com/FerMod/StardewMods/tree/master/MultiplayerEmotes/release-notes.md).
 
->**Note:** In order to other players see the emotes they also need to have this mod.
+>**Note:** In order to other players see the emotes the host and the other players will need to have this mod.
 
 ## Instalation
 
