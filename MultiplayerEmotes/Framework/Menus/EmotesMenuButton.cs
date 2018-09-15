@@ -64,7 +64,7 @@ namespace MultiplayerEmotes.Menus {
 			this.EmoteMenuButtonComponent = new ClickableTextureComponent(new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height), Sprites.MenuButton.Texture, sourceRect, 4f, false);
 
 			//Texture2D chatBoxTexture = helper.Content.Load<Texture2D>(Sprites.ChatBox.AssetName, ContentSource.GameContent);
-			this.EmotesMenuBoxComponent = new EmotesMenuBox(helper, this, EmotesTexture, new Vector2(this.xPositionOnScreen, this.yPositionOnScreen));
+			this.EmotesMenuBoxComponent = new EmotesMenuBox(helper, this, EmotesTexture);
 
 			IsBeingDragged = false;
 
@@ -136,9 +136,8 @@ namespace MultiplayerEmotes.Menus {
 			Utility.makeSafe(ref xPositionOnScreen, ref yPositionOnScreen, this.width, this.height);
 
 			if(EmotesMenuBoxComponent != null) {
-				this.EmotesMenuBoxComponent.xPositionOnScreen = this.xPositionOnScreen + this.EmoteMenuButtonComponent.bounds.Width;
-				this.EmotesMenuBoxComponent.yPositionOnScreen += (this.yPositionOnScreen + (this.height / 2)) - (this.EmotesMenuBoxComponent.yPositionOnScreen - 2 + (EmotesMenuBoxComponent.height / 2));//this.emoteMenuIcon.bounds.Y - 248;
-				Utility.makeSafe(ref this.EmotesMenuBoxComponent.xPositionOnScreen, ref this.EmotesMenuBoxComponent.yPositionOnScreen, this.EmotesMenuBoxComponent.width, this.EmotesMenuBoxComponent.height);
+				// Change the position of the emotes box relative to the button. The box will chage of side when not enough space left to fit the menu.
+				this.EmotesMenuBoxComponent.UpdatePosition(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height);
 			}
 
 			this.EmoteMenuButtonComponent.bounds = new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height);
@@ -181,9 +180,7 @@ namespace MultiplayerEmotes.Menus {
 
 		public override void clickAway() {
 			base.clickAway();
-			if(!this.EmotesMenuBoxComponent.IsOpen || !this.EmotesMenuBoxComponent.isWithinBounds(Game1.getMouseX(), Game1.getMouseY())) {
-				EmotesMenuBoxComponent.IsOpen = false;
-			}
+			this.EmotesMenuBoxComponent.clickAway();
 		}
 
 		public bool isWithinBounds(Vector2 position) {

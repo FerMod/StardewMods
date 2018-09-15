@@ -27,26 +27,29 @@ namespace MultiplayerEmotes.Menus {
 		public int animationFrames = 4;
 		public int maxRowComponents = 3;
 		public int maxColComponents = 3;
-		// Static arrow test
-		//private Texture2D menuTexture;
 
-		public EmotesMenuBox(IModHelper helper, EmotesMenuButton emotesMenuButton, Texture2D emotesTexture, Vector2 position) {
+		private Rectangle EmotesMenuBoxArrow;
+		private Rectangle EmotesMenuBoxArrowPosition;
 
-			// Static arrow test
-			//this.menuTexture = helper.Content.Load<Texture2D>("assets\\emoteBoxPrototype.png", ContentSource.ModFolder);
+		public EmotesMenuBox(IModHelper helper, EmotesMenuButton emotesMenuButton, Texture2D emotesTexture) {
+
 			this.EmotesMenuButton = emotesMenuButton;
 			this.EmotesTexture = emotesTexture;
-			this.EmotesMenuBoxTexture = Sprites.MenuBox.Texture;
+			this.EmotesMenuBoxTexture = Sprites.MenuBox.PrototypeTexture;
 			this.EmotesMenuArrowsTexture = Sprites.MenuArrow.Texture;
 
 			this.width = Sprites.MenuBox.Width;
 			this.height = Sprites.MenuBox.Height;
 
+			this.EmotesMenuBoxArrow = Sprites.MenuBox.LeftArrow;
+			this.EmotesMenuBoxArrowPosition.Width = (this.width * EmotesMenuBoxArrow.Width) / Sprites.MenuBox.EmotesBox.Width;
+			this.EmotesMenuBoxArrowPosition.Height = (this.height * EmotesMenuBoxArrow.Height) / Sprites.MenuBox.EmotesBox.Height;
+
 			this.emoteSelectionButtons = new List<ClickableComponent>();
-			int spriteSize = emoteSize * Game1.pixelZoom + 8;
+			int componentSize = emoteSize * Game1.pixelZoom + 8;
 			for(int i = 0; i < maxRowComponents; ++i) {
 				for(int j = 0; j < maxColComponents; j++) {
-					this.emoteSelectionButtons.Add(new ClickableComponent(new Rectangle(j * spriteSize + 36, i * spriteSize + 16, spriteSize, spriteSize), string.Concat(j + (i * maxColComponents) + 1)));
+					this.emoteSelectionButtons.Add(new ClickableComponent(new Rectangle(j * componentSize + 36, i * componentSize + 16, componentSize, componentSize), string.Concat(j + (i * maxColComponents) + 1)));
 				}
 			}
 
@@ -137,20 +140,48 @@ namespace MultiplayerEmotes.Menus {
 		private void OnExit() {
 		}
 
-		public override void draw(SpriteBatch b) {
-			/*// Static arrow test
-			int xPosition = this.emoteMenuButton.xPositionOnScreen + this.emoteMenuButton.emoteMenuIcon.bounds.Width;
-			int yPosition = this.yPositionOnScreen + (this.emoteMenuButton.yPositionOnScreen + (this.emoteMenuButton.height / 2)) - (this.yPositionOnScreen - 2 + (Sprites.Menu.LeftArrow.Height / 2));//this.emoteMenuIcon.bounds.Y - 248;
-			int arrowWidth = Sprites.Menu.LeftArrow.Width;
-			int arrowHeight = Sprites.Menu.LeftArrow.Height;
+		public override void clickAway() {
+			if(!this.IsOpen || !this.isWithinBounds(Game1.getMouseX(), Game1.getMouseY())) {
+				this.IsOpen = false;
+			}
+		}
 
-			b.Draw(menuTexture, new Rectangle(xPosition + arrowWidth - 6, yPositionOnScreen, this.width - arrowWidth, this.height), new Rectangle?(Sprites.Menu.EmoteBox), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
-			b.Draw(menuTexture, new Rectangle(xPosition, yPosition, Sprites.Menu.LeftArrow.Width, Sprites.Menu.LeftArrow.Height), new Rectangle?(Sprites.Menu.LeftArrow), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0.9f);
-			*/
-			b.Draw(this.EmotesMenuBoxTexture, new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height), new Rectangle?(new Rectangle(0, 0, 244, 300)), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
-			
+		public void UpdatePosition(int buttonXPosition, int buttonYPosition, int buttonWidth, int buttonHeight) {
+
+			this.EmotesMenuBoxArrowPosition.Width = (this.width * EmotesMenuBoxArrow.Width) / Sprites.MenuBox.EmotesBox.Width;
+			this.EmotesMenuBoxArrowPosition.Height = (this.height * EmotesMenuBoxArrow.Height) / Sprites.MenuBox.EmotesBox.Height;
+
+			this.xPositionOnScreen = buttonXPosition + buttonWidth + EmotesMenuBoxArrowPosition.Width - 8;
+			this.yPositionOnScreen = buttonYPosition + (buttonHeight / 2) - (this.height / 2);
+
+			this.EmotesMenuBoxArrowPosition.X = buttonXPosition + buttonWidth;
+			this.EmotesMenuBoxArrowPosition.Y = buttonYPosition + (buttonHeight / 2) - (EmotesMenuBoxArrowPosition.Height / 2);
+
+			if(this.xPositionOnScreen < 0) {
+				this.xPositionOnScreen = 0;
+			} else if((this.xPositionOnScreen + this.width) >= Game1.viewport.Width) {
+				this.EmotesMenuBoxArrow = Sprites.MenuBox.RightArrow;
+				this.EmotesMenuBoxArrowPosition.X = buttonXPosition - EmotesMenuBoxArrowPosition.Width;
+				this.xPositionOnScreen = buttonXPosition - this.width - EmotesMenuBoxArrowPosition.Width + 8;
+			} else {
+				this.EmotesMenuBoxArrow = Sprites.MenuBox.LeftArrow;
+			}
+
+			if(this.yPositionOnScreen < 0) {
+				this.yPositionOnScreen = 0;
+			} else if((this.yPositionOnScreen + this.height) >= Game1.viewport.Height) {
+				this.yPositionOnScreen = Game1.viewport.Height - this.height;
+			}
+
+		}
+
+		public override void draw(SpriteBatch b) {
+
+			b.Draw(this.EmotesMenuBoxTexture, new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height), new Rectangle?(Sprites.MenuBox.EmotesBox), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
+			b.Draw(this.EmotesMenuBoxTexture, EmotesMenuBoxArrowPosition, new Rectangle?(EmotesMenuBoxArrow), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
+
 			for(int index = 0; index < this.emoteSelectionButtons.Count; ++index) {
-				b.Draw(this.EmotesTexture, new Vector2((float)(this.emoteSelectionButtons[index].bounds.X + this.xPositionOnScreen + 4), (this.emoteSelectionButtons[index].bounds.Y + this.yPositionOnScreen + 4)), new Rectangle?(new Rectangle((emoteSize * (animationFrames - 1)), (this.pageStartIndex + index + 1) * emoteSize, emoteSize, emoteSize)), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 0.9f);
+				b.Draw(this.EmotesTexture, new Vector2((float)(this.emoteSelectionButtons[index].bounds.X + this.xPositionOnScreen - 8), (this.emoteSelectionButtons[index].bounds.Y + this.yPositionOnScreen + 4)), new Rectangle?(new Rectangle((emoteSize * (animationFrames - 1)), (this.pageStartIndex + index + 1) * emoteSize, emoteSize, emoteSize)), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 0.9f);
 			}
 
 			if((double)this.upArrow.scale < 1.0) {
@@ -161,8 +192,8 @@ namespace MultiplayerEmotes.Menus {
 				this.downArrow.scale += 0.05f;
 			}
 
-			b.Draw(this.EmotesMenuArrowsTexture, new Vector2((this.upArrow.bounds.X + this.xPositionOnScreen + 16), (float)(this.upArrow.bounds.Y + this.yPositionOnScreen + 16)), new Rectangle?(new Rectangle(156, 300, 32, 20)), Color.White * (this.pageStartIndex == 0 ? 0.25f : 1f), 0.0f, new Vector2(16f, 10f), this.upArrow.scale, SpriteEffects.None, 0.9f);
-			b.Draw(this.EmotesMenuArrowsTexture, new Vector2((this.downArrow.bounds.X + this.xPositionOnScreen + 16), (float)(this.downArrow.bounds.Y + this.yPositionOnScreen + 16)), new Rectangle?(new Rectangle(192, 304, 32, 20)), Color.White * (this.pageStartIndex == this.totalEmotes - getAmmountToScroll() ? 0.25f : 1f), 0.0f, new Vector2(16f, 10f), this.downArrow.scale, SpriteEffects.None, 0.9f);
+			b.Draw(this.EmotesMenuArrowsTexture, new Vector2((this.upArrow.bounds.X + this.xPositionOnScreen + 4), (float)(this.upArrow.bounds.Y + this.yPositionOnScreen + 16)), new Rectangle?(new Rectangle(156, 300, 32, 20)), Color.White * (this.pageStartIndex == 0 ? 0.25f : 1f), 0.0f, new Vector2(16f, 10f), this.upArrow.scale, SpriteEffects.None, 0.9f);
+			b.Draw(this.EmotesMenuArrowsTexture, new Vector2((this.downArrow.bounds.X + this.xPositionOnScreen + 4), (float)(this.downArrow.bounds.Y + this.yPositionOnScreen + 16)), new Rectangle?(new Rectangle(192, 304, 32, 20)), Color.White * (this.pageStartIndex == this.totalEmotes - getAmmountToScroll() ? 0.25f : 1f), 0.0f, new Vector2(16f, 10f), this.downArrow.scale, SpriteEffects.None, 0.9f);
 
 			//TODO: Change cursor to indicate clicable element
 			if(isWithinBounds(Game1.getMouseX(), Game1.getMouseY())) {
