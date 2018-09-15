@@ -1,7 +1,8 @@
 ﻿# Release Notes
 
 ## 1.0.0-beta.3
-- Added the ability to see the NPC and FarmAnimals emotes.
+- Added the ability to see the NPC and FarmAnimals emotes
+- Added the emote box and the arrow to change of side if doesnt fit in the screen
 - Fixed emote interface showing in cutscenes
 
 ## 1.0.0-beta.2
