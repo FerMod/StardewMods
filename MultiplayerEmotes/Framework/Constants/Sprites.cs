@@ -14,6 +14,9 @@ namespace MultiplayerEmotes.Framework.Constants {
 
 			public static Texture2D Texture => ModEntry.ModHelper.Content.Load<Texture2D>(AssetName, ContentSource.GameContent);
 
+			public static int Size = 16;
+
+			public static int AnimationFrames = 4;
 		}
 
 		public static class MenuButton {
@@ -57,9 +60,9 @@ namespace MultiplayerEmotes.Framework.Constants {
 
 			public static Texture2D Texture => ModEntry.ModHelper.Content.Load<Texture2D>(AssetName, ContentSource.GameContent);
 
-			public static Rectangle Up = new Rectangle(256, 20, 32, 20);
+			public static Rectangle Up = new Rectangle(156, 300, 32, 20); //new Rectangle(256, 20, 32, 20);
 
-			public static Rectangle Down = new Rectangle(256, 200, 32, 20);
+			public static Rectangle Down = new Rectangle(192, 304, 32, 20);//new Rectangle(256, 200, 32, 20);
 
 		}
 
