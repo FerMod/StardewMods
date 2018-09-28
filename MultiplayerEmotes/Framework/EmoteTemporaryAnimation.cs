@@ -19,18 +19,15 @@ namespace MultiplayerEmotes.Framework {
 
 		public EmoteTemporaryAnimation(IReflectionHelper reflectionHelper) {
 			Reflection = reflectionHelper;
-			//GraphicsEvents.OnPostRenderEvent += GraphicsEvents_OnPostRenderEvent;
+			GraphicsEvents.OnPostRenderEvent += GraphicsEvents_OnPostRenderEvent;
 		}
 
-		/*
-		 private void GraphicsEvents_OnPostRenderEvent(object sender, EventArgs e) {
+		private void GraphicsEvents_OnPostRenderEvent(object sender, EventArgs e) {
 			foreach(TemporaryAnimatedSprite animatedSprite in temporaryAnimationList) {
-				if(animatedSprite != null) {
-					animatedSprite.Position = new Vector2(Game1.player.Position.X, Game1.player.Position.Y - 160);
-				}
+				//animatedSprite.update(Game1.currentGameTime);
+				animatedSprite.Position = new Vector2(Game1.player.Position.X, Game1.player.Position.Y - 160);
 			}
 		}
-		*/
 
 		public void BroadcastEmote(int whichEmote) {
 

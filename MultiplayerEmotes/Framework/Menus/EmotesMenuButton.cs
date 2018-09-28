@@ -52,7 +52,7 @@ namespace MultiplayerEmotes.Menus {
 			this.modData = modData;
 
 			Rectangle sourceRect = Sprites.MenuButton.SourceRectangle;
-			Rectangle targetRect = new Rectangle((int)modData.MenuPosition.X, (int)modData.MenuPosition.Y, sourceRect.Width * Game1.pixelZoom, sourceRect.Height * Game1.pixelZoom);
+			Rectangle targetRect = new Rectangle(modData.MenuPosition.X, modData.MenuPosition.Y, sourceRect.Width * Game1.pixelZoom, sourceRect.Height * Game1.pixelZoom);
 
 			this.xPositionOnScreen = targetRect.X;
 			this.yPositionOnScreen = targetRect.Y;
@@ -116,7 +116,7 @@ namespace MultiplayerEmotes.Menus {
 		}
 
 		private void SaveData() {
-			modData.MenuPosition = new Vector2(this.xPositionOnScreen, this.yPositionOnScreen);
+			modData.MenuPosition = new Point(this.xPositionOnScreen, this.yPositionOnScreen);
 			helper.WriteJsonFile("data.json", modData);
 		}
 
@@ -157,18 +157,30 @@ namespace MultiplayerEmotes.Menus {
 					} else {
 						EmotesMenuBoxComponent.Open();
 					}
-					this.EmoteMenuButtonComponent.scale = 4f;
-				} else if(this.EmotesMenuBoxComponent.IsOpen && this.EmotesMenuBoxComponent.isWithinBounds(x, y)) {
-					this.EmotesMenuBoxComponent.leftClick(x, y, this);
-				} else {
-					if(this.EmotesMenuBoxComponent.IsOpen) {
-						this.EmotesMenuBoxComponent.IsOpen = false;
-						this.EmoteMenuButtonComponent.scale = 4f;
-					}
-					if(this.isWithinBounds(x, y)) {
-						EmotesMenuBoxComponent.IsOpen = true;
-					}
+				} else if(this.EmotesMenuBoxComponent.IsOpen) {
+					this.EmotesMenuBoxComponent.receiveLeftClick(x, y, playSound);
 				}
+
+				this.EmoteMenuButtonComponent.scale = 4f;
+
+				//if(this.EmoteMenuButtonComponent.containsPoint(x, y)) {
+				//	if(EmotesMenuBoxComponent.IsOpen) {
+				//		EmotesMenuBoxComponent.Close();
+				//	} else {
+				//		EmotesMenuBoxComponent.Open();
+				//	}
+				//	this.EmoteMenuButtonComponent.scale = 4f;
+				//} else if(this.EmotesMenuBoxComponent.IsOpen && this.EmotesMenuBoxComponent.isWithinBounds(x, y)) {
+				//	this.EmotesMenuBoxComponent.leftClick(x, y);
+				//} else {
+				//	if(this.EmotesMenuBoxComponent.IsOpen) {
+				//		this.EmotesMenuBoxComponent.IsOpen = false;
+				//		this.EmoteMenuButtonComponent.scale = 4f;
+				//	}
+				//	if(this.isWithinBounds(x, y)) {
+				//		EmotesMenuBoxComponent.IsOpen = true;
+				//	}
+				//}
 
 			}
 
@@ -191,9 +203,9 @@ namespace MultiplayerEmotes.Menus {
 			UpdatePosition();
 			Rectangle component = new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height);
 
-//#if DEBUG
-//			ModEntry.ModMonitor.Log($"(x: {x}, y: {y}) (xPositionOnScreen: {xPositionOnScreen}, yPositionOnScreen: {yPositionOnScreen}), (width: {width}, height: {height})");
-//#endif
+			//#if DEBUG
+			//			ModEntry.ModMonitor.Log($"(x: {x}, y: {y}) (xPositionOnScreen: {xPositionOnScreen}, yPositionOnScreen: {yPositionOnScreen}), (width: {width}, height: {height})");
+			//#endif
 			if(component.Contains(x, y)) {
 				return true;
 			} else if(EmotesMenuBoxComponent.IsOpen) {
