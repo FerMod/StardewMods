@@ -272,3 +272,5 @@ CustomEmojis/Test
 /CustomEmojis/logfile.txt
 /CustomEmojis/data.json
 /CustomEmojis/Framework/Extensions/ObjectExtension.cs
+/CustomEmojis/Framework/Utilities/ModCache.cs
+/MultiplayerEmotes/Framework/Menus/EmotesMenuBoxOld.cs

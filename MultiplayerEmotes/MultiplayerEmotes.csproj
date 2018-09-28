@@ -93,10 +93,11 @@
     <Compile Include="Framework\Constants\ModNetwork.cs" />
     <Compile Include="Framework\Constants\Sprites.cs" />
     <Compile Include="Framework\EmoteTemporaryAnimation.cs" />
+    <Compile Include="Framework\Menus\EmotesMenuBox.cs" />
     <Compile Include="Framework\Patches\CharacterPatch.cs" />
     <Compile Include="Framework\StateMonitor\MouseStateMonitor.cs" />
     <Compile Include="Framework\Menus\EmotesMenuButton.cs" />
-    <Compile Include="Framework\Menus\EmotesMenuBox.cs" />
+    <Compile Include="Framework\Menus\EmotesMenuBoxOld.cs" />
     <Compile Include="Framework\Logger.cs" />
     <Compile Include="ModConfig.cs" />
     <Compile Include="ModData.cs" />
