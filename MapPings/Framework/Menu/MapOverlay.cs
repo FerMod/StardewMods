@@ -31,11 +31,7 @@ namespace MapPings.Framework {
 
 		private readonly IModHelper modHelper;
 
-		public bool IsMapOpen { get; set; }
-
-		private MapPage mapPage;
-		private IReflectedField<int> mapXField;
-		private IReflectedField<int> mapYField;
+		//public bool IsMapOpen { get; set; }
 
 		public Dictionary<Farmer, PlayerMapPing> MapPings { get; set; }
 
@@ -58,7 +54,7 @@ namespace MapPings.Framework {
 		}
 
 		private void SubscribeEvents() {
-			MenuEvents.MenuChanged += MenuEvents_MenuChanged;
+			//MenuEvents.MenuChanged += MenuEvents_MenuChanged;
 			GameEvents.UpdateTick += GameEvents_UpdateTick;
 			GraphicsEvents.OnPostRenderGuiEvent += GraphicsEvents_OnPostRenderGuiEvent;
 			GraphicsEvents.Resize += GraphicsEvents_Resize;
@@ -66,28 +62,15 @@ namespace MapPings.Framework {
 		}
 
 		private void UnsubscribeEvents() {
-			MenuEvents.MenuChanged -= MenuEvents_MenuChanged;
+			//MenuEvents.MenuChanged -= MenuEvents_MenuChanged;
 			GameEvents.UpdateTick -= GameEvents_UpdateTick;
 			GraphicsEvents.OnPostRenderGuiEvent -= GraphicsEvents_OnPostRenderGuiEvent;
 			GraphicsEvents.Resize -= GraphicsEvents_Resize;
 			InputEvents.ButtonPressed -= InputEvents_ButtonPressed;
 		}
 
-		private void MenuEvents_MenuChanged(object sender, EventArgsClickableMenuChanged e) {
-			
-			if(Game1.activeClickableMenu is GameMenu gameMenu) {
-				if(gameMenu.currentTab == GameMenu.mapTab && !IsMapOpen) {
-					
-					mapPage = (MapPage)Reflection.GetField<List<IClickableMenu>>(gameMenu, "pages").GetValue()[GameMenu.mapTab];
-					mapXField = Reflection.GetField<int>(mapPage, "mapX");
-					mapYField = Reflection.GetField<int>(mapPage, "mapY");
-
-					IsMapOpen = true;
-				} else if(IsMapOpen) {
-					IsMapOpen = false;
-				}
-			}
-
+		public bool IsMapOpen() {
+			return Game1.activeClickableMenu is GameMenu gameMenu && gameMenu.currentTab == GameMenu.mapTab;
 		}
 
 		private void GameEvents_UpdateTick(object sender, EventArgs e) {
@@ -113,60 +96,56 @@ namespace MapPings.Framework {
 
 		private void InputEvents_ButtonPressed(object sender, EventArgsInput e) {
 
-			if(Game1.activeClickableMenu is GameMenu gameMenu) {
-				if(gameMenu.currentTab == GameMenu.mapTab) {
+			if(Game1.activeClickableMenu is GameMenu gameMenu && gameMenu.currentTab == GameMenu.mapTab) {
 
-					// TODO: Fix variables not getting initialized
-					mapPage = (MapPage)Reflection.GetField<List<IClickableMenu>>(gameMenu, "pages").GetValue()[GameMenu.mapTab];
-					mapXField = Reflection.GetField<int>(mapPage, "mapX");
-					mapYField = Reflection.GetField<int>(mapPage, "mapY");
+				if(modHelper.Input.IsDown(SButton.LeftAlt) && modHelper.Input.IsDown(SButton.MouseLeft)) {
 
-					if(modHelper.Input.IsDown(SButton.LeftAlt) && modHelper.Input.IsDown(SButton.MouseLeft)) {
+					MapPage mapPage = (MapPage)Reflection.GetField<List<IClickableMenu>>(gameMenu, "pages").GetValue()[GameMenu.mapTab];
+					Vector2 mapCoord = new Vector2(Reflection.GetField<int>(mapPage, "mapX").GetValue(), Reflection.GetField<int>(mapPage, "mapY").GetValue());
 
-						Vector2 mapPos = Utility.getTopLeftPositionForCenteringOnScreen(Sprites.Map.SourceRectangle.Width * Game1.pixelZoom, Sprites.Map.SourceRectangle.Height * Game1.pixelZoom);
-						Vector2 pingedCoord = new Vector2(e.Cursor.ScreenPixels.X - mapPos.X, e.Cursor.ScreenPixels.Y - mapPos.Y);
+					//Vector2 mapPos = Utility.getTopLeftPositionForCenteringOnScreen(Sprites.Map.SourceRectangle.Width * Game1.pixelZoom, Sprites.Map.SourceRectangle.Height * Game1.pixelZoom);
+					Vector2 pingedCoord = new Vector2(e.Cursor.ScreenPixels.X - mapCoord.X, e.Cursor.ScreenPixels.Y - mapCoord.Y);
 
-						int mapWidth = Sprites.Map.SourceRectangle.Width * Game1.pixelZoom;
-						int mapHeight = Sprites.Map.SourceRectangle.Height * Game1.pixelZoom;
-						if(IsPingWithinMapBounds(mapWidth, mapHeight, pingedCoord)) {
+					int mapWidth = Sprites.Map.SourceRectangle.Width * Game1.pixelZoom;
+					int mapHeight = Sprites.Map.SourceRectangle.Height * Game1.pixelZoom;
+					if(IsPingWithinMapBounds(mapWidth, mapHeight, pingedCoord)) {
 
-							//TODO: Send ping to players
+						//TODO: Send ping to players
 
-							if(config.ShowPingsInChat) {
+						if(config.ShowPingsInChat) {
 
-								string hoverText = Reflection.GetField<string>(mapPage, "hoverText").GetValue();
+							string hoverText = Reflection.GetField<string>(mapPage, "hoverText").GetValue();
 
-								if(!String.IsNullOrWhiteSpace(hoverText)) {
-									hoverText = $"\"{GetHoverTextLocationName(hoverText)}\"";
-								}
-
-								if(!MapPings.ContainsKey(Game1.player)) {
-									MapPings.Add(Game1.player, new PlayerMapPing(Color.Red));
-								}
-
-								MapPings[Game1.player].AddPing(Game1.player, pingedCoord, hoverText);
-
-								string messageKey = "UserNotificationMessageFormat";
-								string messageText = $"{Game1.player.Name} pinged {hoverText} [X:{pingedCoord.X}, Y:{pingedCoord.Y}]";
-
-								if(Game1.IsMultiplayer) {
-									Multiplayer multiplayer = Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
-									multiplayer.globalChatInfoMessage(messageKey, messageText);
-								} else {
-									Game1.chatBox.addInfoMessage(Game1.content.LoadString("Strings\\UI:Chat_" + messageKey, messageText));
-								}
-
+							if(!String.IsNullOrWhiteSpace(hoverText)) {
+								hoverText = $"\"{GetHoverTextLocationName(hoverText)}\"";
 							}
-#if DEBUG
-							ModEntry.ModLogger.Log($"MapCoords => (x: {pingedCoord.X}, y: {pingedCoord.Y})");
-							ModEntry.ModLogger.Log($"Map (X: {mapPos.X}, Y: {mapPos.Y})");
-#endif
+
+							if(!MapPings.ContainsKey(Game1.player)) {
+								MapPings.Add(Game1.player, new PlayerMapPing(Color.Red));
+							}
+
+							MapPings[Game1.player].AddPing(Game1.player, pingedCoord, hoverText);
+
+							string messageKey = "UserNotificationMessageFormat";
+							string messageText = $"{Game1.player.Name} pinged {hoverText} [X:{pingedCoord.X}, Y:{pingedCoord.Y}]";
+
+							if(Game1.IsMultiplayer) {
+								Multiplayer multiplayer = Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
+								multiplayer.globalChatInfoMessage(messageKey, messageText);
+							} else {
+								Game1.chatBox.addInfoMessage(Game1.content.LoadString("Strings\\UI:Chat_" + messageKey, messageText));
+							}
 
 						}
-
-						e.SuppressButton(SButton.MouseLeft);
+#if DEBUG
+						ModEntry.ModLogger.Log($"MapCoords => (x: {pingedCoord.X}, y: {pingedCoord.Y})");
+						ModEntry.ModLogger.Log($"Map (X: {mapCoord.X}, Y: {mapCoord.Y})");
+#endif
 
 					}
+
+					e.SuppressButton(SButton.MouseLeft);
+
 				}
 			}
 
