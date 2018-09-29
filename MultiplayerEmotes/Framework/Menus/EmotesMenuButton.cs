@@ -38,9 +38,6 @@ namespace MultiplayerEmotes.Menus {
 
 		public bool IsBeingDragged;
 
-		MouseState currentMouseState;
-		MouseState previousMouseState;
-
 		private readonly IModHelper helper;
 		private readonly ModData modData;
 		private readonly ModConfig modConfig;
@@ -78,8 +75,7 @@ namespace MultiplayerEmotes.Menus {
 			initialize(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height, false);
 			UpdatePosition();
 
-			currentMouseState = Mouse.GetState();
-			previousMouseState = currentMouseState;
+			MouseStateMonitor.Initialize();
 
 			SubscribeEvents();
 
@@ -102,7 +98,7 @@ namespace MultiplayerEmotes.Menus {
 		private void OnMouseChanged(object sender, EventArgsMouseStateChanged e) {
 			MouseStateMonitor.UpdateMouseState();
 			if(MouseStateMonitor.ScrollChanged() && this.isWithinBounds(MouseStateMonitor.CurrentMouseState.X, MouseStateMonitor.CurrentMouseState.Y) && this.EmotesMenuBoxComponent.IsOpen) {
-				MouseState mouseState = Game1.oldMouseState;
+				MouseState mouseState = MouseStateMonitor.PreviousMouseState;
 				Game1.oldMouseState = new MouseState(mouseState.X, mouseState.Y, MouseStateMonitor.CurrentMouseState.ScrollWheelValue, mouseState.LeftButton, mouseState.MiddleButton, mouseState.RightButton, mouseState.XButton1, mouseState.XButton2);
 				receiveScrollWheelAction(MouseStateMonitor.ScrollValueDifference());
 			}
