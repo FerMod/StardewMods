@@ -86,6 +86,11 @@ namespace MultiplayerEmotes.Menus {
 
 		public override bool isWithinBounds(int x, int y) {
 
+			// Check if is within the box arrow
+			if(EmotesMenuBoxArrowPosition.Contains(x, y)) {
+				return true;
+			}
+
 			// Check if X coord is within bounds
 			if((this.xPositionOnScreen > x) || (x >= (this.xPositionOnScreen + this.width))) {
 				return false;
