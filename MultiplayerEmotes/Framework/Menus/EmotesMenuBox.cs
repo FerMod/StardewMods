@@ -35,7 +35,7 @@ namespace MultiplayerEmotes.Menus {
 
 			this.EmotesMenuButton = emotesMenuButton;
 			this.EmotesTexture = emotesTexture;
-			this.EmotesMenuBoxTexture = Sprites.MenuBox.PrototypeTexture;
+			this.EmotesMenuBoxTexture = Sprites.MenuBox.Texture;
 			this.EmotesMenuArrowsTexture = Sprites.MenuArrow.Texture;
 
 			this.width = Sprites.MenuBox.Width;

@@ -17,6 +17,7 @@ namespace MultiplayerEmotes.Framework.Constants {
 			public static int Size = 16;
 
 			public static int AnimationFrames = 4;
+
 		}
 
 		public static class MenuButton {
@@ -26,13 +27,10 @@ namespace MultiplayerEmotes.Framework.Constants {
 			public static Texture2D Texture => ModEntry.ModHelper.Content.Load<Texture2D>(AssetName, ContentSource.GameContent);
 
 			public static Rectangle SourceRectangle = new Rectangle(301, 288, 15, 15);
+
 		}
 
 		public static class MenuBox {
-
-			public static string PrototypeAssetName = "assets/emoteBoxPrototype.png";
-
-			public static Texture2D PrototypeTexture => ModEntry.ModHelper.Content.Load<Texture2D>(PrototypeAssetName, ContentSource.ModFolder);
 
 			public static string AssetName = "assets/emoteBox.png";
 
