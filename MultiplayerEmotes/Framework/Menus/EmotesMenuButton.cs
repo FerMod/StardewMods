@@ -148,11 +148,7 @@ namespace MultiplayerEmotes.Menus {
 			if(!ShouldDragIcon()) {
 
 				if(this.EmoteMenuButtonComponent.containsPoint(x, y)) {
-					if(EmotesMenuBoxComponent.IsOpen) {
-						EmotesMenuBoxComponent.Close();
-					} else {
-						EmotesMenuBoxComponent.Open();
-					}
+					EmotesMenuBoxComponent.Toggle();
 				} else if(this.EmotesMenuBoxComponent.IsOpen) {
 					this.EmotesMenuBoxComponent.receiveLeftClick(x, y, playSound);
 				}

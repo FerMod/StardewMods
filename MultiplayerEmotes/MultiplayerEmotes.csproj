@@ -112,9 +112,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\emoteBox.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="assets\emoteBoxPrototype.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -12,6 +12,8 @@ namespace MultiplayerEmotes.Menus {
 
 	public class EmotesMenuBox : IClickableMenu {
 
+		public bool IsOpen { get; set; }
+
 		private List<ClickableComponent> emoteSelectionButtons;
 		private Texture2D EmotesMenuBoxTexture;
 		private Texture2D EmotesTexture;
@@ -19,7 +21,6 @@ namespace MultiplayerEmotes.Menus {
 		private int firstComponentIndex;
 		private ClickableComponent upArrow;
 		private ClickableComponent downArrow;
-		public bool IsOpen;
 		private readonly EmotesMenuButton EmotesMenuButton;
 		public int totalEmotes;
 
@@ -41,9 +42,9 @@ namespace MultiplayerEmotes.Menus {
 			this.width = Sprites.MenuBox.Width;
 			this.height = Sprites.MenuBox.Height;
 
-			this.EmotesMenuBoxArrow = Sprites.MenuBox.LeftArrow;
-			this.EmotesMenuBoxArrowPosition.Width = (this.width * EmotesMenuBoxArrow.Width) / Sprites.MenuBox.EmotesBox.Width;
-			this.EmotesMenuBoxArrowPosition.Height = (this.height * EmotesMenuBoxArrow.Height) / Sprites.MenuBox.EmotesBox.Height;
+			this.EmotesMenuBoxArrow = Sprites.MenuBox.LeftArrow.SourceRectangle;
+			this.EmotesMenuBoxArrowPosition.Width = (this.width * EmotesMenuBoxArrow.Width) / Sprites.MenuBox.Width;
+			this.EmotesMenuBoxArrowPosition.Height = (this.height * EmotesMenuBoxArrow.Height) / Sprites.MenuBox.Height;
 
 			this.emoteSelectionButtons = new List<ClickableComponent>();
 			int componentSize = emoteSize * Game1.pixelZoom;
@@ -51,8 +52,8 @@ namespace MultiplayerEmotes.Menus {
 			this.emoteSelectionButtons = GetClickableComponentList(26, 16, componentSize, componentSize, maxRowComponents, maxColComponents, 10, 10);
 
 			//TODO: Refactor upArrow and downArrow 
-			this.upArrow = new ClickableComponent(new Rectangle(256 + 4, 20 + 16, 32, 20), nameof(Sprites.MenuArrow.Up));
-			this.downArrow = new ClickableComponent(new Rectangle(256 + 4, 200 + 16, 32, 20), nameof(Sprites.MenuArrow.Down));
+			this.upArrow = new ClickableComponent(new Rectangle(256 + 4, 20 + 16, 32, 20), nameof(Sprites.MenuArrow.UpSourceRectangle));
+			this.downArrow = new ClickableComponent(new Rectangle(256 + 4, 200 + 16, 32, 20), nameof(Sprites.MenuArrow.DownSourceRectangle));
 
 			totalEmotes = (emotesTexture.Width / (animationFrames * emoteSize)) * ((emotesTexture.Height - emoteSize) / emoteSize);
 
@@ -164,14 +165,26 @@ namespace MultiplayerEmotes.Menus {
 			return true;
 		}
 
-		public void Open() {
-			IsOpen = true;
-			Game1.playSound("shwip");
+		public void Toggle() {
+			if(IsOpen) {
+				Close();
+			} else {
+				Open();
+			}
 		}
 
-		public void Close() {
+		public void Open(bool playSound = true) {
+			IsOpen = true;
+			if(playSound) {
+				Game1.playSound("shwip");
+			}
+		}
+
+		public void Close(bool playSound = true) {
 			IsOpen = false;
-			Game1.playSound("shwip");
+			if(playSound) {
+				Game1.playSound("shwip");
+			}
 		}
 
 		private void OnExit() {
@@ -179,15 +192,15 @@ namespace MultiplayerEmotes.Menus {
 
 		public override void clickAway() {
 			if(!this.IsOpen || !this.isWithinBounds(Game1.getMouseX(), Game1.getMouseY())) {
-				this.IsOpen = false;
+				Close();
 			}
 		}
 
 		public void UpdatePosition(int buttonXPosition, int buttonYPosition, int buttonWidth, int buttonHeight) {
 
 			// Emotes menu box arrow dimensions
-			this.EmotesMenuBoxArrowPosition.Width = (this.width * EmotesMenuBoxArrow.Width) / Sprites.MenuBox.EmotesBox.Width;
-			this.EmotesMenuBoxArrowPosition.Height = (this.height * EmotesMenuBoxArrow.Height) / Sprites.MenuBox.EmotesBox.Height;
+			this.EmotesMenuBoxArrowPosition.Width = (this.width * EmotesMenuBoxArrow.Width) / Sprites.MenuBox.Width;
+			this.EmotesMenuBoxArrowPosition.Height = (this.height * EmotesMenuBoxArrow.Height) / Sprites.MenuBox.Height;
 
 			// Emotes menu box arrow position
 			this.EmotesMenuBoxArrowPosition.X = buttonXPosition + buttonWidth;
@@ -201,11 +214,11 @@ namespace MultiplayerEmotes.Menus {
 			if(this.xPositionOnScreen < 0) {
 				this.xPositionOnScreen = 0;
 			} else if((this.xPositionOnScreen + this.width) >= Game1.viewport.Width) {
-				this.EmotesMenuBoxArrow = Sprites.MenuBox.RightArrow;
+				this.EmotesMenuBoxArrow = Sprites.MenuBox.RightArrow.SourceRectangle;
 				this.EmotesMenuBoxArrowPosition.X = buttonXPosition - EmotesMenuBoxArrowPosition.Width;
 				this.xPositionOnScreen = buttonXPosition - this.width - EmotesMenuBoxArrowPosition.Width + 8;
 			} else {
-				this.EmotesMenuBoxArrow = Sprites.MenuBox.LeftArrow;
+				this.EmotesMenuBoxArrow = Sprites.MenuBox.LeftArrow.SourceRectangle;
 			}
 
 			if(this.yPositionOnScreen < 0) {
@@ -230,7 +243,7 @@ namespace MultiplayerEmotes.Menus {
 
 		public override void draw(SpriteBatch b) {
 
-			b.Draw(this.EmotesMenuBoxTexture, new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height), new Rectangle?(Sprites.MenuBox.EmotesBox), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
+			b.Draw(this.EmotesMenuBoxTexture, new Rectangle(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height), new Rectangle?(Sprites.MenuBox.SourceRectangle), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
 			b.Draw(this.EmotesMenuBoxTexture, EmotesMenuBoxArrowPosition, new Rectangle?(EmotesMenuBoxArrow), Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
 
 			for(int index = 0; index < this.emoteSelectionButtons.Count; ++index) {
@@ -245,8 +258,8 @@ namespace MultiplayerEmotes.Menus {
 				this.downArrow.scale += 0.05f;
 			}
 
-			b.Draw(this.EmotesMenuArrowsTexture, new Vector2(this.upArrow.bounds.X + this.xPositionOnScreen, this.upArrow.bounds.Y + this.yPositionOnScreen), new Rectangle?(Sprites.MenuArrow.Up), Color.White * (this.firstComponentIndex == 0 ? 0.25f : 1f), 0.0f, Vector2.Zero, this.upArrow.scale, SpriteEffects.None, 0.9f);
-			b.Draw(this.EmotesMenuArrowsTexture, new Vector2(this.downArrow.bounds.X + this.xPositionOnScreen, this.downArrow.bounds.Y + this.yPositionOnScreen), new Rectangle?(Sprites.MenuArrow.Down), Color.White * (this.firstComponentIndex == this.totalEmotes - GetMaxAmmountComponentShowing() ? 0.25f : 1f), 0.0f, Vector2.Zero, this.downArrow.scale, SpriteEffects.None, 0.9f);
+			b.Draw(this.EmotesMenuArrowsTexture, new Vector2(this.upArrow.bounds.X + this.xPositionOnScreen, this.upArrow.bounds.Y + this.yPositionOnScreen), new Rectangle?(Sprites.MenuArrow.UpSourceRectangle), Color.White * (this.firstComponentIndex == 0 ? 0.25f : 1f), 0.0f, Vector2.Zero, this.upArrow.scale, SpriteEffects.None, 0.9f);
+			b.Draw(this.EmotesMenuArrowsTexture, new Vector2(this.downArrow.bounds.X + this.xPositionOnScreen, this.downArrow.bounds.Y + this.yPositionOnScreen), new Rectangle?(Sprites.MenuArrow.DownSourceRectangle), Color.White * (this.firstComponentIndex == this.totalEmotes - GetMaxAmmountComponentShowing() ? 0.25f : 1f), 0.0f, Vector2.Zero, this.downArrow.scale, SpriteEffects.None, 0.9f);
 
 			//TODO: Change cursor to indicate clicable element. Investigate further
 			if(this.isWithinBounds(Game1.getMouseX(), Game1.getMouseY()) && !Game1.options.hardwareCursor) {

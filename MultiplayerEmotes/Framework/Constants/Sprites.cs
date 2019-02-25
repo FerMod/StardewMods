@@ -10,7 +10,7 @@ namespace MultiplayerEmotes.Framework.Constants {
 
 		public static class Emotes {
 
-			public static string AssetName = "TileSheets/emotes";
+			public static string AssetName => "TileSheets/emotes";
 
 			public static Texture2D Texture => ModEntry.ModHelper.Content.Load<Texture2D>(AssetName, ContentSource.GameContent);
 
@@ -22,7 +22,7 @@ namespace MultiplayerEmotes.Framework.Constants {
 
 		public static class MenuButton {
 
-			public static string AssetName = "LooseSprites/Cursors";
+			public static string AssetName => "LooseSprites/Cursors";
 
 			public static Texture2D Texture => ModEntry.ModHelper.Content.Load<Texture2D>(AssetName, ContentSource.GameContent);
 
@@ -32,35 +32,53 @@ namespace MultiplayerEmotes.Framework.Constants {
 
 		public static class MenuBox {
 
-			public static string AssetName = "assets/emoteBox.png";
+			public static string AssetName => "assets/emoteBox.png";
 
 			public static Texture2D Texture => ModEntry.ModHelper.Content.Load<Texture2D>(AssetName, ContentSource.ModFolder);
+
+			public static Rectangle SourceRectangle = new Rectangle(0, 0, 228, 300);
 
 			public static int Width = 300;
 
 			public static int Height = 250;
 
-			public static readonly Rectangle EmotesBox = new Rectangle(0, 0, 228, 300);
+			//TODO make enum of top, down, left, right arrows
+			public static class TopArrow {
 
-			public static readonly Rectangle TopArrow = new Rectangle(228, 0, 28, 28 - 8);
+				public static Rectangle SourceRectangle = new Rectangle(228, 0, 28, 28 - 8);
 
-			public static readonly Rectangle DownArrow = new Rectangle(228, 28 + 8, 28, 28 - 8);
+			}
 
-			public static readonly Rectangle LeftArrow = new Rectangle(228, 56, 28 - 8, 28);
+			public static class DownArrow {
 
-			public static readonly Rectangle RightArrow = new Rectangle(228 + 8, 84, 28 - 8, 28);
+				public static Rectangle SourceRectangle = new Rectangle(228, 28 + 8, 28, 28 - 8);
+
+			}
+
+			public static class LeftArrow {
+
+				public static Rectangle SourceRectangle = new Rectangle(228, 56, 28 - 8, 28);
+
+			}
+
+			public static class RightArrow {
+
+				public static Rectangle SourceRectangle = new Rectangle(228 + 8, 84, 28 - 8, 28);
+
+			}
 
 		}
 
 		public static class MenuArrow {
 
-			public static string AssetName = "LooseSprites/chatBox";
+			public static string AssetName => "LooseSprites/chatBox";
 
 			public static Texture2D Texture => ModEntry.ModHelper.Content.Load<Texture2D>(AssetName, ContentSource.GameContent);
 
-			public static Rectangle Up = new Rectangle(156, 300, 32, 20); //new Rectangle(256, 20, 32, 20);
+			//TODO make enum of top, down, left, right arrows
+			public static Rectangle UpSourceRectangle = new Rectangle(156, 300, 32, 20); //new Rectangle(256, 20, 32, 20);
 
-			public static Rectangle Down = new Rectangle(192, 304, 32, 20);//new Rectangle(256, 200, 32, 20);
+			public static Rectangle DownSourceRectangle = new Rectangle(192, 304, 32, 20);//new Rectangle(256, 200, 32, 20);
 
 		}
 
