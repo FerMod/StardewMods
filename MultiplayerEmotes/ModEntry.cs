@@ -39,9 +39,9 @@ namespace MultiplayerEmotes {
 			Config = helper.ReadConfig<ModConfig>();
 
 			this.Monitor.Log("Loading mod data...", LogLevel.Debug);
-			Data = this.Helper.ReadJsonFile<ModData>("data.json") ?? new ModData();
+			Data = this.Helper.Data.ReadJsonFile<ModData>("data.json") ?? new ModData();
 
-			SaveEvents.AfterLoad += this.AfterLoad;
+			helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
 
 			// TODO: Command to stop emotes from NPC and FarmAnimals
 			helper.ConsoleCommands.Add("emote", "Play the emote animation with the passed id.\n\nUsage: emote <value>\n- value: a integer representing the animation id.", this.Emote);
@@ -53,7 +53,10 @@ namespace MultiplayerEmotes {
 		/*********
 		** Private methods
 		*********/
-		private void AfterLoad(object sender, EventArgs e) {
+		/// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
+		/// <param name="sender">The event sender.</param>
+		/// <param name="e">The event data.</param>
+		private void OnSaveLoaded(object sender, SaveLoadedEventArgs e) {
 
 			emoteMenuButton = new EmotesMenuButton(Helper, Config, Data);
 
@@ -77,7 +80,7 @@ namespace MultiplayerEmotes {
 						this.Monitor.Log($"Playing emote: {id}");
 #if DEBUG
 					} else if(id < 0) {
-						EmoteTemporaryAnimation emoteTempAnim = new EmoteTemporaryAnimation(Helper.Reflection);
+						EmoteTemporaryAnimation emoteTempAnim = new EmoteTemporaryAnimation(Helper.Reflection, Helper.Events);
 						emoteTempAnim.BroadcastEmote(id * -1);
 						this.Monitor.Log($"Playing emote (workarround): {id * -1}");
 #endif

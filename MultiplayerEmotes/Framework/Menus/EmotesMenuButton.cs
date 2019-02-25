@@ -1,12 +1,7 @@
 ﻿
-using System;
-using System.IO;
-using System.Reflection;
-using MultiplayerEmotes.Framework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MultiplayerEmotes.Events;
 using MultiplayerEmotes.Framework.Constants;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -37,6 +32,8 @@ namespace MultiplayerEmotes.Menus {
 		private Vector2 iconPositionOffset;
 
 		public bool IsBeingDragged;
+
+		private bool WasRightDown;
 
 		private readonly IModHelper helper;
 		private readonly ModData modData;
@@ -75,36 +72,40 @@ namespace MultiplayerEmotes.Menus {
 			initialize(this.xPositionOnScreen, this.yPositionOnScreen, this.width, this.height, false);
 			UpdatePosition();
 
-			MouseStateMonitor.Initialize();
-
 			SubscribeEvents();
 
 		}
 
 		private void SubscribeEvents() {
-			MenuEvents.MenuChanged += this.OnMenuChanged;
-			GraphicsEvents.OnPostRenderHudEvent += this.OnPostRenderHudEvent;
-			ControlEvents.MouseChanged += this.OnMouseChanged;
-			InputEvents.ButtonPressed += this.OnButtonPressed;
+			helper.Events.Display.MenuChanged += this.OnMenuChanged;
+			helper.Events.Display.RenderedHud += this.OnRenderedHud;
+			helper.Events.Input.MouseWheelScrolled += this.OnMouseWheelScrolled;
+			helper.Events.Input.ButtonPressed += this.OnButtonPressed;
 		}
 
 		private void UnsubscribeEvents() {
-			MenuEvents.MenuChanged -= this.OnMenuChanged;
-			GraphicsEvents.OnPostRenderHudEvent -= this.OnPostRenderHudEvent;
-			ControlEvents.MouseChanged -= this.OnMouseChanged;
-			InputEvents.ButtonPressed -= this.OnButtonPressed;
+			helper.Events.Display.MenuChanged -= this.OnMenuChanged;
+			helper.Events.Display.RenderedHud -= this.OnRenderedHud;
+			helper.Events.Input.MouseWheelScrolled -= this.OnMouseWheelScrolled;
+			helper.Events.Input.ButtonPressed -= this.OnButtonPressed;
 		}
 
-		private void OnMouseChanged(object sender, EventArgsMouseStateChanged e) {
-			MouseStateMonitor.UpdateMouseState();
-			if(MouseStateMonitor.ScrollChanged() && this.isWithinBounds(MouseStateMonitor.CurrentMouseState.X, MouseStateMonitor.CurrentMouseState.Y) && this.EmotesMenuBoxComponent.IsOpen) {
-				MouseState mouseState = MouseStateMonitor.PreviousMouseState;
-				Game1.oldMouseState = new MouseState(mouseState.X, mouseState.Y, MouseStateMonitor.CurrentMouseState.ScrollWheelValue, mouseState.LeftButton, mouseState.MiddleButton, mouseState.RightButton, mouseState.XButton1, mouseState.XButton2);
-				receiveScrollWheelAction(MouseStateMonitor.ScrollValueDifference());
+		/// <summary>Raised after the player scrolls the mouse wheel.</summary>
+		/// <param name="sender">The event sender.</param>
+		/// <param name="e">The event data.</param>
+		private void OnMouseWheelScrolled(object sender, MouseWheelScrolledEventArgs e) {
+			var cursor = helper.Input.GetCursorPosition().ScreenPixels;
+			if (this.isWithinBounds((int)cursor.X, (int)cursor.Y) && this.EmotesMenuBoxComponent.IsOpen) {
+				MouseState mouseState = Game1.oldMouseState;
+				Game1.oldMouseState = new MouseState(mouseState.X, mouseState.Y, e.NewValue, mouseState.LeftButton, mouseState.MiddleButton, mouseState.RightButton, mouseState.XButton1, mouseState.XButton2);
+				receiveScrollWheelAction(e.Delta);
 			}
 		}
 
-		private void OnMenuChanged(object sender, EventArgsClickableMenuChanged e) {
+		/// <summary>Raised after a game menu is opened, closed, or replaced.</summary>
+		/// <param name="sender">The event sender.</param>
+		/// <param name="e">The event data.</param>
+		private void OnMenuChanged(object sender, MenuChangedEventArgs e) {
 			if(e.NewMenu is TitleMenu) {
 				UnsubscribeEvents();
 				SaveData();
@@ -113,12 +114,15 @@ namespace MultiplayerEmotes.Menus {
 
 		private void SaveData() {
 			modData.MenuPosition = new Point(this.xPositionOnScreen, this.yPositionOnScreen);
-			helper.WriteJsonFile("data.json", modData);
+			helper.Data.WriteJsonFile("data.json", modData);
 		}
 
-		private void OnButtonPressed(object sender, EventArgsInput e) {
-			if(this.IsBeingDragged && e.Button == SButton.MouseRight) {
-				e.SuppressButton();
+		/// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
+		/// <param name="sender">The event sender.</param>
+		/// <param name="e">The event data.</param>
+		private void OnButtonPressed(object sender, ButtonPressedEventArgs e) {
+			if (this.IsBeingDragged && e.Button == SButton.MouseRight) {
+				helper.Input.Suppress(e.Button);
 			}
 		}
 
@@ -145,7 +149,11 @@ namespace MultiplayerEmotes.Menus {
 
 		public override void receiveLeftClick(int x, int y, bool playSound = true) {
 
-			if(!ShouldDragIcon()) {
+			bool wasRightDown = this.WasRightDown;
+			bool isRightDown = helper.Input.IsDown(SButton.MouseRight);
+			this.WasRightDown = isRightDown;
+
+			if(!ShouldDragIcon(wasRightDown, isRightDown)) {
 
 				if(this.EmoteMenuButtonComponent.containsPoint(x, y)) {
 					EmotesMenuBoxComponent.Toggle();
@@ -185,10 +193,6 @@ namespace MultiplayerEmotes.Menus {
 		public override void clickAway() {
 			base.clickAway();
 			this.EmotesMenuBoxComponent.clickAway();
-		}
-
-		public bool isWithinBounds(Vector2 position) {
-			return isWithinBounds((int)position.X, (int)position.Y);
 		}
 
 		public override bool isWithinBounds(int x, int y) {
@@ -237,7 +241,11 @@ namespace MultiplayerEmotes.Menus {
 			this.UpdateAnimationTimer(time);
 			//this.UpdateHoldToDragTimer(time);
 
-			if(ShouldDragIcon()) {
+			bool wasRightDown = this.WasRightDown;
+			bool isRightDown = helper.Input.IsDown(SButton.MouseRight);
+			this.WasRightDown = isRightDown;
+
+			if (ShouldDragIcon(wasRightDown, isRightDown)) {
 
 				IsBeingDragged = true;
 
@@ -277,8 +285,9 @@ namespace MultiplayerEmotes.Menus {
 
 		}
 
-		private bool ShouldDragIcon() {
-			return MouseStateMonitor.MouseHolded() && !MouseStateMonitor.MouseReleased() && this.EmoteMenuButtonComponent.containsPoint(Game1.getMouseX(), Game1.getMouseY());
+		private bool ShouldDragIcon(bool wasDown, bool isDown)
+		{
+			return wasDown && isDown && this.EmoteMenuButtonComponent.containsPoint(Game1.getMouseX(), Game1.getMouseY());
 		}
 
 		public bool ShouldPlayAnimation() {
@@ -364,8 +373,11 @@ namespace MultiplayerEmotes.Menus {
 			}
 		}
 
-		private void OnPostRenderHudEvent(object sender, EventArgs e) {
-			this.Draw(Game1.spriteBatch);
+		/// <summary>Raised after drawing the HUD (item toolbar, clock, etc) to the sprite batch, but before it's rendered to the screen. The vanilla HUD may be hidden at this point (e.g. because a menu is open).</summary>
+		/// <param name="sender">The event sender.</param>
+		/// <param name="e">The event data.</param>
+		private void OnRenderedHud(object sender, RenderedHudEventArgs e) {
+			this.Draw(e.SpriteBatch);
 		}
 
 		public void Draw(SpriteBatch b) {

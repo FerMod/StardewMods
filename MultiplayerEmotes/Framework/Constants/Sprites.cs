@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
-using System.IO;
 
 namespace MultiplayerEmotes.Framework.Constants {
 
