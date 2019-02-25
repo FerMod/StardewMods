@@ -51,34 +51,41 @@ namespace MapPings.Framework {
 		}
 
 		private void SubscribeEvents() {
-			//MenuEvents.MenuChanged += MenuEvents_MenuChanged;
-			GameEvents.UpdateTick += GameEvents_UpdateTick;
-			GraphicsEvents.OnPostRenderGuiEvent += GraphicsEvents_OnPostRenderGuiEvent;
-			GraphicsEvents.Resize += GraphicsEvents_Resize;
-			InputEvents.ButtonPressed += InputEvents_ButtonPressed;
+			modHelper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
+			modHelper.Events.Display.RenderedActiveMenu += OnRenderedActiveMenu;
+			modHelper.Events.Display.WindowResized += OnWindowResized;
+			modHelper.Events.Input.ButtonPressed += OnButtonPressed;
 		}
 
 		private void UnsubscribeEvents() {
-			//MenuEvents.MenuChanged -= MenuEvents_MenuChanged;
-			GameEvents.UpdateTick -= GameEvents_UpdateTick;
-			GraphicsEvents.OnPostRenderGuiEvent -= GraphicsEvents_OnPostRenderGuiEvent;
-			GraphicsEvents.Resize -= GraphicsEvents_Resize;
-			InputEvents.ButtonPressed -= InputEvents_ButtonPressed;
+			modHelper.Events.GameLoop.UpdateTicked -= OnUpdateTicked;
+			modHelper.Events.Display.RenderedActiveMenu -= OnRenderedActiveMenu;
+			modHelper.Events.Display.WindowResized -= OnWindowResized;
+			modHelper.Events.Input.ButtonPressed -= OnButtonPressed;
 		}
 
 		public bool IsMapOpen() {
 			return Game1.activeClickableMenu is GameMenu gameMenu && gameMenu.currentTab == GameMenu.mapTab;
 		}
 
-		private void GameEvents_UpdateTick(object sender, EventArgs e) {
+		/// <summary>Raised after the game state is updated (≈60 times per second).</summary>
+		/// <param name="sender">The event sender.</param>
+		/// <param name="e">The event data.</param>
+		private void OnUpdateTicked(object sender, UpdateTickedEventArgs e) {
 			Update(Game1.currentGameTime);
 		}
 
-		private void GraphicsEvents_OnPostRenderGuiEvent(object sender, EventArgs e) {
-			Draw(Game1.spriteBatch);
+		/// <summary>When a menu is open (<see cref="Game1.activeClickableMenu"/> isn't null), raised after that menu is drawn to the sprite batch but before it's rendered to the screen.</summary>
+		/// <param name="sender">The event sender.</param>
+		/// <param name="e">The event data.</param>
+		private void OnRenderedActiveMenu(object sender, RenderedActiveMenuEventArgs e) {
+			Draw(e.SpriteBatch);
 		}
 
-		private void GraphicsEvents_Resize(object sender, EventArgs e) {
+		/// <summary>Raised after the game window is resized.</summary>
+		/// <param name="sender">The event sender.</param>
+		/// <param name="e">The event data.</param>
+		private void OnWindowResized(object sender, WindowResizedEventArgs e) {
 
 			Rectangle newViewport = Game1.viewport;
 			if(this.LastViewport.Width != newViewport.Width || this.LastViewport.Height != newViewport.Height) {
@@ -91,7 +98,10 @@ namespace MapPings.Framework {
 
 		}
 
-		private void InputEvents_ButtonPressed(object sender, EventArgsInput e) {
+		/// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
+		/// <param name="sender">The event sender.</param>
+		/// <param name="e">The event data.</param>
+		private void OnButtonPressed(object sender, ButtonPressedEventArgs e) {
 
 			if(Game1.activeClickableMenu is GameMenu gameMenu && gameMenu.currentTab == GameMenu.mapTab) {
 
@@ -141,7 +151,7 @@ namespace MapPings.Framework {
 
 					}
 
-					e.SuppressButton(SButton.MouseLeft);
+					modHelper.Input.Suppress(SButton.MouseLeft);
 
 				}
 			}

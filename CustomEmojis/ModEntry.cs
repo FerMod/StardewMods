@@ -14,7 +14,7 @@ using CustomEmojis.Framework.Menu;
 using System.IO;
 
 namespace CustomEmojis {
-
+	/// <summary>The mod entry class loaded by SMAPI.</summary>
 	public class ModEntry : Mod {
 
 		private EmojiAssetsLoader emojiAssetsLoader;
@@ -28,6 +28,9 @@ namespace CustomEmojis {
 		public static Logger ModLogger { get; private set; }
 		private ModDebugData modDebugData;
 #endif
+
+		/// <summary>The mod entry point, called after the mod is first loaded.</summary>
+		/// <param name="helper">Provides simplified APIs for writing mods.</param>
 		public override void Entry(IModHelper helper) {
 
 			ModMonitor = Monitor;
@@ -72,7 +75,7 @@ namespace CustomEmojis {
 			ModLogger = new Logger(Path.Combine(helper.DirectoryPath, "logfile.txt"), false, Monitor);
 #endif
 			this.Monitor.Log("Loading mod data...", LogLevel.Trace);
-			this.modData = this.Helper.ReadJsonFile<ModData>(ModPaths.Data.Path);
+			this.modData = this.Helper.Data.ReadJsonFile<ModData>(ModPaths.Data.Path);
 			if(this.modData == null) {
 				this.Monitor.Log("Mod data file not found. (harmless info)", LogLevel.Trace);
 				this.modData = new ModData(helper, config.ImageExtensions) {
@@ -89,7 +92,7 @@ namespace CustomEmojis {
 
 #else
 			this.Monitor.Log("Loading debug data file...", LogLevel.Trace);
-			this.modDebugData = this.Helper.ReadJsonFile<ModDebugData>("debugData.json") ?? new ModDebugData();
+			this.modDebugData = this.Helper.Data.ReadJsonFile<ModDebugData>("debugData.json") ?? new ModDebugData();
 
 			//string configPath = Path.Combine(Constants.ExecutionPath, "Mods", "SkipIntro", "config.json");
 			//string json = File.ReadAllText(configPath);
@@ -106,12 +109,12 @@ namespace CustomEmojis {
 
 			if(modDebugData.ActAsHost()) {
 
-				this.Helper.WriteJsonFile("debugData.json", modDebugData);
+				this.Helper.Data.WriteJsonFile("debugData.json", modDebugData);
 				Monitor.Log($"====> HOST <====");
 
 				ModLogger = new Logger(Path.Combine(helper.DirectoryPath, "logfile.txt"), false, Monitor);
 				this.Monitor.Log("Loading mod data...", LogLevel.Trace);
-				this.modData = this.Helper.ReadJsonFile<ModData>(ModPaths.Data.Path);
+				this.modData = this.Helper.Data.ReadJsonFile<ModData>(ModPaths.Data.Path);
 				if(this.modData == null) {
 					this.Monitor.Log("Mod data file not found. (harmless info)", LogLevel.Trace);
 					this.modData = new ModData(helper, config.ImageExtensions) {
@@ -127,7 +130,7 @@ namespace CustomEmojis {
 				emojiAssetsLoader = new EmojiAssetsLoader(helper, modData, config, EmojiMenu.EMOJI_SIZE);
 
 			} else {
-				this.Helper.WriteJsonFile("debugData.json", modDebugData);
+				this.Helper.Data.WriteJsonFile("debugData.json", modDebugData);
 				Monitor.Log($"====> CLIENT <====");
 				ModLogger = new Logger(Path.Combine(helper.DirectoryPath, "logfileClient.txt"), false, Monitor);
 				ModPaths.Assets.InputFolder = ModPaths.Assets.InputFolder + "CLIENT";
@@ -135,7 +138,7 @@ namespace CustomEmojis {
 				ModPaths.Data.Path = "dataCLIENT.json";
 
 				this.Monitor.Log("Loading mod data...", LogLevel.Trace);
-				this.modData = this.Helper.ReadJsonFile<ModData>(ModPaths.Data.Path);
+				this.modData = this.Helper.Data.ReadJsonFile<ModData>(ModPaths.Data.Path);
 				if(this.modData == null) {
 					this.Monitor.Log("Mod data file not found. (harmless info)", LogLevel.Trace);
 					this.modData = new ModData(helper, config.ImageExtensions) {
@@ -157,7 +160,7 @@ namespace CustomEmojis {
 
 			//helper.ConsoleCommands.Add("reload_emojis", "Reload the game emojis with the new ones found in the mod folder.", this.ReloadEmojis);
 
-			SaveEvents.AfterLoad += this.OnAfterLoad;
+			helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
 
 		}
 
@@ -165,10 +168,10 @@ namespace CustomEmojis {
 		** Private methods
 		*********/
 
-		/// <summary>The method called after the player loads their save.</summary>
+		/// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
 		/// <param name="sender">The event sender.</param>
 		/// <param name="e">The event arguments.</param>
-		private void OnAfterLoad(object sender, EventArgs e) {
+		private void OnSaveLoaded(object sender, EventArgs e) {
 
 #if DEBUG
 			// Pause time and set it to 09:00
@@ -181,7 +184,7 @@ namespace CustomEmojis {
 				this.Monitor.Log("File changes detected. Saving mod data...", LogLevel.Trace);
 				modData.FilesChanged = false;
 				modData.DataChanged = false;
-				this.Helper.WriteJsonFile(ModPaths.Data.Path, modData);
+				this.Helper.Data.WriteJsonFile(ModPaths.Data.Path, modData);
 				//emojiAssetsLoader.ReloadAsset(); // FIXME: Cache not invalidating properly
 			} else {
 				this.Monitor.Log("No file changes detected.", LogLevel.Trace);

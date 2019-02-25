@@ -17,6 +17,7 @@ namespace CustomEmojis.Framework.Menu {
 	public class CachedMessageEmojis : IClickableMenu {
 
 		private readonly IReflectionHelper Reflection;
+		private readonly IModEvents Events;
 
 		private readonly IReflectedField<List<ChatMessage>> messagesField;
 		private readonly IReflectedField<int> cheatHistoryPositionField;
@@ -38,6 +39,7 @@ namespace CustomEmojis.Framework.Menu {
 		public CachedMessageEmojis(IModHelper helper, int numberVanillaEmojis) {
 
 			Reflection = helper.Reflection;
+			Events = helper.Events;
 
 			messagesField = Reflection.GetField<List<ChatMessage>>(Game1.chatBox, "messages");
 			cheatHistoryPositionField = Reflection.GetField<int>(Game1.chatBox, "cheatHistoryPosition");
@@ -62,18 +64,21 @@ namespace CustomEmojis.Framework.Menu {
 		}
 
 		private void SubscribeEvents() {
-			MenuEvents.MenuChanged += MenuEvents_MenuChanged;
+			Events.Display.MenuChanged += OnMenuChanged;
 			ChatBoxExtension.OnChatBoxAddedMessage += AddPlayerChatMessage;
 			ChatBoxExtension.OnChatBoxReceivedMessage += AddPlayerChatMessage;
 		}
 
 		private void UnsubscribeEvents() {
-			MenuEvents.MenuChanged -= MenuEvents_MenuChanged;
+			Events.Display.MenuChanged -= OnMenuChanged;
 			ChatBoxExtension.OnChatBoxAddedMessage -= AddPlayerChatMessage;
 			ChatBoxExtension.OnChatBoxReceivedMessage -= AddPlayerChatMessage;
 		}
 
-		private void MenuEvents_MenuChanged(object sender, EventArgsClickableMenuChanged e) {
+		/// <summary>Raised after a game menu is opened, closed, or replaced.</summary>
+		/// <param name="sender">The event sender.</param>
+		/// <param name="e">The event data.</param>
+		private void OnMenuChanged(object sender, MenuChangedEventArgs e) {
 			if(e.NewMenu is TitleMenu) {
 				UnsubscribeEvents();
 				MemoryCache.Default.Dispose();
