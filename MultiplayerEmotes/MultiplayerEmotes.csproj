@@ -91,6 +91,8 @@
     <Compile Include="Framework\Constants\Sprites.cs" />
     <Compile Include="Framework\EmoteTemporaryAnimation.cs" />
     <Compile Include="Framework\Menus\EmotesMenuBox.cs" />
+    <Compile Include="Framework\Network\EmoteMessage.cs" />
+    <Compile Include="Framework\Network\MultiplayerMessage.cs" />
     <Compile Include="Framework\Patches\CharacterPatch.cs" />
     <Compile Include="Framework\Menus\EmotesMenuButton.cs" />
     <Compile Include="Framework\Logger.cs" />
@@ -101,7 +103,6 @@
     <Compile Include="Framework\Patches\IClassPatch.cs" />
     <Compile Include="Framework\Extensions\MultiplayerExtension.cs" />
     <Compile Include="Framework\Patches\FarmerPatch.cs" />
-    <Compile Include="Framework\Patches\MultiplayerPatch.cs" />
     <Compile Include="Framework\Patches\ModPatchControl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

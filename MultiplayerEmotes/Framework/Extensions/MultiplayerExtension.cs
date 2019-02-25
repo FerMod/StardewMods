@@ -1,12 +1,12 @@
 ﻿
-using MultiplayerEmotes.Framework.Constants;
-using System.Linq;
-using StardewValley;
-using StardewValley.Network;
-using StardewModdingAPI;
-using System.IO;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using MultiplayerEmotes.Framework.Network;
+using StardewModdingAPI;
+using StardewValley;
 using StardewValley.Buildings;
+using StardewValley.Network;
 
 namespace MultiplayerEmotes.Extensions {
 
@@ -16,49 +16,28 @@ namespace MultiplayerEmotes.Extensions {
 
 			if(Game1.IsMultiplayer) {
 
-				ModNetwork.MessageAction messageAction;
-				string characterId = "";
+				EmoteMessage message = new EmoteMessage {
+					EmoteIndex = emoteIndex
+				};
 
 				if(character != null && !(character is Farmer)) {
 
-					messageAction = ModNetwork.MessageAction.CharacterEmoteBroadcast;
-
 					if(character is NPC npc) {
-						characterId = npc.Name;
+						message.EmoteSourceId = npc.Name;
+						message.EmoteSourceType = CharacterType.NPC;
 					} else if(character is FarmAnimal farmAnimal) {
-						characterId = farmAnimal.myID.Value.ToString();
+						message.EmoteSourceId = farmAnimal.myID.Value.ToString();
+						message.EmoteSourceType = CharacterType.FarmAnimal;
 					}
 
 				} else {
 
-					messageAction = ModNetwork.MessageAction.EmoteBroadcast;
+					message.EmoteSourceId = Game1.player.UniqueMultiplayerID.ToString();
+					message.EmoteSourceType = CharacterType.Farmer;
 
 				}
 
-#if DEBUG
-				TestFunc(characterId);
-#endif
-
-				using(MemoryStream memoryStream = new MemoryStream()) {
-					using(BinaryWriter binaryWriter = new BinaryWriter(memoryStream)) {
-
-						binaryWriter.Write(messageAction.ToString());
-						binaryWriter.Write(emoteIndex);
-						binaryWriter.Write(characterId);
-
-						OutgoingMessage message = new OutgoingMessage(ModNetwork.MessageTypeID, Game1.player, memoryStream.ToArray());
-
-
-						if(Game1.IsClient) {
-							Game1.client.sendMessage(message);
-						} else {
-							foreach(long uniqueMultiplayerID in Game1.otherFarmers.Keys) {
-								Game1.server.sendMessage(uniqueMultiplayerID, message);
-							}
-						}
-
-					}
-				}
+				ModEntry.MultiplayerMessage.Send(message);
 
 			}
 
@@ -98,8 +77,9 @@ namespace MultiplayerEmotes.Extensions {
 		}
 #endif
 
+		[Obsolete("This method removal is planned. Is not longer in use.", true)]
 		public static void ReceiveEmoteBroadcast(this Multiplayer multiplayer, IncomingMessage msg) {
-			if(msg.Data.Length >= 0) {
+			if(msg.Data.Length > 0) {
 				int emoteIndex = msg.Reader.ReadInt32();
 				msg.SourceFarmer.IsEmoting = false;
 				msg.SourceFarmer.doEmote(emoteIndex);
@@ -111,8 +91,9 @@ namespace MultiplayerEmotes.Extensions {
 			}
 		}
 
+		[Obsolete("This method removal is planned. Is not longer in use.", true)]
 		public static void ReceiveCharacterEmoteBroadcast(this Multiplayer multiplayer, IncomingMessage msg) {
-			if(Context.IsPlayerFree && msg.Data.Length >= 0) {
+			if(Context.IsPlayerFree && msg.Data.Length > 0) {
 
 				int emoteIndex = msg.Reader.ReadInt32();
 				string characterId = msg.Reader.ReadString();

@@ -1,11 +1,12 @@
 
-using StardewModdingAPI;
-using StardewValley;
-using MultiplayerEmotes.Framework.Patches;
-using StardewModdingAPI.Events;
 using System;
-using MultiplayerEmotes.Menus;
 using MultiplayerEmotes.Framework;
+using MultiplayerEmotes.Framework.Network;
+using MultiplayerEmotes.Framework.Patches;
+using MultiplayerEmotes.Menus;
+using StardewModdingAPI;
+using StardewModdingAPI.Events;
+using StardewValley;
 
 namespace MultiplayerEmotes {
 
@@ -13,6 +14,7 @@ namespace MultiplayerEmotes {
 
 		public static ModConfig Config { get; private set; }
 		public static ModData Data { get; private set; }
+		public static MultiplayerModMessage MultiplayerMessage { get; private set; }
 
 		private EmotesMenuButton emoteMenuButton;
 
@@ -28,11 +30,11 @@ namespace MultiplayerEmotes {
 
 			ModMonitor = Monitor;
 			ModHelper = Helper;
+			MultiplayerMessage = new MultiplayerModMessage(helper);
 
 			ModPatchControl PatchContol = new ModPatchControl(helper);
 			PatchContol.PatchList.Add(new FarmerPatch.DoEmotePatch(helper.Reflection));
 			PatchContol.PatchList.Add(new CharacterPatch.DoEmotePatch(helper.Reflection));
-			PatchContol.PatchList.Add(new MultiplayerPatch.ProcessIncomingMessagePatch());
 			PatchContol.ApplyPatch();
 
 			this.Monitor.Log("Loading mod config...", LogLevel.Debug);

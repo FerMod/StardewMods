@@ -1,10 +1,10 @@
 ﻿
-using System.Reflection;
-using MultiplayerEmotes.Extensions;
-using Harmony;
-using StardewValley;
-using StardewModdingAPI;
 using System;
+using System.Reflection;
+using Harmony;
+using MultiplayerEmotes.Extensions;
+using StardewModdingAPI;
+using StardewValley;
 
 namespace MultiplayerEmotes.Framework.Patches {
 
@@ -22,7 +22,7 @@ namespace MultiplayerEmotes.Framework.Patches {
 			}
 
 			private static void DoEmote_Postfix(Farmer __instance, int whichEmote) {
-				if(Context.IsMultiplayer && __instance is Farmer && __instance.IsLocalPlayer && __instance.IsEmoting) {
+				if(Context.IsMultiplayer && __instance != null && __instance.IsLocalPlayer) {
 					// Traverse.Create(typeof(Game1)).Field("multiplayer").GetValue<Multiplayer>().BroadcastEmote(whichEmote);
 					Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue().BroadcastEmote(whichEmote);
 				}

@@ -21,7 +21,7 @@ namespace MultiplayerEmotes.Framework.Patches {
 			}
 
 			private static void DoEmote_Postfix(Character __instance, int whichEmote) {
-				if(Context.IsMultiplayer && !(__instance is Farmer) && __instance.IsEmoting) {
+				if(Context.IsMultiplayer && !(__instance is Farmer)) {
 					// Traverse.Create(typeof(Game1)).Field("multiplayer").GetValue<Multiplayer>().BroadcastEmote(whichEmote);
 					Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue().BroadcastEmote(whichEmote, __instance);
 				}
