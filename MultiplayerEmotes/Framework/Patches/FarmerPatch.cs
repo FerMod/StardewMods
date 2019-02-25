@@ -5,10 +5,6 @@ using Harmony;
 using StardewValley;
 using StardewModdingAPI;
 using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Netcode;
-using StardewValley.Network;
 
 namespace MultiplayerEmotes.Framework.Patches {
 

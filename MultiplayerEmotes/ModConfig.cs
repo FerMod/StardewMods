@@ -1,7 +1,4 @@
-﻿
-using Newtonsoft.Json;
-
-public class ModConfig {
+﻿public class ModConfig {
 
 	/// <summary>
 	/// Animate icon within the emote button 
