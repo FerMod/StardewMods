@@ -1,5 +1,4 @@
 ﻿
-using System;
 using System.Reflection;
 using Harmony;
 
@@ -20,6 +19,6 @@ namespace MapPings.Framework.Patches {
 			harmony.Unpatch(Original, patchType, harmony.Id);
 		}
 
-    }
+	}
 
 }

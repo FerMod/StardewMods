@@ -7,7 +7,6 @@ using StardewModdingAPI;
 using System.IO;
 using System.Collections.Generic;
 using StardewValley.Buildings;
-using System;
 
 namespace MultiplayerEmotes.Extensions {
 

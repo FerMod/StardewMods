@@ -1,8 +1,5 @@
 ﻿
 using System;
-using System.IO;
-using System.Reflection;
-using MultiplayerEmotes.Framework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

@@ -16,7 +16,7 @@ namespace MapPings.Framework.Constants {
 
 			public static Texture2D Texture => Game1.content.Load<Texture2D>(AssetName);
 
-            public static Rectangle SourceRectangle = new Rectangle(0, 0, 300, 180);
+			public static Rectangle SourceRectangle = new Rectangle(0, 0, 300, 180);
 
 		}
 
