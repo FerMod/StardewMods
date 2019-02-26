@@ -1,9 +1,9 @@
-﻿using Harmony;
+﻿using System;
+using System.Reflection;
+using Harmony;
 using MultiplayerEmotes.Extensions;
 using StardewModdingAPI;
 using StardewValley;
-using System;
-using System.Reflection;
 
 namespace MultiplayerEmotes.Framework.Patches {
 
@@ -21,7 +21,13 @@ namespace MultiplayerEmotes.Framework.Patches {
 			}
 
 			private static void DoEmote_Postfix(Character __instance, int whichEmote) {
-				if(Context.IsMultiplayer && !(__instance is Farmer)) {
+#if DEBUG
+				ModEntry.ModMonitor.Log($"Character emote ({__instance.GetType()})", LogLevel.Trace);
+#endif
+				if(Context.IsMultiplayer && !Game1.eventUp && !(__instance is Farmer)) {
+#if DEBUG
+					ModEntry.ModMonitor.Log($"Character broadcasting emote.", LogLevel.Trace);
+#endif
 					// Traverse.Create(typeof(Game1)).Field("multiplayer").GetValue<Multiplayer>().BroadcastEmote(whichEmote);
 					Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue().BroadcastEmote(whichEmote, __instance);
 				}

@@ -20,21 +20,15 @@ namespace MultiplayerEmotes.Extensions {
 					EmoteIndex = emoteIndex
 				};
 
-				if(character != null && !(character is Farmer)) {
-
-					if(character is NPC npc) {
-						message.EmoteSourceId = npc.Name;
-						message.EmoteSourceType = CharacterType.NPC;
-					} else if(character is FarmAnimal farmAnimal) {
-						message.EmoteSourceId = farmAnimal.myID.Value.ToString();
-						message.EmoteSourceType = CharacterType.FarmAnimal;
-					}
-
-				} else {
-
-					message.EmoteSourceId = Game1.player.UniqueMultiplayerID.ToString();
+				if(character is Farmer farmer) {
+					message.EmoteSourceId = farmer.UniqueMultiplayerID.ToString();
 					message.EmoteSourceType = CharacterType.Farmer;
-
+				} else if(character is NPC npc) {
+					message.EmoteSourceId = npc.Name;
+					message.EmoteSourceType = CharacterType.NPC;
+				} else if(character is FarmAnimal farmAnimal) {
+					message.EmoteSourceId = farmAnimal.myID.Value.ToString();
+					message.EmoteSourceType = CharacterType.FarmAnimal;
 				}
 
 				ModEntry.MultiplayerMessage.Send(message);
