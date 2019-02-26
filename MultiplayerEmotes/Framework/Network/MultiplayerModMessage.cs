@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -30,43 +27,47 @@ namespace MultiplayerEmotes.Framework.Network {
 
 			Type messageType = typeof(EmoteMessage);
 
-			ModEntry.ModMonitor.Log($"Sending message. (FromPlayer: \"{Game1.player.UniqueMultiplayerID}\", FromMod: {helper.ModRegistry.ModID}, Type: {messageType})", LogLevel.Info);
+#if DEBUG
+			ModEntry.ModMonitor.Log($"Sending message.\n\tFromPlayer: \"{Game1.player.UniqueMultiplayerID}\"\n\tFromMod: \"{helper.ModRegistry.ModID}\"\n\tType: \"{messageType}\"", LogLevel.Trace);
+#endif
 			helper.Multiplayer.SendMessage(message, messageType.ToString(), modIDs: new[] { helper.ModRegistry.ModID });
 
 		}
 
 		public void OnModMessageReceived(object sender, ModMessageReceivedEventArgs e) {
 
-			ModEntry.ModMonitor.Log($"Received message. (FromPlayer: \"{e.FromPlayerID}\", FromMod: {e.FromModID}, Type: {e.Type})", LogLevel.Info);
-
+#if DEBUG
+			ModEntry.ModMonitor.Log($"Received message.\n\tFromPlayer: \"{e.FromPlayerID}\"\n\tFromMod: \"{e.FromModID}\"\n\tType: \"{e.Type}\"", LogLevel.Trace);
+#endif
 			Type messageType = typeof(EmoteMessage);
 			if(e.FromModID == helper.ModRegistry.ModID && e.Type == messageType.ToString()) {
 
 				EmoteMessage message = e.ReadAs<EmoteMessage>();
 
-				Character sourceCharacter = null;
 				switch(message.EmoteSourceType) {
 					case CharacterType.Farmer:
 						if(long.TryParse(message.EmoteSourceId, out long farmerId)) {
-							sourceCharacter = Game1.getFarmer(farmerId);
+							Farmer farmer = Game1.getFarmer(farmerId);
+							farmer.doEmote(message.EmoteIndex);
 						}
 						break;
 					case CharacterType.NPC:
-						sourceCharacter = Game1.getCharacterFromName(message.EmoteSourceId);
+						NPC npc = Game1.getCharacterFromName(message.EmoteSourceId);
+						if(!npc.IsEmoting) {
+							npc.doEmote(message.EmoteIndex);
+						}
 						break;
 					case CharacterType.FarmAnimal:
 						if(long.TryParse(message.EmoteSourceId, out long farmAnimalId)) {
-							sourceCharacter = (Game1.currentLocation as AnimalHouse).animals.Values.FirstOrDefault(x => x.myID.Value == farmAnimalId);
+							FarmAnimal farmAnimal = (Game1.currentLocation as AnimalHouse).animals.Values.FirstOrDefault(x => x.myID.Value == farmAnimalId);
+							if(!farmAnimal.IsEmoting) {
+								farmAnimal.doEmote(message.EmoteIndex);
+							}
 						}
 						break;
 					case CharacterType.Unknown:
 					default:
 						break;
-				}
-
-				if(sourceCharacter != null) {
-					//sourceCharacter.IsEmoting = false;
-					sourceCharacter.doEmote(message.EmoteIndex, true);
 				}
 
 			}
