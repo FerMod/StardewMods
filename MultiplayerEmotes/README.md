@@ -25,7 +25,7 @@ Follow these spteps to install the mod:
 
 ## Configuration File
 
-The mod allows  some configuration, and can be changed in the `config.json` file if you want.
+The mod allows some configuration, and can be changed in the `config.json` file if you want.
 The config file is generated once Stardew Valley is launched at least once with the mod installed.
 
 Available settings:
@@ -40,11 +40,11 @@ Available settings:
 This mod adds some console commands to use with the SMAPI console. This can be useful in case a emote gets stuck playing or to stop playing emotes.
 
 The commands are the following:
-  
+
 | Command                       | Parameters                                                                                            | Action                                                    |
 | ----------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 | `emote <value>`               | `<value>`: A integer representing the animation id.                                                   | Play the emote with the given id                          |
-| `emote_npc <value> <npcName>` | `<value>`: A integer representing the animation id.__`<npcName>`: A string representing the npc name. | Force a npc to play the emote animation with the given id |
+| `emote_npc <value> <npcName>` | `<value>`: A integer representing the animation id.  `<npcName>`: A string representing the npc name. | Force a npc to play the emote animation with the given id |
 | `stop_emote`                  | None                                                                                                  | Stop any playing emote                                    |
 | `stop_all_emotes`             | None                                                                                                  | Stop any playing emote by other players                   |
 | `multiplayer_emotes`          | None                                                                                                  | List all the players that have this mod installed         |
