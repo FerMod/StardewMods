@@ -34,8 +34,8 @@ Available settings:
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | `AnimateEmoteButtonIcon`         | Default `true`. Enable or disable the emote menu button animation.                                                                      |
 | `ShowTooltipOnHover`             | Default `true`. Enable or disable the tooltip when hovering the emote menu button.                                                      |
-| `AllowNonHostEmoteNpcCommand`    | Default `false`. Allow other players to use the command 'emote_npc'.  This command allows to force to a NPC to play an emote.           |
-| `AllowNonHostEmoteAnimalCommand` | Default `false`. Allow other players to use the command 'emote_animal'.  This command allows to force to a FarmAnimal to play an emote. |
+| `AllowNonHostEmoteNpcCommand`    | Default `false`. Allow other players to use the command 'emote_npc'.<br>This command allows to force to a NPC to play an emote.           |
+| `AllowNonHostEmoteAnimalCommand` | Default `false`. Allow other players to use the command 'emote_animal'.<br>This command allows to force to a FarmAnimal to play an emote. |
 
 ## Console Commands
 
