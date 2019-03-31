@@ -135,7 +135,13 @@ namespace MultiplayerEmotes {
 			}
 
 			npc.doEmote(id * 4);
+
+#if DEBUG
 			this.Monitor.Log($"[id: {npc.id}, name: \"{npc.Name}\"] Playing emote: {id}", LogLevel.Info);
+#else
+			this.Monitor.Log($"[\"{npc.Name}\"] Playing emote: {id}", LogLevel.Info);
+#endif
+			
 
 		}
 
@@ -168,7 +174,12 @@ namespace MultiplayerEmotes {
 			}
 
 			farmAnimal.doEmote(id * 4);
-			this.Monitor.Log($"[id: {farmAnimal.myID}, name: \"{farmAnimal.Name}\"] Playing emote: {id}", LogLevel.Info);
+
+#if DEBUG
+			this.Monitor.Log($"[id: {farmAnimal.myID.Value}, name: \"{farmAnimal.Name}\"] Playing emote: {id}", LogLevel.Info);
+#else
+			this.Monitor.Log($"[\"{farmAnimal.Name}\"] Playing emote: {id}", LogLevel.Info);
+#endif
 
 		}
 
