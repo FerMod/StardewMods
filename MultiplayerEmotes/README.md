@@ -18,7 +18,7 @@ To download the mod, go to the the page of [Multiplayer Emotes](https://www.nexu
 
 This mod requires [SMAPI](https://smapi.io/). All the help to install SMAPI and the troubleshooting help can be found in the "Player guide".
 
-Follow these spteps to install the mod:
+Follow these steps to install the mod:
 
 1. Download the mod [here](https://www.nexusmods.com/stardewvalley/mods/2347)
 2. Extract the `.zip` in the `Mods` folder
