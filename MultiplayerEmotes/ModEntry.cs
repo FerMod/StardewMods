@@ -48,8 +48,8 @@ namespace MultiplayerEmotes {
 
 			// TODO: Command to stop emotes from NPC and FarmAnimals
 			helper.ConsoleCommands.Add("emote", "Play the emote animation with the passed id.\n\nUsage: emote <value>\n- value: a integer representing the animation id.", this.Emote);
-			helper.ConsoleCommands.Add("emote_npc", "Force a npc to play the emote animation with the given id.\n\nUsage: emote_npc <npcName> <value>\n- npcName: a string representing the npc name.\n- value: a integer representing the animation id.", this.EmoteNpc);
-			helper.ConsoleCommands.Add("emote_animal", "Force a farm animal to play the emote animation with the given id.\n\nUsage: emote_animal <animalName> <value>\n- animalName: a string representing the farm animal name.\n- value: a integer representing the animation id.", this.EmoteFarmAnimal);
+			helper.ConsoleCommands.Add("emote_npc", "Force a npc to play the emote animation with the given id.\n\nUsage: emote_npc <name> <value>\n- name: a string representing the npc name.\n- value: a integer representing the animation id.", this.EmoteNpc);
+			helper.ConsoleCommands.Add("emote_animal", "Force a farm animal to play the emote animation with the given id.\n\nUsage: emote_animal <name> <value>\n- name: a string representing the farm animal name.\n- value: a integer representing the animation id.", this.EmoteFarmAnimal);
 			helper.ConsoleCommands.Add("stop_emote", "Stop any emote being played by you.\n\nUsage: stop_emote", this.StopEmote);
 			helper.ConsoleCommands.Add("stop_all_emotes", "Stop any emote being played.\n\nUsage: stop_all_emotes", this.StopAllEmotes);
 			helper.ConsoleCommands.Add("multiplayer_emotes", "List all the players that have this mod and can send and receive emotes.\n\nUsage: multiplayer_emotes", this.MultiplayerEmotesAvailable);
@@ -114,7 +114,7 @@ namespace MultiplayerEmotes {
 			}
 
 			if(args.Length < 2) {
-				this.Monitor.Log($"Missing parameters.\n\nUsage: emote_npc <npcName> <value>\n- npcName: a string representing the npc name.\n- value: a integer representing the animation id.", LogLevel.Info);
+				this.Monitor.Log($"Missing parameters.\n\nUsage: emote_npc <name> <value>\n- name: a string representing the npc name.\n- value: a integer representing the animation id.", LogLevel.Info);
 				return;
 			}
 
@@ -147,7 +147,7 @@ namespace MultiplayerEmotes {
 			}
 
 			if(args.Length < 2) {
-				this.Monitor.Log($"Missing parameters.\n\nUsage: emote_animal <animalName> <value>\n- animalName: a string representing the farm animal name.\n- value: a integer representing the animation id.", LogLevel.Info);
+				this.Monitor.Log($"Missing parameters.\n\nUsage: emote_animal <name> <value>\n- name: a string representing the farm animal name.\n- value: a integer representing the animation id.", LogLevel.Info);
 				return;
 			}
 
