@@ -1,4 +1,6 @@
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using MultiplayerEmotes.Framework;
 using MultiplayerEmotes.Framework.Network;
@@ -47,10 +49,14 @@ namespace MultiplayerEmotes {
 			// TODO: Command to stop emotes from NPC and FarmAnimals
 			helper.ConsoleCommands.Add("emote", "Play the emote animation with the passed id.\n\nUsage: emote <value>\n- value: a integer representing the animation id.", this.Emote);
 			helper.ConsoleCommands.Add("emote_npc", "Force a npc to play the emote animation with the given id.\n\nUsage: emote_npc <value> <npcName>\n- value: a integer representing the animation id.\n- npcName: a string representing the npc name.", this.EmoteNpc);
+			helper.ConsoleCommands.Add("emote_animal", "Force a farm animal to play the emote animation with the given id.\n\nUsage: emote_animal <value> <animalName>\n- value: a integer representing the animation id.\n- animalName: a string representing the farm animal name.", this.EmoteFarmAnimal);
 			helper.ConsoleCommands.Add("stop_emote", "Stop any emote being played by you.\n\nUsage: stop_emote", this.StopEmote);
 			helper.ConsoleCommands.Add("stop_all_emotes", "Stop any emote being played.\n\nUsage: stop_all_emotes", this.StopAllEmotes);
 			helper.ConsoleCommands.Add("multiplayer_emotes", "List all the players that have this mod and can send and receive emotes.\n\nUsage: multiplayer_emotes", this.MultiplayerEmotesAvailable);
 
+#if DEBUG
+			helper.Events.Input.ButtonPressed += DebugActionsKeyBinds;
+#endif
 		}
 
 		/*********
@@ -92,7 +98,7 @@ namespace MultiplayerEmotes {
 			} else if(id < 0) {
 				EmoteTemporaryAnimation emoteTempAnim = new EmoteTemporaryAnimation(Helper.Reflection, Helper.Events);
 				emoteTempAnim.BroadcastEmote(id * -1);
-				this.Monitor.Log($"Playing emote (workarround): {id * -1}");
+				this.Monitor.Log($"Playing emote (workarround test): {id * -1}");
 #endif
 			} else {
 				this.Monitor.Log($"The emote id value must be greater than 0.");
@@ -112,16 +118,45 @@ namespace MultiplayerEmotes {
 				return;
 			}
 
-			if(id > 0) {
-				NPC npc = Game1.getCharacterFromName(args[1]);
-				if(npc != null) {
-					npc.doEmote(id * 4);
-					this.Monitor.Log($"[id: {npc.id}, name: \"{npc.Name}\"] Playing emote: {id}");
-				} else {
-					this.Monitor.Log($"Could not find the NPC with the name \"{args[1]}\".");
-				}
-			} else {
+			if(id <= 0) {
 				this.Monitor.Log($"The emote id value must be greater than 0.");
+				return;
+			}
+
+			NPC npc = Game1.getCharacterFromName(args[1]);
+			if(npc != null) {
+				npc.doEmote(id * 4);
+				this.Monitor.Log($"[id: {npc.id}, name: \"{npc.Name}\"] Playing emote: {id}");
+			} else {
+				this.Monitor.Log($"Could not find any NPC with the name \"{args[1]}\".");
+			}
+
+		}
+
+		private void EmoteFarmAnimal(string command, string[] args) {
+
+			if(args.Length < 2) {
+				this.Monitor.Log($"Missing parameters.\n\nUsage: emote_animal <value> <animalName>\n- value: a integer representing the animation id.\n- animalName: a string representing the farm animal name.");
+				return;
+			}
+
+			if(!int.TryParse(args[0], out int id)) {
+				this.Monitor.Log($"The emote id must be a integer.");
+				return;
+			}
+
+			if(id <= 0) {
+				this.Monitor.Log($"The emote id value must be greater than 0.");
+				return;
+			}
+
+			FarmAnimal farmAnimal = Game1.getFarm().getAllFarmAnimals().FirstOrDefault(x => x.Name == args[1]);
+
+			if(farmAnimal != null) {
+				farmAnimal.doEmote(id * 4);
+				this.Monitor.Log($"[id: {farmAnimal.myID}, name: \"{farmAnimal.Name}\"] Playing emote: {id}");
+			} else {
+				this.Monitor.Log($"Could not find any FarmAnimal with \"{args[1]}\".");
 			}
 
 		}
@@ -199,6 +234,18 @@ namespace MultiplayerEmotes {
 		}
 
 #if DEBUG
+		private void DebugActionsKeyBinds(object sender, ButtonPressedEventArgs e) {
+			switch(e.Button) {
+				case SButton.NumPad0:
+					Game1.game1.parseDebugInput("setUpBigFarm");
+					break;
+				case SButton.NumPad1:
+					Game1.game1.parseDebugInput("pet 64 15");
+					Game1.game1.parseDebugInput("petToFarm");
+					break;
+			}
+		}
+
 		private void SetupDebugWorld() {
 
 			Game1.game1.parseDebugInput("zoomLevel 40");
@@ -210,7 +257,7 @@ namespace MultiplayerEmotes {
 				Helper.ConsoleCommands.Trigger("world_settime", new string[] { "0900" });
 
 				Game1.game1.parseDebugInput("warp Farm 64 15");
-
+				Game1.game1.parseDebugInput("nosave");
 				/*
 				Game1.game1.parseDebugInput("pet 64 15");
 				Game1.game1.parseDebugInput("petToFarm");
