@@ -48,8 +48,8 @@ namespace MultiplayerEmotes {
 
 			// TODO: Command to stop emotes from NPC and FarmAnimals
 			helper.ConsoleCommands.Add("emote", "Play the emote animation with the passed id.\n\nUsage: emote <value>\n- value: a integer representing the animation id.", this.Emote);
-			helper.ConsoleCommands.Add("emote_npc", "Force a npc to play the emote animation with the given id.\n\nUsage: emote_npc <value> <npcName>\n- value: a integer representing the animation id.\n- npcName: a string representing the npc name.", this.EmoteNpc);
-			helper.ConsoleCommands.Add("emote_animal", "Force a farm animal to play the emote animation with the given id.\n\nUsage: emote_animal <value> <animalName>\n- value: a integer representing the animation id.\n- animalName: a string representing the farm animal name.", this.EmoteFarmAnimal);
+			helper.ConsoleCommands.Add("emote_npc", "Force a npc to play the emote animation with the given id.\n\nUsage: emote_npc <npcName> <value>\n- npcName: a string representing the npc name.\n- value: a integer representing the animation id.", this.EmoteNpc);
+			helper.ConsoleCommands.Add("emote_animal", "Force a farm animal to play the emote animation with the given id.\n\nUsage: emote_animal <animalName> <value>\n- animalName: a string representing the farm animal name.\n- value: a integer representing the animation id.", this.EmoteFarmAnimal);
 			helper.ConsoleCommands.Add("stop_emote", "Stop any emote being played by you.\n\nUsage: stop_emote", this.StopEmote);
 			helper.ConsoleCommands.Add("stop_all_emotes", "Stop any emote being played.\n\nUsage: stop_all_emotes", this.StopAllEmotes);
 			helper.ConsoleCommands.Add("multiplayer_emotes", "List all the players that have this mod and can send and receive emotes.\n\nUsage: multiplayer_emotes", this.MultiplayerEmotesAvailable);
@@ -82,18 +82,18 @@ namespace MultiplayerEmotes {
 		private void Emote(string command, string[] args) {
 
 			if(args.Length < 1) {
-				this.Monitor.Log($"Missing parameters.\n\nUsage: emote <value>\n- value: a integer representing the emote id.");
+				this.Monitor.Log($"Missing parameters.\n\nUsage: emote <value>\n- value: a integer representing the emote id.", LogLevel.Info);
 				return;
 			}
 
 			if(!int.TryParse(args[0], out int id)) {
-				this.Monitor.Log($"The emote id must be a integer.");
+				this.Monitor.Log($"The emote id must be a integer.", LogLevel.Info);
 				return;
 			}
 
 			if(id > 0) {
 				Game1.player.doEmote(id * 4);
-				this.Monitor.Log($"Playing emote: {id}");
+				this.Monitor.Log($"Playing emote: {id}", LogLevel.Info);
 #if DEBUG
 			} else if(id < 0) {
 				EmoteTemporaryAnimation emoteTempAnim = new EmoteTemporaryAnimation(Helper.Reflection, Helper.Events);
@@ -101,80 +101,91 @@ namespace MultiplayerEmotes {
 				this.Monitor.Log($"Playing emote (workarround test): {id * -1}");
 #endif
 			} else {
-				this.Monitor.Log($"The emote id value must be greater than 0.");
+				this.Monitor.Log($"The emote id value must be greater than 0.", LogLevel.Info);
 			}
 
 		}
 
 		private void EmoteNpc(string command, string[] args) {
 
-			if(args.Length < 2) {
-				this.Monitor.Log($"Missing parameters.\n\nUsage: emote_npc <value> <npcName>\n- value: a integer representing the animation id.\n- npcName: a string representing the npc name.");
+			if(!Context.IsMainPlayer && !Config.AllowNonHostEmoteNpcCommand) {
+				this.Monitor.Log($"Permission denied. You dont have enough permissions to run this command.", LogLevel.Info);
 				return;
 			}
 
-			if(!int.TryParse(args[0], out int id)) {
-				this.Monitor.Log($"The emote id must be a integer.");
+			if(args.Length < 2) {
+				this.Monitor.Log($"Missing parameters.\n\nUsage: emote_npc <npcName> <value>\n- npcName: a string representing the npc name.\n- value: a integer representing the animation id.", LogLevel.Info);
+				return;
+			}
+
+			NPC npc = Game1.getCharacterFromName(args[0]);
+			if(npc == null) {
+				this.Monitor.Log($"Could not find any NPC with the name \"{args[0]}\".", LogLevel.Info);
+				return;
+			}
+
+			if(!int.TryParse(args[1], out int id)) {
+				this.Monitor.Log($"The emote id must be a integer.", LogLevel.Info);
 				return;
 			}
 
 			if(id <= 0) {
-				this.Monitor.Log($"The emote id value must be greater than 0.");
+				this.Monitor.Log($"The emote id value must be greater than 0.", LogLevel.Info);
 				return;
 			}
 
-			NPC npc = Game1.getCharacterFromName(args[1]);
-			if(npc != null) {
-				npc.doEmote(id * 4);
-				this.Monitor.Log($"[id: {npc.id}, name: \"{npc.Name}\"] Playing emote: {id}");
-			} else {
-				this.Monitor.Log($"Could not find any NPC with the name \"{args[1]}\".");
-			}
+			npc.doEmote(id * 4);
+			this.Monitor.Log($"[id: {npc.id}, name: \"{npc.Name}\"] Playing emote: {id}", LogLevel.Info);
 
 		}
 
 		private void EmoteFarmAnimal(string command, string[] args) {
 
-			if(args.Length < 2) {
-				this.Monitor.Log($"Missing parameters.\n\nUsage: emote_animal <value> <animalName>\n- value: a integer representing the animation id.\n- animalName: a string representing the farm animal name.");
+			if(!Context.IsMainPlayer && !Config.AllowNonHostEmoteAnimalCommand) {
+				this.Monitor.Log($"Permission denied. You dont have enough permissions to run this command.", LogLevel.Info);
 				return;
 			}
 
-			if(!int.TryParse(args[0], out int id)) {
-				this.Monitor.Log($"The emote id must be a integer.");
+			if(args.Length < 2) {
+				this.Monitor.Log($"Missing parameters.\n\nUsage: emote_animal <animalName> <value>\n- animalName: a string representing the farm animal name.\n- value: a integer representing the animation id.", LogLevel.Info);
+				return;
+			}
+
+			FarmAnimal farmAnimal = Game1.getFarm().getAllFarmAnimals().FirstOrDefault(x => x.Name == args[0]);
+			if(farmAnimal == null) {
+				this.Monitor.Log($"Could not find any FarmAnimal with \"{args[0]}\".", LogLevel.Info);
+				return;
+			}
+
+			if(!int.TryParse(args[1], out int id)) {
+				this.Monitor.Log($"The emote id must be a integer.", LogLevel.Info);
 				return;
 			}
 
 			if(id <= 0) {
-				this.Monitor.Log($"The emote id value must be greater than 0.");
+				this.Monitor.Log($"The emote id value must be greater than 0.", LogLevel.Info);
 				return;
 			}
 
-			FarmAnimal farmAnimal = Game1.getFarm().getAllFarmAnimals().FirstOrDefault(x => x.Name == args[1]);
-
-			if(farmAnimal != null) {
-				farmAnimal.doEmote(id * 4);
-				this.Monitor.Log($"[id: {farmAnimal.myID}, name: \"{farmAnimal.Name}\"] Playing emote: {id}");
-			} else {
-				this.Monitor.Log($"Could not find any FarmAnimal with \"{args[1]}\".");
-			}
+			farmAnimal.doEmote(id * 4);
+			this.Monitor.Log($"[id: {farmAnimal.myID}, name: \"{farmAnimal.Name}\"] Playing emote: {id}", LogLevel.Info);
 
 		}
 
 		private void StopEmote(string command, string[] args) {
 
 			if(Game1.player.IsEmoting) {
-				this.Monitor.Log($"Stoping playing emote...");
+				this.Monitor.Log($"Stoping playing emote...", LogLevel.Info);
 				Game1.player.IsEmoting = false;
 			} else {
-				this.Monitor.Log($"No emote is playing.");
+				this.Monitor.Log($"No emote is playing.", LogLevel.Info);
 			}
 
 		}
 
 		private void StopAllEmotes(string command, string[] args) {
 
-			this.Monitor.Log($"Stoping any playing emotes...");
+			this.Monitor.Log($"Stoping any playing emotes...", LogLevel.Info);
 			foreach(Farmer farmer in Game1.getAllFarmers()) {
 				farmer.IsEmoting = false;
 			}
@@ -218,7 +229,7 @@ namespace MultiplayerEmotes {
 
 					if(peer.HasSmapi && peer.GetMod(this.ModManifest.UniqueID) != null) {
 						playersWithMod++;
-						sb.Append($"{playersWithMod}: \"{Game1.getFarmer(peer.PlayerID).Name}\"\n");
+						sb.Append($"{playersWithMod}: \"{Game1.getFarmer(peer.PlayerID).Name}\"");
 					}
 
 				}
@@ -226,7 +237,7 @@ namespace MultiplayerEmotes {
 			}
 
 			if(playersWithMod > 0) {
-				this.Monitor.Log($"From {numPlayers} player(s), {playersWithMod} have this mod:\n", LogLevel.Info);
+				this.Monitor.Log($"From {numPlayers} player(s), {playersWithMod} have this mod:\n{sb.ToString()}", LogLevel.Info);
 			} else {
 				this.Monitor.Log($"From {numPlayers} player(s), none has this mod.", LogLevel.Info);
 			}
@@ -240,8 +251,12 @@ namespace MultiplayerEmotes {
 					Game1.game1.parseDebugInput("setUpBigFarm");
 					break;
 				case SButton.NumPad1:
-					Game1.game1.parseDebugInput("pet 64 15");
+					Game1.game1.parseDebugInput("cat 64 15");
+					Game1.game1.parseDebugInput("dog 64 15");
 					Game1.game1.parseDebugInput("petToFarm");
+					break;
+				case SButton.NumPad2:
+					Game1.game1.parseDebugInput("wc Lewis 63 18 2");
 					break;
 			}
 		}

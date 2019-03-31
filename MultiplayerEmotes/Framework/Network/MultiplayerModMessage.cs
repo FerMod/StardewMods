@@ -53,14 +53,14 @@ namespace MultiplayerEmotes.Framework.Network {
 						break;
 					case CharacterType.NPC:
 						NPC npc = Game1.getCharacterFromName(message.EmoteSourceId);
-						if(!npc.IsEmoting) {
+						if(npc != null && !npc.IsEmoting) {
 							npc.doEmote(message.EmoteIndex);
 						}
 						break;
 					case CharacterType.FarmAnimal:
 						if(long.TryParse(message.EmoteSourceId, out long farmAnimalId)) {
-							FarmAnimal farmAnimal = (Game1.currentLocation as AnimalHouse).animals.Values.FirstOrDefault(x => x.myID.Value == farmAnimalId);
-							if(!farmAnimal.IsEmoting) {
+							FarmAnimal farmAnimal = Game1.getFarm().getAllFarmAnimals().FirstOrDefault(x => x?.myID.Value == farmAnimalId);
+							if(farmAnimal != null && !farmAnimal.IsEmoting) {
 								farmAnimal.doEmote(message.EmoteIndex);
 							}
 						}
