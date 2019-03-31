@@ -30,10 +30,12 @@ The config file is generated once Stardew Valley is launched at least once with 
 
 Available settings:
 
-| Setting                  | Effect                                                                            |
-| ------------------------ | --------------------------------------------------------------------------------- |
-| `AnimateEmoteButtonIcon` | Default `true`. Enable or disable the emote menu button animation                 |
-| `ShowTooltipOnHover`     | Default `true`. Enable or disable the tooltip when hovering the emote menu button |
+| Setting                          | Effect                                                                                                                                  |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `AnimateEmoteButtonIcon`         | Default `true`. Enable or disable the emote menu button animation.                                                                      |
+| `ShowTooltipOnHover`             | Default `true`. Enable or disable the tooltip when hovering the emote menu button.                                                      |
+| `AllowNonHostEmoteNpcCommand`    | Default `false`. Allow other players to use the command 'emote_npc'.  This command allows to force to a NPC to play an emote.           |
+| `AllowNonHostEmoteAnimalCommand` | Default `false`. Allow other players to use the command 'emote_animal'.  This command allows to force to a FarmAnimal to play an emote. |
 
 ## Console Commands
 
@@ -41,10 +43,11 @@ This mod adds some console commands to use with the SMAPI console. This can be u
 
 The commands are the following:
 
-| Command                       | Parameters                                                                                            | Action                                                    |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `emote <value>`               | `<value>`: A integer representing the animation id.                                                   | Play the emote with the given id                          |
-| `emote_npc <value> <npcName>` | `<value>`: A integer representing the animation id.  `<npcName>`: A string representing the npc name. | Force a npc to play the emote animation with the given id |
-| `stop_emote`                  | None                                                                                                  | Stop any playing emote                                    |
-| `stop_all_emotes`             | None                                                                                                  | Stop any playing emote by other players                   |
-| `multiplayer_emotes`          | None                                                                                                  | List all the players that have this mod installed         |
+| Command                          | Parameters                                                                                                          | Action                                                            |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `multiplayer_emotes`             | None                                                                                                                | List all the players that have this mod installed                 |
+| `emote <value>`                  | `<value>`: A integer representing the animation id.                                                                 | Play the emote with the given id                                  |
+| `emote_npc <name> <value>`       | `<name>`: A string representing the npc name.  `<value>`: A integer representing the animation id.                  | Force a npc to play the emote animation with the given id         |
+| `emote_animal <name> <value>`    | `<name>`: A string representing the farm animal name.  `<value>`: A integer representing the animation id.          | Force a farm animal to play the emote animation with the given id |
+| `stop_emote`                     | None                                                                                                                | Stop any playing emote                                            |
+| `stop_all_emotes`                | None                                                                                                                | Stop any playing emote by other players                           |
