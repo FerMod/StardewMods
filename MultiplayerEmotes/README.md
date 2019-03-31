@@ -41,7 +41,7 @@ Available settings:
 
 This mod adds some console commands to use with the SMAPI console. This can be useful in case a emote gets stuck playing or to stop playing emotes.
 
-The commands are the following:
+The available commands are the following:
 
 | Command                          | Parameters                                                                                                          | Action                                                            |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
