@@ -3,7 +3,7 @@
 
 This mod allows you to play emotes with an interface and allows you to see other player, npc and farm animal emotes.
 
-This interface is a button, that by left clicking it, opens and closes all the available emotes list. By doing right click and dragging the mouse, this interface can be positioned in any place of the screen. This allows to have other mods that add HUDs and other elements, without causing any conflicts.
+This interface is a button, that by left clicking it, opens and closes all the available emotes list. By doing right click and dragging the mouse, this interface can be positioned in any place of the screen. This allows to have other mods that add HUDs and other GUI elements, without causing any conflicts.
 
 This mod have been tested more heavily in Windows, and in less degree in Unix and Mac.
 If some type of issue related to this mod arises, please report it, so I can fix it.
