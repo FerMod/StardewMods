@@ -10,7 +10,7 @@
   - Added `multiplayer_emotes`, that allows to see who else have this mod
   - Added `emote_npc`, that allows to force a NPC to play an emote
   - Added `emote_animal`, that allows to force a FarmAnimal to play an emote
-- Added new config options:
+- Added new settings:
   - Added `AllowNonHostEmoteNpcCommand`, that gives/removes permission to non host players to execute the command `emote_npc`
   - Added `AllowNonHostEmoteAnimalCommand`, that gives/removes permission to non host players to execute the command `emote_animal`
 - Changed mod description
