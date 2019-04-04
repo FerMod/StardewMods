@@ -25,13 +25,15 @@ namespace MultiplayerEmotes.Framework.Patches {
 #if DEBUG
 				ModEntry.ModMonitor.Log($"Farmer emote ({__instance.GetType()})", LogLevel.Trace);
 #endif
-				if(Context.IsMultiplayer && __instance.IsLocalPlayer) {
-#if DEBUG
-					ModEntry.ModMonitor.Log($"Farmer broadcasting emote.", LogLevel.Trace);
-#endif
-					// Traverse.Create(typeof(Game1)).Field("multiplayer").GetValue<Multiplayer>().BroadcastEmote(whichEmote);
-					Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue().BroadcastEmote(whichEmote, __instance);
+				if (!Context.IsMultiplayer || !__instance.IsLocalPlayer) {
+					return;
 				}
+#if DEBUG
+				ModEntry.ModMonitor.Log("Farmer broadcasting emote.", LogLevel.Trace);
+#endif
+				// Traverse.Create(typeof(Game1)).Field("multiplayer").GetValue<Multiplayer>().BroadcastEmote(whichEmote);
+				Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue().BroadcastEmote(whichEmote, __instance);
+
 			}
 
 		}
