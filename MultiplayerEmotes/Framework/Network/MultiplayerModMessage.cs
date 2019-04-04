@@ -53,7 +53,6 @@ namespace MultiplayerEmotes.Framework.Network {
 					if(long.TryParse(message.EmoteSourceId, out long farmerId)) {
 						Farmer farmer = Game1.getFarmer(farmerId);
 						if(farmer != null) {
-							FarmerPatch.DoEmotePatch.Instance.PostfixEnabled = false;
 							farmer.IsEmoting = false;
 							farmer.doEmote(message.EmoteIndex);
 							FarmerPatch.DoEmotePatch.Instance.PostfixEnabled = true;
@@ -63,20 +62,16 @@ namespace MultiplayerEmotes.Framework.Network {
 				case CharacterType.NPC:
 					NPC npc = Game1.getCharacterFromName(message.EmoteSourceId);
 					if(npc != null && !npc.IsEmoting) {
-						CharacterPatch.DoEmotePatch.Instance.PostfixEnabled = false;
 						npc.IsEmoting = false;
 						npc.doEmote(message.EmoteIndex);
-						CharacterPatch.DoEmotePatch.Instance.PostfixEnabled = true;
 					}
 					break;
 				case CharacterType.FarmAnimal:
 					if(long.TryParse(message.EmoteSourceId, out long farmAnimalId)) {
 						FarmAnimal farmAnimal = Game1.getFarm().getAllFarmAnimals().FirstOrDefault(x => x?.myID.Value == farmAnimalId);
 						if(farmAnimal != null && !farmAnimal.IsEmoting) {
-							CharacterPatch.DoEmotePatch.Instance.PostfixEnabled = false;
 							farmAnimal.IsEmoting = false;
 							farmAnimal.doEmote(message.EmoteIndex);
-							CharacterPatch.DoEmotePatch.Instance.PostfixEnabled = true;
 						}
 					}
 					break;
