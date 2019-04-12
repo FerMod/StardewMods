@@ -34,6 +34,13 @@ namespace MultiplayerEmotes.Framework.Patches {
 #if DEBUG
 				ModEntry.ModMonitor.Log($"DoEmote_Postfix (enabled: {Instance.PostfixEnabled})", LogLevel.Trace);
 #endif
+				if(!Instance.PostfixEnabled) {
+					return;
+				}
+
+#if DEBUG
+				ModEntry.ModMonitor.Log($"DoEmote_Postfix (enabled: {Instance.PostfixEnabled})", LogLevel.Trace);
+#endif
 				if (!Context.IsMultiplayer || !__instance.IsLocalPlayer) {
 					return;
 				}

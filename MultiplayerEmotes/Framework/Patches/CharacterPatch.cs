@@ -33,11 +33,18 @@ namespace MultiplayerEmotes.Framework.Patches {
 #if DEBUG
 				ModEntry.ModMonitor.Log($"DoEmote_Postfix (enabled: {Instance.PostfixEnabled})", LogLevel.Trace);
 #endif
-
-				if (!Context.IsMultiplayer || Game1.eventUp || __instance is Farmer) {
+				if(!Instance.PostfixEnabled) {
 					return;
 				}
-				
+
+#if DEBUG
+				ModEntry.ModMonitor.Log($"Character emote ({__instance.GetType()})", LogLevel.Trace);
+#endif
+
+				if(!Context.IsMultiplayer || Game1.eventUp || __instance is Farmer) {
+					return;
+				}
+
 #if DEBUG
 				ModEntry.ModMonitor.Log("Character broadcasting emote.", LogLevel.Trace);
 #endif
