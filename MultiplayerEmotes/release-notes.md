@@ -1,6 +1,11 @@
 
 # Release Notes
 
+## 1.0.0-beta.4
+
+- Fixed open/close sound playing every left-click
+- Fixed emotes sending multiple times
+
 ## 1.0.0-beta.3
 
 - Updated mod for SMAPI 3.0 (Thank you Pathoschild)
