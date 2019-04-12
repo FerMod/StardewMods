@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 namespace MultiplayerEmotes.Framework.Patches {
 
-	public class ModPatchControl {
+	public class ModPatchManager {
 
 		public List<IClassPatch> PatchList { get; set; }
 		public static HarmonyInstance Harmony { get; set; }
 
-		public ModPatchControl(IModHelper helper) {
+		public ModPatchManager(IModHelper helper) {
 			Harmony = HarmonyInstance.Create(helper.ModRegistry.ModID);
 			PatchList = new List<IClassPatch>();
 		}
