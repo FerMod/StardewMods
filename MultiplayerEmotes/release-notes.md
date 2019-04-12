@@ -30,3 +30,13 @@
   - Fixed duplicated emote menu button when forced to return to `TitleMenu` (e.g. client disconnection from host)
   - Fixed not saving last position
   - Fixed strange animation behaviour
+
+## 1.0.0-beta.1
+
+- Added mod configurations
+- Improved the way the emotes send and receive
+
+
+## 1.0.0-beta
+
+- First release
