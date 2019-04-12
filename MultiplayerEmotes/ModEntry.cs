@@ -33,10 +33,10 @@ namespace MultiplayerEmotes {
 			ModHelper = Helper;
 			MultiplayerMessage = new MultiplayerModMessage(helper);
 
-			ModPatchControl PatchContol = new ModPatchControl(helper);
-			PatchContol.PatchList.Add(new FarmerPatch.DoEmotePatch(helper.Reflection));
-			PatchContol.PatchList.Add(new CharacterPatch.DoEmotePatch(helper.Reflection));
-			PatchContol.ApplyPatch();
+			ModPatchManager patchManager = new ModPatchManager(helper);
+			patchManager.PatchList.Add(FarmerPatch.DoEmotePatch.CreatePatch(helper.Reflection));
+			patchManager.PatchList.Add(CharacterPatch.DoEmotePatch.CreatePatch(helper.Reflection));
+			patchManager.ApplyPatch();
 
 			this.Monitor.Log("Loading mod config...", LogLevel.Debug);
 			Config = helper.ReadConfig<ModConfig>();
