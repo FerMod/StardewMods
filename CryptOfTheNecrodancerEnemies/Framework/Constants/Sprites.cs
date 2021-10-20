@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewValley;
 
 namespace CryptOfTheNecrodancerEnemies.Framework.Constants {
 
@@ -10,36 +9,22 @@ namespace CryptOfTheNecrodancerEnemies.Framework.Constants {
     string Name { get; }
     string File { get; }
     Rectangle SourceRectangle { get; }
-    Vector2? Origin { get; }
     float Scale { get; }
   }
 
-  struct SpriteAsset : ISpriteAsset {
+  struct SpriteAsset {
 
-    public SpriteAsset(string name, string file, Rectangle sourceRectangle, Vector2? origin = null, float scale = 1f, bool shouldResize = true) {
+    public SpriteAsset(string name, Rectangle sourceRectangle, float targetSize = 16f) {
       Name = name;
-      File = file;
+      File = $"assets/{name}.png";
       SourceRectangle = sourceRectangle;
-      Origin = origin;
-      Scale = scale;
-      ShouldResize = shouldResize;
+      Scale = targetSize / Math.Max(SourceRectangle.Width, SourceRectangle.Height);
     }
-
-    public SpriteAsset(string name, Rectangle sourceRectangle, Vector2? origin = null, int targetSize = Game1.smallestTileSize)
-      : this(name, $"assets/{name}.png", sourceRectangle, origin, (float)targetSize / Math.Max(sourceRectangle.Width, sourceRectangle.Height)) {
-    }
-
-    public static SpriteAsset DefaultSize(string name) {
-      return new(name, $"assets/{name}.png", Rectangle.Empty, shouldResize: false);
-    }
-
-    public bool ShouldResize { get; internal set; }
 
     public string Name { get; internal set; }
     public string File { get; internal set; }
 
     public Rectangle SourceRectangle { get; internal set; }
-    public Vector2? Origin { get; internal set; }
     public float Scale { get; internal set; }
   }
 
@@ -65,25 +50,24 @@ namespace CryptOfTheNecrodancerEnemies.Framework.Constants {
     /// </summary>
     public static Dictionary<string, SpriteAsset> LoadSpriteAssets() {
       return new() {
-        { BatAsset, new(BatAsset, new(0, 0, 24, 24), origin: new(12, 16)) },
-        { FrostBatAsset, new(FrostBatAsset, new(0, 0, 24, 24), origin: new(12, 16)) },
-        { LavaBatAsset, new(LavaBatAsset, new(0, 0, 24, 24), origin: new(12, 16)) },
-        { IridiumBatAsset, new(IridiumBatAsset, new(0, 0, 24, 24), origin: new(12, 16)) },
-        { BatDangerousAsset, new(BatDangerousAsset, new(0, 0, 36, 36), origin: new(18, 28)) },
-        { FrostBatDangerousAsset, new(FrostBatDangerousAsset, new(0, 0, 36, 36), origin: new(18, 28)) },
-        //{ HauntedSkullAsset, new(HauntedSkullAsset, new(0, 0, 30, 30), targetSize: 16f) }, // TODO: Hardcoded size.
+        { BatAsset, new(BatAsset, new(0, 0, 24, 24)) },
+        { FrostBatAsset, new(FrostBatAsset, new(0, 0, 24, 24)) },
+        { LavaBatAsset, new(LavaBatAsset, new(0, 0, 24, 24)) },
+        { IridiumBatAsset, new(IridiumBatAsset, new(0, 0, 24, 24)) },
+        { BatDangerousAsset, new(BatDangerousAsset, new(0, 0, 36, 36)) },
+        { FrostBatDangerousAsset, new(FrostBatDangerousAsset, new(0, 0, 36, 36)) },
+        //{ HauntedSkullAsset, new(HauntedSkullAsset, new(0, 0, 30, 30), 16f) }, // TODO: Hardcoded size.
         //{ HauntedSkullDangerousAsset, new(HauntedSkullDangerousAsset, new(0, 0, 30, 30)) }, // TODO: Hardcoded size.
-        { SpiderAsset, SpriteAsset.DefaultSize(SpiderAsset) },
-        { BigSlimeAsset, SpriteAsset.DefaultSize(BigSlimeAsset) },
+        { SpiderAsset, new(SpiderAsset, new(0, 0, 32, 32)) },
+        { BigSlimeAsset, new(BigSlimeAsset, new(0, 0, 32, 32), 32) },
         { DuggyAsset, new(DuggyAsset, new(0, 0, 24, 24)) },
         { DuggyDangerousAsset, new(DuggyDangerousAsset, new(0, 0, 24, 24)) },
         { MagmaDuggyAsset, new(MagmaDuggyAsset, new(0, 0, 24, 24)) },
-        { SquidKidAsset, new(SquidKidAsset, new(0, 0, 30, 30), origin: new(15, 24), targetSize: 20) },
-        { SquidKidDangerousAsset, new(SquidKidDangerousAsset, new(0, 0, 30, 30), origin: new(15, 24), targetSize: 20) },
-        //{ SkeletonMageAsset, new(SkeletonMageAsset, new(0, 0, 24, 30), targetSize: 32) },
-        //{ SkeletonMageDangerousAsset, new(SkeletonMageDangerousAsset, new(0, 0, 24, 30), targetSize: 32) },
+        { SquidKidAsset, new(SquidKidAsset, new(0, 0, 30, 30)) },
+        //{ SquidKidDangerousAsset, new(SquidKidDangerousAsset, new(0, 0, 30, 30)) }, // TODO: Hardcoded size.
       };
     }
+
 
     public const string BatAsset = "Characters\\Monsters\\Bat";
     public const string FrostBatAsset = "Characters\\Monsters\\Frost Bat";
@@ -104,9 +88,6 @@ namespace CryptOfTheNecrodancerEnemies.Framework.Constants {
 
     public const string SquidKidAsset = "Characters\\Monsters\\Squid Kid";
     public const string SquidKidDangerousAsset = SquidKidAsset + "_dangerous";
-
-    public const string SkeletonMageAsset = "Characters\\Monsters\\Skeleton Mage";
-    public const string SkeletonMageDangerousAsset = SkeletonMageAsset + "_dangerous";
   }
 
 }

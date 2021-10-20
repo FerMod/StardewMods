@@ -2,7 +2,6 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using CryptOfTheNecrodancerEnemies.Framework.Constants;
-using CryptOfTheNecrodancerEnemies.Framework.Extensions;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -90,14 +89,14 @@ namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
 
     internal static void PrepareCustomSprite(Monster instance) {
       var assetName = instance.Sprite.Texture?.Name;
-      if (Sprites.Assets.TryGetFromNullableKey(assetName, out SpriteAsset spriteAsset) && spriteAsset.ShouldResize) {
+      if (assetName != null && Sprites.Assets.TryGetValue(assetName, out SpriteAsset spriteAsset)) {
         //instance.CreateCustomSprite();
         //instance.Sprite = instance.Sprite;
 
-        instance.Scale = spriteAsset.Scale;
-        instance.Sprite.SpriteWidth = spriteAsset.SourceRectangle.Width;
-        instance.Sprite.SpriteHeight = spriteAsset.SourceRectangle.Height;
-        instance.Sprite.UpdateSourceRect();
+        //instance.Scale = spriteAsset.Scale;
+        //instance.Sprite.SpriteWidth = spriteAsset.SourceRectangle.Width;
+        //instance.Sprite.SpriteHeight = spriteAsset.SourceRectangle.Height;
+        //instance.Sprite.UpdateSourceRect();
       }
     }
   }

@@ -3,19 +3,19 @@
     <Authors>FerMod</Authors>
     <AssemblyName>CryptOfTheNecrodancerEnemies</AssemblyName>
     <RootNamespace>CryptOfTheNecrodancerEnemies</RootNamespace>
+    <Version>1.0.0-beta</Version>
     <TargetFramework>net452</TargetFramework>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    
-    <IgnoreModFilePatterns>\.xcf$</IgnoreModFilePatterns>
+
     <EnableHarmony>true</EnableHarmony>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="3.3.0" />
+    <PackageReference Include="Pathoschild.Stardew.ModTranslationClassBuilder" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
