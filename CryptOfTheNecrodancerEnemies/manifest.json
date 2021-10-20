@@ -1,0 +1,10 @@
+﻿{
+  "Name": "Crypt of the Necrodancer Enemies",
+  "Author": "FerMod",
+  "Version": "1.0.0-beta",
+  "MinimumApiVersion": "3.8.0",
+  "Description": "Replaces vanilla monsters with enemies from Crypt of the Necrodancer.",
+  "UniqueID": "FerMod.CryptOfTheNecrodancerEnemies",
+  "EntryDll": "CryptOfTheNecrodancerEnemies.dll",
+  "UpdateKeys": []
+}
