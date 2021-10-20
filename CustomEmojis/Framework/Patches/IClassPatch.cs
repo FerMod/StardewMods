@@ -1,5 +1,5 @@
 ﻿
-using Harmony;
+using HarmonyLib;
 using System.Reflection;
 
 namespace CustomEmojis.Framework.Patches {
@@ -12,8 +12,8 @@ namespace CustomEmojis.Framework.Patches {
 		MethodInfo Postfix { get; }
 		MethodInfo Transpiler { get; }
 
-		void Register(HarmonyInstance harmony);
-		void Remove(HarmonyInstance harmony, HarmonyPatchType patchType = HarmonyPatchType.All);
+		void Register(Harmony harmony);
+		void Remove(Harmony harmony, HarmonyPatchType patchType = HarmonyPatchType.All);
 
 	}
 
