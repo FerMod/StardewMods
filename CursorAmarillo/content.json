@@ -1,0 +1,10 @@
+{
+  "Format": "1.23.0",
+  "Changes": [
+    {
+      "Action": "EditImage",
+      "Target": "LooseSprites/Cursors",
+      "FromFile": "assets/LooseSprites/Cursors.png"
+    }
+  ]
+}
