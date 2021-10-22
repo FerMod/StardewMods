@@ -1,9 +1,9 @@
 {
   "Name": "Thin Horse",
   "Author": "FerMod",
-  "Version": "1.2.0",
+  "Version": "1.0.0-beta",
   "MinimumApiVersion": "3.8.0",
-  "Description": "Makes the horse have a smaller bounding box, allowing it to pass trough smaller spaces.",
+  "Description": "Makes the horse to have a thinner hitbox, allowing it to pass trough smaller spaces.",
   "UniqueID": "FerMod.ThinHorse",
   "EntryDll": "ThinHorse.dll",
   "UpdateKeys": []

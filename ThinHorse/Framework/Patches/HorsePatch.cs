@@ -11,7 +11,6 @@ namespace ThinHorse.Framework.Patches {
     internal class GetBoundingBoxPatch : ClassPatch {
 
       public override MethodInfo Original { get; } = AccessTools.Method(typeof(Horse), nameof(Horse.GetBoundingBox));
-      public override MethodInfo Prefix { get; } = AccessTools.Method(typeof(GetBoundingBoxPatch), nameof(GetBoundingBoxPatch.GetBoundingBoxPatch_Prefix));
       public override MethodInfo Postfix { get; } = AccessTools.Method(typeof(GetBoundingBoxPatch), nameof(GetBoundingBoxPatch.GetBoundingBoxPatch_Postfix));
 
       private static IReflectionHelper Reflection { get; set; }
@@ -23,35 +22,20 @@ namespace ThinHorse.Framework.Patches {
 
       private GetBoundingBoxPatch() { }
 
-
       public static GetBoundingBoxPatch CreatePatch(IReflectionHelper reflection) {
         Reflection = reflection;
         return Instance;
       }
 
-      private static void GetBoundingBoxPatch_Prefix(Horse __instance, ref bool ___squeezingThroughGate) {
-        if (!Instance.PrefixEnabled) {
-          return;
-        }
-
-        ___squeezingThroughGate = false;
-      }
-
       private static void GetBoundingBoxPatch_Postfix(Horse __instance, ref Rectangle __result) {
-        if (!Instance.PostfixEnabled) {
-          return;
-        }
-
-        if (__instance.rider != null) {
-          __result = new Rectangle(
-            x: __result.X + 16,
-            y: __result.Y,
-            width: __result.Width / 2,
-            height: __result.Height
-          );
+#if DEBUG
+        ModEntry.ModMonitor.VerboseLog($"{MethodBase.GetCurrentMethod().Name} (enabled: {Instance.PostfixEnabled})");
+#endif
+        var squeezingThroughGate = Reflection.GetField<bool>(__instance, "squeezingThroughGate").GetValue();
+        if (!squeezingThroughGate && (__instance.FacingDirection == 0 || __instance.FacingDirection == 2)) {
+          __result.Inflate(-36, 0);
         }
       }
-
     }
 
   }
