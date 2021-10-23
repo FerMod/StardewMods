@@ -34,11 +34,12 @@ namespace ThinHorse.Framework.Patches {
         }
 
         __result = new Rectangle(
-          x: __result.Center.X - Game1.smallestTileSize,
-          y: __result.Center.Y - Game1.smallestTileSize * 2,
+          x: __result.X,
+          y: __result.Y,
           width: __result.Width / 2,
           height: __result.Height / 2
         );
+
       }
 
     }
