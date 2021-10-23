@@ -1,15 +1,9 @@
-using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
-using xTile.Dimensions;
-using xTile.ObjectModel;
-using xTile.Tiles;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace ThinHorse.Framework.Patches {
 
@@ -34,21 +28,17 @@ namespace ThinHorse.Framework.Patches {
         return Instance;
       }
 
-      private static void GetBoundingBoxPatch_Postfix(Horse __instance, ref Rectangle __result, ref bool ___squeezingThroughGate) {
+      private static void GetBoundingBoxPatch_Postfix(Horse __instance, ref Rectangle __result) {
         if (!Instance.PostfixEnabled) {
           return;
         }
-        __result.X += __result.Center.X - Game1.smallestTileSize;
-        __result.Y = __result.Center.Y - Game1.smallestTileSize * 2;
-        __result.Width /= 2;
-        __result.Height /= 2;
 
-        //__result = new Rectangle(
-        //  x: __result.Center.X - Game1.smallestTileSize,
-        //  y: __result.Center.Y - Game1.smallestTileSize * 2,
-        //  width: __result.Width / 2,
-        //  height: __result.Height / 2
-        //);
+        __result = new Rectangle(
+          x: __result.Center.X - Game1.smallestTileSize,
+          y: __result.Center.Y - Game1.smallestTileSize * 2,
+          width: __result.Width / 2,
+          height: __result.Height / 2
+        );
       }
 
     }
