@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using ThinHorse.Framework.Patches;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using ThinHorse.Framework.Patches;
 
 namespace ThinHorse {
 
