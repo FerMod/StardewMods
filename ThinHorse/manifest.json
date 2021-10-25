@@ -1,7 +1,7 @@
 {
   "Name": "Thin Horse",
   "Author": "FerMod",
-  "Version": "1.1.2",
+  "Version": "1.2.0",
   "MinimumApiVersion": "3.8.0",
   "Description": "Makes the horse have a smaller bounding box, allowing it to pass trough smaller spaces.",
   "UniqueID": "FerMod.ThinHorse",
