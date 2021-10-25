@@ -2,7 +2,6 @@ using System.Reflection;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
-using StardewValley;
 using StardewValley.Characters;
 
 namespace ThinHorse.Framework.Patches {
@@ -23,6 +22,7 @@ namespace ThinHorse.Framework.Patches {
 
       private GetBoundingBoxPatch() { }
 
+
       public static GetBoundingBoxPatch CreatePatch(IReflectionHelper reflection) {
         Reflection = reflection;
         return Instance;
@@ -33,13 +33,14 @@ namespace ThinHorse.Framework.Patches {
           return;
         }
 
-        __result = new Rectangle(
-          x: __result.X,
-          y: __result.Y,
-          width: __result.Width / 2,
-          height: __result.Height / 2
-        );
-
+        if (__instance.rider != null) {
+          __result = new Rectangle(
+            x: __result.X + 16,
+            y: __result.Y,
+            width: __result.Width / 2,
+            height: __result.Height
+          );
+        }
       }
 
     }
