@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using CryptOfTheNecrodancerEnemies.Framework.Constants;
+using CryptOfTheNecrodancerEnemies.Framework.Extensions;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -44,22 +45,26 @@ namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
         //if (texture.Name == "LooseSprites\\shadow") {
         //}
 
-        if (Sprites.Assets.TryGetValue(texture.Name, out SpriteAsset spriteAsset)) {
-          destination.Z *= spriteAsset.Scale;
-          destination.W *= spriteAsset.Scale;
+        if (Sprites.Assets.TryGetFromNullableKey(texture.Name, out SpriteAsset spriteAsset) && spriteAsset.ShouldResize) {
+          origin = spriteAsset.Origin.GetValueOrDefault(origin);
+          destination.Z = Game1.pixelZoom * spriteAsset.Scale;
+          destination.W = Game1.pixelZoom * spriteAsset.Scale;
           if (sourceRectangle.HasValue) {
             // currentSpriteFrame = currentFrame / spriteSize
-            var x = sourceRectangle.Value.X / sourceRectangle.Value.Width;
-            var y = sourceRectangle.Value.Y / sourceRectangle.Value.Height;
+            int x = sourceRectangle.Value.X / sourceRectangle.Value.Width;
+            int y = sourceRectangle.Value.Y / sourceRectangle.Value.Height;
             //var currX = (x * spriteAsset.SourceRectangle.Height) % texture.Height;
             //var currY = (y * spriteAsset.SourceRectangle.Width) % texture.Width;
 
             x *= spriteAsset.SourceRectangle.Width;
             y *= spriteAsset.SourceRectangle.Height;
 
+            //var fixedX = (x % texture.Width) * spriteAsset.SourceRectangle.Width;
+            //var fixedY = (y % texture.Height) * spriteAsset.SourceRectangle.Height;
             sourceRectangle = new Rectangle(x, y, spriteAsset.SourceRectangle.Width, spriteAsset.SourceRectangle.Height);
           }
         }
+
       }
 
     }
