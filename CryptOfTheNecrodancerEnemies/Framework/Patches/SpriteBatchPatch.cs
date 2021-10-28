@@ -1,8 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using CryptOfTheNecrodancerEnemies.Framework.Constants;
-using CryptOfTheNecrodancerEnemies.Framework.Extensions;
+using CryptOfTheNecroDancerEnemies.Framework.Constants;
+using CryptOfTheNecroDancerEnemies.Framework.Extensions;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,7 +10,7 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Monsters;
 
-namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
+namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
 
   internal static class SpriteBatchPatch {
 

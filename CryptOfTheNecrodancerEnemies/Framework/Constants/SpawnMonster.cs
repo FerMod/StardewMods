@@ -6,7 +6,7 @@ using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Monsters;
 
-namespace CryptOfTheNecrodancerEnemies.Framework.Constants {
+namespace CryptOfTheNecroDancerEnemies.Framework.Constants {
 
   internal static class SpawnMonster {
 

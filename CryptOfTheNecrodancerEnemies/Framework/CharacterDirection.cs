@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CryptOfTheNecrodancerEnemies.Framework {
+namespace CryptOfTheNecroDancerEnemies.Framework {
 
   /// <summary>The direction the <c>Character</c> is facing.</summary>
   /// <remarks>Derived from <see cref="StardewValley.Character.setMovingInFacingDirection"/>.</remarks>

@@ -1,7 +1,7 @@
 using System.Reflection;
 using HarmonyLib;
 
-namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
+namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
 
   public interface IClassPatch {
 

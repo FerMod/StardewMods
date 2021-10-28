@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Monsters;
 
-namespace CryptOfTheNecrodancerEnemies.Framework {
+namespace CryptOfTheNecroDancerEnemies.Framework {
 
   public static class MonsterExtension {
     public static void CreateCustomSprite(this Monster monster) {

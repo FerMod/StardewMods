@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
-namespace CryptOfTheNecrodancerEnemies.Framework.Constants {
+namespace CryptOfTheNecroDancerEnemies.Framework.Constants {
 
   interface ISpriteAsset {
     string Name { get; }

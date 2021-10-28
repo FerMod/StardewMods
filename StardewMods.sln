@@ -19,13 +19,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dummy", "Dummy\Dummy.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapPings", "MapPings\MapPings.csproj", "{99954D47-F761-48FF-A624-D9849E3C5068}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptOfTheNecrodancerEnemies", "CryptOfTheNecrodancerEnemies\CryptOfTheNecrodancerEnemies.csproj", "{090E86CB-55D1-479A-9D10-2CD820507297}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptOfTheNecroDancerEnemies", "CryptOfTheNecrodancerEnemies\CryptOfTheNecroDancerEnemies.csproj", "{090E86CB-55D1-479A-9D10-2CD820507297}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "HarmonyPatchLib", "HarmonyPatchLib\HarmonyPatchLib.shproj", "{A0AD4111-2DAE-45B6-BF5B-732FE2BD0E19}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StardewValley", "..\StardewValley\StardewValley.csproj", "{F7FF106B-9A87-4A57-BCB0-BAA282DB8CAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThinHorse", "ThinHorse\ThinHorse.csproj", "{A47B7781-CD28-45FC-9E00-082816385DB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThinHorse", "ThinHorse\ThinHorse.csproj", "{A47B7781-CD28-45FC-9E00-082816385DB4}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

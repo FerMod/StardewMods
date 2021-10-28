@@ -1,14 +1,14 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using CryptOfTheNecrodancerEnemies.Framework.Constants;
+using CryptOfTheNecroDancerEnemies.Framework.Constants;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Monsters;
 
-namespace CryptOfTheNecrodancerEnemies.Framework.Patches.Monsters {
+namespace CryptOfTheNecroDancerEnemies.Framework.Patches.Monsters {
 
   internal static class BatPatch {
 

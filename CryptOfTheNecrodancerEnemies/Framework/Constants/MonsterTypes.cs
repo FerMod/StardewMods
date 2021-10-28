@@ -1,6 +1,6 @@
 using System;
 
-namespace CryptOfTheNecrodancerEnemies.Framework.Constants {
+namespace CryptOfTheNecroDancerEnemies.Framework.Constants {
 
   internal enum MonsterType {
     [Obsolete("Unused enemy.")]

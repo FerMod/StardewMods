@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CryptOfTheNecrodancerEnemies.Framework.Extensions {
+namespace CryptOfTheNecroDancerEnemies.Framework.Extensions {
   public static class DictionaryExtension {
 
     /// <summary>

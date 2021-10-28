@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using HarmonyLib;
 using StardewModdingAPI;
 
-namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
+namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
 
   public class ModPatchManager {
 

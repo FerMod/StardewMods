@@ -1,15 +1,15 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using CryptOfTheNecrodancerEnemies.Framework.Constants;
-using CryptOfTheNecrodancerEnemies.Framework.Extensions;
+using CryptOfTheNecroDancerEnemies.Framework.Constants;
+using CryptOfTheNecroDancerEnemies.Framework.Extensions;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Monsters;
 
-namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
+namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
 
   internal static class MonsterPatch {
 

@@ -1,13 +1,13 @@
 using System;
 using System.Reflection;
-using CryptOfTheNecrodancerEnemies.Framework.Constants;
+using CryptOfTheNecroDancerEnemies.Framework.Constants;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 
-namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
+namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
 
   internal static class AnimatedSpritePatch {
 

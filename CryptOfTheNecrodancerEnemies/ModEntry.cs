@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using CryptOfTheNecrodancerEnemies.Framework.Constants;
-using CryptOfTheNecrodancerEnemies.Framework.Extensions;
-using CryptOfTheNecrodancerEnemies.Framework.Patches;
-using CryptOfTheNecrodancerEnemies.Framework.Patches.Monsters;
+using CryptOfTheNecroDancerEnemies.Framework.Constants;
+using CryptOfTheNecroDancerEnemies.Framework.Extensions;
+using CryptOfTheNecroDancerEnemies.Framework.Patches;
+using CryptOfTheNecroDancerEnemies.Framework.Patches.Monsters;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -11,7 +11,7 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Monsters;
 
-namespace CryptOfTheNecrodancerEnemies {
+namespace CryptOfTheNecroDancerEnemies {
 
   public class ModEntry : Mod, IAssetLoader {
 
