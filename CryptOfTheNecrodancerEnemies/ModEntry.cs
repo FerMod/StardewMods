@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CryptOfTheNecrodancerEnemies.Framework.Constants;
+using CryptOfTheNecrodancerEnemies.Framework.Extensions;
 using CryptOfTheNecrodancerEnemies.Framework.Patches;
 using CryptOfTheNecrodancerEnemies.Framework.Patches.Monsters;
 using Microsoft.Xna.Framework;
@@ -8,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Monsters;
 
 namespace CryptOfTheNecrodancerEnemies {
 
@@ -22,17 +24,22 @@ namespace CryptOfTheNecrodancerEnemies {
       ModHelper = Helper;
 
       ModPatchManager patchManager = new(helper, new List<IClassPatch>{
-        MonsterPatch.ParseMonsterInfoPatch.CreatePatch(helper.Reflection),
-        MonsterPatch.ReloadSpritePatch.CreatePatch(helper.Reflection),
-        ////AnimatedSpritePatch.LoadTexturePatch.CreatePatch(helper.Reflection),
-        //SpriteBatchPatch.InternalDrawPatch.CreatePatch(helper.Reflection),
+        // MonsterPatch.ParseMonsterInfoPatch.CreatePatch(helper.Reflection),
+        // MonsterPatch.ReloadSpritePatch.CreatePatch(helper.Reflection),
+        SpriteBatchPatch.InternalDrawPatch.CreatePatch(helper.Reflection),
+        //AnimatedSpritePatch.LoadTexturePatch.CreatePatch(helper.Reflection),
         ////BatPatch.ReloadSpritePatch.CreatePatch(helper.Reflection),
-        CharacterPatch.SpriteGetterPatch.CreatePatch(helper.Reflection),
-        ////CharacterPatch.SpriteSetterPatch.CreatePatch(helper.Reflection),
+        //CharacterPatch.SpriteGetterPatch.CreatePatch(helper.Reflection),
+        //CharacterPatch.SpriteSetterPatch.CreatePatch(helper.Reflection),
         ////CharacterPatch.GetShadowOffsetPatch.CreatePatch(helper.Reflection),
         ////AnimatedSpritePatch.AnimatePatch.CreatePatch(helper.Reflection),
       });
       patchManager.ApplyPatch();
+
+      helper.ConsoleCommands.Add("reload_sprites", $"Reload the mod sprites.", this.ReloadSpritesCommand);
+
+      helper.Events.World.LocationListChanged += OnLocationListChanged;
+      helper.Events.World.NpcListChanged += OnNpcListChanged;
 
 #if DEBUG
       var monsters = "Green Slime\nDust Spirit\nBat\nFrost Bat\nLava Bat\nIridium Bat\nStone Golem\n" +
@@ -43,9 +50,40 @@ namespace CryptOfTheNecrodancerEnemies {
         "False Magma Cap\nDwarvish Sentry\nPutrid Ghost\nShadow Sniper\nSpider\nRoyal Serpent\nBlue Squid";
       helper.ConsoleCommands.Add("spawn", $"Spawn monster to current player position. List: \n{monsters}", this.SpawnCommand);
 
-      helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
-      helper.Events.Input.ButtonPressed += this.DebugActionsKeyBinds;
+      helper.Events.GameLoop.SaveLoaded += this.DebugOnSaveLoaded;
+      helper.Events.Input.ButtonPressed += this.DebugOnButtonPressed;
 #endif
+    }
+
+    private void OnLocationListChanged(object sender, LocationListChangedEventArgs e) {
+      foreach (var location in e.Added) {
+        PrepareMonsterSprites(location.characters);
+      }
+    }
+
+    private void OnNpcListChanged(object sender, NpcListChangedEventArgs e) {
+      if (!e.IsCurrentLocation) return;
+      PrepareMonsterSprites(e.Added);
+    }
+
+    private void PrepareMonsterSprites(IEnumerable<NPC> collection) {
+      foreach (var npc in collection) {
+        if (npc is Monster) {
+          var textureName = npc.Sprite.Texture?.Name;
+          if (Sprites.Assets.TryGetFromNullableKey(textureName, out SpriteAsset spriteAsset) && spriteAsset.ShouldResize) {
+            npc.Scale = spriteAsset.Scale;
+            npc.Sprite.SpriteWidth = spriteAsset.SourceRectangle.Width;
+            npc.Sprite.SpriteHeight = spriteAsset.SourceRectangle.Height;
+            npc.Sprite.UpdateSourceRect();
+          }
+        }
+      }
+    }
+
+    private void ReloadSpritesCommand(string arg1, string[] arg2) {
+      this.Monitor.Log($"Reloading sprites...", LogLevel.Info);
+      Sprites.ReloadSpriteAssets();
+      this.Monitor.Log($"Finished reloading sprites.", LogLevel.Info);
     }
 
     /// <summary>Get whether this instance can load the initial version of the given asset.</summary>
@@ -64,7 +102,7 @@ namespace CryptOfTheNecrodancerEnemies {
     /// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
     /// <param name="sender">The event sender.</param>
     /// <param name="e">The event data.</param>
-    private void OnSaveLoaded(object sender, SaveLoadedEventArgs e) {
+    private void DebugOnSaveLoaded(object sender, SaveLoadedEventArgs e) {
       if (!Context.IsMainPlayer) return;
 
       // Initialize and setup debug world
@@ -89,7 +127,7 @@ namespace CryptOfTheNecrodancerEnemies {
       }
     }
 
-    private void DebugActionsKeyBinds(object sender, ButtonPressedEventArgs e) {
+    private void DebugOnButtonPressed(object sender, ButtonPressedEventArgs e) {
       var tile = Helper.Input.GetCursorPosition().Tile;
       switch (e.Button) {
         case SButton.NumPad0:
@@ -98,10 +136,11 @@ namespace CryptOfTheNecrodancerEnemies {
         case SButton.NumPad1:
           //SpawnMonster.SquidKid(tile);
           //SpawnMonster.SquidKidDangerous(tile);
-          SpawnMonster.Duggy(tile);
+          //SpawnMonster.Duggy(tile);
           //SpawnMonster.DuggyDangerous(tile);
           //SpawnMonster.MagmaDuggy(tile);
           //SpawnMonster.Bat(tile);
+          //SpawnMonster.BatDangerous(tile);
           //SpawnMonster.HauntedSkull(tile);
           //SpawnMonster.HauntedSkullDangerous(tile);
           //SpawnMonster.FrostSlime(tile);
@@ -113,11 +152,13 @@ namespace CryptOfTheNecrodancerEnemies {
           //SpawnMonster.BigSlimeBlue(tile);
           //SpawnMonster.BigSlimeRed(tile);
           //SpawnMonster.BigSlimePurple(tile);
+          //SpawnMonster.Spider(tile);
+          SpawnMonster.SkeletonMage(tile);
           break;
         case SButton.NumPad2:
           Game1.isTimePaused = false;
           _frameByFrameButton = e.Button;
-          this.Helper.Events.Display.RenderedWorld += OnRenderedWorld;
+          this.Helper.Events.Display.RenderedWorld += OnDebugRenderedWorld;
           break;
         case SButton.NumPad3:
           Game1.game1.parseDebugInput("pausetime");
@@ -130,10 +171,10 @@ namespace CryptOfTheNecrodancerEnemies {
     }
 
     private SButton _frameByFrameButton = SButton.None;
-    private void OnRenderedWorld(object sender, RenderedWorldEventArgs e) {
+    private void OnDebugRenderedWorld(object sender, RenderedWorldEventArgs e) {
       if (Helper.Input.IsDown(_frameByFrameButton)) return;
       Game1.isTimePaused = true;
-      this.Helper.Events.Display.RenderedWorld -= OnRenderedWorld;
+      this.Helper.Events.Display.RenderedWorld -= OnDebugRenderedWorld;
     }
 
     private void SetupDebugWorld() {
