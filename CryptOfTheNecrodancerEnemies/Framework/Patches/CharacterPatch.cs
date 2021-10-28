@@ -1,5 +1,6 @@
 using System.Reflection;
 using CryptOfTheNecrodancerEnemies.Framework.Constants;
+using CryptOfTheNecrodancerEnemies.Framework.Extensions;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -74,10 +75,10 @@ namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
 
         var assetName = value?.Texture?.Name;
         if (__instance is Monster && assetName != null && Sprites.Assets.TryGetValue(assetName, out SpriteAsset spriteAsset)) {
-          //__instance.Scale = spriteAsset.Scale;
-          //value.SpriteWidth = spriteAsset.SourceRectangle.Width;
-          //value.SpriteHeight = spriteAsset.SourceRectangle.Height;
-          //value.UpdateSourceRect();
+          __instance.Scale = spriteAsset.Scale;
+          value.SpriteWidth = spriteAsset.SourceRectangle.Width;
+          value.SpriteHeight = spriteAsset.SourceRectangle.Height;
+          value.UpdateSourceRect();
         }
       }
 
@@ -86,13 +87,13 @@ namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
     internal class SpriteGetterPatch : ClassPatch {
 
       public override MethodInfo[] Original { get; } = { AccessTools.PropertyGetter(typeof(Character), nameof(Character.Sprite)) };
-      public override MethodInfo Postfix { get; } = AccessTools.Method(typeof(SpriteGetterPatch), nameof(SpriteGetterPatch.SpriteGetterPatch_Postfix));
+      public override MethodInfo Prefix { get; } = AccessTools.Method(typeof(SpriteGetterPatch), nameof(SpriteGetterPatch.SpriteGetterPatch_Postfix));
 
       private static IReflectionHelper Reflection { get; set; }
 
       public static SpriteGetterPatch Instance { get; } = new SpriteGetterPatch();
 
-      // Explicit static constructor to avoid the compiler to mark type as beforefieldinit
+      // Explicit static constructor to avoid the compiler to mark type as beforefieldinit.
       static SpriteGetterPatch() { }
 
       private SpriteGetterPatch() { }
@@ -102,21 +103,16 @@ namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
         return Instance;
       }
 
-      private static void SpriteGetterPatch_Postfix(Character __instance, ref AnimatedSprite __result) {
+      private static void SpriteGetterPatch_Postfix(Monster __instance, ref AnimatedSprite __result) {
         if (!Instance.PostfixEnabled) {
           return;
         }
 
         var assetName = __result?.Texture?.Name;
-        if (assetName != null && Sprites.Assets.TryGetValue(assetName, out SpriteAsset spriteAsset)) {
-          //__instance.Scale = spriteAsset.Scale;
-          //__result.SpriteWidth = spriteAsset.SourceRectangle.Width;
-          //__result.SpriteHeight = spriteAsset.SourceRectangle.Height;
-          //__result.UpdateSourceRect();
-
+        if (Sprites.Assets.TryGetFromNullableKey(assetName, out SpriteAsset spriteAsset)) {
           switch (__instance) {
             case BigSlime bigSlime:
-              BigSlime(bigSlime);
+              Instance.BigSlime(bigSlime);
               break;
             default:
               break;
@@ -125,7 +121,11 @@ namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
         }
       }
 
-      private static void BigSlime(BigSlime instance) {
+      private static bool UseCustomSprite(Monster character) {
+        return character is Monster && (character as Monster).Health > 0;
+      }
+
+      private void BigSlime(BigSlime instance) {
         instance.flip = instance.FacingDirection == (int)CharacterDirection.Right;
       }
 
