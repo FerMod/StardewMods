@@ -1,9 +1,17 @@
 <Project>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
+  <!-- Common settings -->
   <PropertyGroup>
+    <Authors>FerMod</Authors>
+    <PackageLicenseExpression>GPL-3.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/FerMod/StardewMods</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  
+  <!-- Debug constants -->
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 </Project>
