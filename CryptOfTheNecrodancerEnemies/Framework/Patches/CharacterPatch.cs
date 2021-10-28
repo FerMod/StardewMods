@@ -87,7 +87,7 @@ namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
     internal class SpriteGetterPatch : ClassPatch {
 
       public override MethodInfo[] Original { get; } = { AccessTools.PropertyGetter(typeof(Character), nameof(Character.Sprite)) };
-      public override MethodInfo Prefix { get; } = AccessTools.Method(typeof(SpriteGetterPatch), nameof(SpriteGetterPatch.SpriteGetterPatch_Postfix));
+      public override MethodInfo Postfix { get; } = AccessTools.Method(typeof(SpriteGetterPatch), nameof(SpriteGetterPatch.SpriteGetterPatch_Postfix));
 
       private static IReflectionHelper Reflection { get; set; }
 
@@ -103,30 +103,30 @@ namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
         return Instance;
       }
 
-      private static void SpriteGetterPatch_Postfix(Monster __instance, ref AnimatedSprite __result) {
-        if (!Instance.PostfixEnabled) {
-          return;
+      private static void SpriteGetterPatch_Postfix(Character __instance, ref AnimatedSprite __result) {
+        if (!Instance.PostfixEnabled) return;
+        if (__instance is Monster) {
+          Instance.PostfixEnabled = false;
+          Instance.CustomMonsterSprite(__instance as Monster);
+          Instance.PostfixEnabled = true;
         }
+      }
 
-        var assetName = __result?.Texture?.Name;
+      private void CustomMonsterSprite(Monster monster) {
+        var assetName = monster.Sprite?.Texture.Name;
         if (Sprites.Assets.TryGetFromNullableKey(assetName, out SpriteAsset spriteAsset)) {
-          switch (__instance) {
+          switch (monster) {
             case BigSlime bigSlime:
-              Instance.BigSlime(bigSlime);
+              FaceDirection(monster);
               break;
             default:
               break;
           }
-
         }
       }
 
-      private static bool UseCustomSprite(Monster character) {
-        return character is Monster && (character as Monster).Health > 0;
-      }
-
-      private void BigSlime(BigSlime instance) {
-        instance.flip = instance.FacingDirection == (int)CharacterDirection.Right;
+      private void FaceDirection<T>(T monster) where T : Monster {
+        monster.flip = monster.FacingDirection == (int)CharacterDirection.Right;
       }
 
     }

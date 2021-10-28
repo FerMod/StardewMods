@@ -3,9 +3,7 @@ using System.Linq;
 using CryptOfTheNecroDancerEnemies.Framework.Constants;
 using CryptOfTheNecroDancerEnemies.Framework.Extensions;
 using CryptOfTheNecroDancerEnemies.Framework.Patches;
-using CryptOfTheNecroDancerEnemies.Framework.Patches.Monsters;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -29,7 +27,7 @@ namespace CryptOfTheNecroDancerEnemies {
         SpriteBatchPatch.InternalDrawPatch.CreatePatch(helper.Reflection),
         //AnimatedSpritePatch.LoadTexturePatch.CreatePatch(helper.Reflection),
         ////BatPatch.ReloadSpritePatch.CreatePatch(helper.Reflection),
-        //CharacterPatch.SpriteGetterPatch.CreatePatch(helper.Reflection),
+        CharacterPatch.SpriteGetterPatch.CreatePatch(helper.Reflection),
         //CharacterPatch.SpriteSetterPatch.CreatePatch(helper.Reflection),
         ////CharacterPatch.GetShadowOffsetPatch.CreatePatch(helper.Reflection),
         ////AnimatedSpritePatch.AnimatePatch.CreatePatch(helper.Reflection),
