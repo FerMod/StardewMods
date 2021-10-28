@@ -39,9 +39,9 @@ namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
         }
 
         if (textureName != null && Sprites.Assets.TryGetValue(textureName, out SpriteAsset spriteAsset)) {
-          __instance.SpriteWidth = spriteAsset.SourceRectangle.Width;
-          __instance.SpriteHeight = spriteAsset.SourceRectangle.Height;
-          __instance.UpdateSourceRect();
+          //__instance.SpriteWidth = spriteAsset.SourceRectangle.Width;
+          //__instance.SpriteHeight = spriteAsset.SourceRectangle.Height;
+          //__instance.UpdateSourceRect();
         }
       }
 

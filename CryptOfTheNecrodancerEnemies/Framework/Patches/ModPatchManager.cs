@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using HarmonyLib;
 using StardewModdingAPI;
@@ -19,11 +20,15 @@ namespace CryptOfTheNecrodancerEnemies.Framework.Patches {
     }
 
     public void ApplyPatch() {
-      this.PatchList.ForEach(patch => patch.Register(HarmonyInstance));
+      foreach (var patch in this.PatchList) {
+        patch.Register(HarmonyInstance);
+      }
     }
 
     public void RemovePatch() {
-      this.PatchList.ForEach(patch => patch.Remove(HarmonyInstance));
+      foreach (var patch in this.PatchList) {
+        patch.Remove(HarmonyInstance);
+      }
     }
 
   }
