@@ -25,7 +25,7 @@ namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
     /// The <see cref="HarmonyMethod"/> wrapper to use as a patch, or <see langword="null"/>
     /// if <paramref name="method"/> is <see langword="null"/>.
     /// </returns>
-    private HarmonyMethod PreparePatchMethod(MethodInfo method) {
+    private static HarmonyMethod PreparePatchMethod(MethodInfo method) {
       return method is null ? null : new HarmonyMethod(method);
     }
 

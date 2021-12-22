@@ -1,5 +1,4 @@
 using System.Reflection;
-using CryptOfTheNecroDancerEnemies.Framework.Utilities;
 using CryptOfTheNecroDancerEnemies.Framework.Extensions;
 using HarmonyLib;
 using Microsoft.Xna.Framework;

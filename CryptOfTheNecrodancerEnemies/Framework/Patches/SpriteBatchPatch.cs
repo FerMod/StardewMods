@@ -1,14 +1,10 @@
-using System;
-using System.Diagnostics;
 using System.Reflection;
-using CryptOfTheNecroDancerEnemies.Framework.Utilities;
 using CryptOfTheNecroDancerEnemies.Framework.Extensions;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
-using StardewValley.Monsters;
 using CryptOfTheNecroDancerEnemies.Framework.Constants;
 
 namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
