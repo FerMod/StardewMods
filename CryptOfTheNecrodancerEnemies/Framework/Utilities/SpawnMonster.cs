@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
-using StardewValley.Locations;
 using StardewValley.Monsters;
 
-namespace CryptOfTheNecroDancerEnemies.Framework.Constants {
+namespace CryptOfTheNecroDancerEnemies.Framework.Utilities {
 
   internal static class SpawnMonster {
 
