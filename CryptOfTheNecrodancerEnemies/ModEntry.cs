@@ -22,6 +22,7 @@ namespace CryptOfTheNecroDancerEnemies {
       ModHelper = Helper;
 
       ModPatchManager patchManager = new(helper, new List<IClassPatch>{
+        Game1Patch.CreateRadialDebrisPatch.CreatePatch(helper.Reflection),
         // MonsterPatch.ParseMonsterInfoPatch.CreatePatch(helper.Reflection),
         // MonsterPatch.ReloadSpritePatch.CreatePatch(helper.Reflection),
         SpriteBatchPatch.InternalDrawPatch.CreatePatch(helper.Reflection),
@@ -31,7 +32,7 @@ namespace CryptOfTheNecroDancerEnemies {
         //CharacterPatch.SpriteSetterPatch.CreatePatch(helper.Reflection),
         ////CharacterPatch.GetShadowOffsetPatch.CreatePatch(helper.Reflection),
         ////AnimatedSpritePatch.AnimatePatch.CreatePatch(helper.Reflection),
-      });
+      }); ; ;
       patchManager.ApplyPatch();
 
       helper.ConsoleCommands.Add("reload_sprites", $"Reload the mod sprites.", this.ReloadSpritesCommand);

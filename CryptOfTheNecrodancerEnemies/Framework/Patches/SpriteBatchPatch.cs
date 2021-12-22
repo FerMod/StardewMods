@@ -41,10 +41,6 @@ namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
           return;
         }
 
-        //Type declaringType = new StackTrace().GetFrame(3).GetMethod().ReflectedType;
-        //if (texture.Name == "LooseSprites\\shadow") {
-        //}
-
         if (Sprites.Assets.TryGetFromNullableKey(texture.Name, out SpriteAsset spriteAsset) && spriteAsset.ShouldResize) {
           origin = spriteAsset.Origin.GetValueOrDefault(origin);
           destination.Z = Game1.pixelZoom * spriteAsset.Scale;
