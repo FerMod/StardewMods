@@ -80,8 +80,8 @@ namespace CryptOfTheNecroDancerEnemies.Framework.Constants {
         { MagmaDuggyAsset, new(MagmaDuggyAsset, new(0, 0, 24, 24)) },
         { SquidKidAsset, new(SquidKidAsset, new(0, 0, 30, 30), origin: new(15, 24), targetSize: 20) },
         { SquidKidDangerousAsset, new(SquidKidDangerousAsset, new(0, 0, 30, 30), origin: new(15, 24), targetSize: 20) },
-        //{ SkeletonMageAsset, new(SkeletonMageAsset, new(0, 0, 24, 30), targetSize: 32) },
-        //{ SkeletonMageDangerousAsset, new(SkeletonMageDangerousAsset, new(0, 0, 24, 30), targetSize: 32) },
+        { SkeletonMageAsset, new(SkeletonMageAsset, new(0, 0, 24, 30), origin: new(12, 25), targetSize: 32) },
+        //{ SkeletonMageDangerousAsset, new(SkeletonMageDangerousAsset, new(0, 0, 24, 30), origin: new(12, 25), targetSize: 32) },
       };
     }
 

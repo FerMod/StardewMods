@@ -88,6 +88,44 @@ namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
       }
     }
 
+    internal class ShedChunksPatch : ClassPatch {
+
+      public override MethodInfo[] Original { get; } = {
+        OriginalShedChunks<Skeleton>(),
+      };
+
+      public override MethodInfo Postfix { get; } = AccessTools.Method(typeof(ReloadSpritePatch), nameof(ShedChunksPatch.ShedChunksPatch_Prefix));
+
+      private static IReflectionHelper Reflection { get; set; }
+
+      public static ShedChunksPatch Instance { get; } = new ShedChunksPatch();
+
+      // Explicit static constructor to avoid the compiler to mark type as beforefieldinit
+      static ShedChunksPatch() { }
+
+      private ShedChunksPatch() { }
+
+      public static ShedChunksPatch CreatePatch(IReflectionHelper reflection) {
+        Reflection = reflection;
+        return Instance;
+      }
+
+      private static MethodInfo OriginalShedChunks<T>() where T : Monster {
+        return AccessTools.Method(typeof(T), nameof(Monster.shedChunks), new[] { typeof(int) });
+      }
+
+      private static void ShedChunksPatch_Prefix(Monster __instance, int number) {
+#if DEBUG
+        ModEntry.ModMonitor.VerboseLog($"{MethodBase.GetCurrentMethod().Name} (enabled: {Instance.PostfixEnabled})");
+#endif
+        if (!Instance.PostfixEnabled) {
+          return;
+        }
+
+        PrepareCustomSprite(__instance);
+      }
+    }
+
     internal static void PrepareCustomSprite(Monster instance) {
       var assetName = instance.Sprite.Texture?.Name;
       if (Sprites.Assets.TryGetFromNullableKey(assetName, out SpriteAsset spriteAsset) && spriteAsset.ShouldResize) {
