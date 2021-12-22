@@ -1,13 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using CryptOfTheNecroDancerEnemies.Framework.Constants;
+using CryptOfTheNecroDancerEnemies.Framework.Utilities;
 using CryptOfTheNecroDancerEnemies.Framework.Extensions;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Monsters;
+using CryptOfTheNecroDancerEnemies.Framework.Constants;
 
 namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
 
@@ -94,7 +96,7 @@ namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
         OriginalShedChunks<Skeleton>(),
       };
 
-      public override MethodInfo Postfix { get; } = AccessTools.Method(typeof(ReloadSpritePatch), nameof(ShedChunksPatch.ShedChunksPatch_Prefix));
+      public override MethodInfo Prefix { get; } = AccessTools.Method(typeof(ShedChunksPatch), nameof(ShedChunksPatch.ShedChunksPatch_Prefix));
 
       private static IReflectionHelper Reflection { get; set; }
 
@@ -114,15 +116,20 @@ namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
         return AccessTools.Method(typeof(T), nameof(Monster.shedChunks), new[] { typeof(int) });
       }
 
-      private static void ShedChunksPatch_Prefix(Monster __instance, int number) {
+      private static bool ShedChunksPatch_Prefix(Monster __instance, int number) {
 #if DEBUG
-        ModEntry.ModMonitor.VerboseLog($"{MethodBase.GetCurrentMethod().Name} (enabled: {Instance.PostfixEnabled})");
+        //ModEntry.ModMonitor.VerboseLog($"{MethodBase.GetCurrentMethod().Name} (enabled: {Instance.PostfixEnabled})");
 #endif
-        if (!Instance.PostfixEnabled) {
-          return;
+        if (!Instance.PrefixEnabled) return true;
+        if (__instance is Skeleton) {
+          if (Sprites.Assets.TryGetFromNullableKey(__instance.Sprite.Texture?.Name, out SpriteAsset spriteAsset) && spriteAsset.ShouldResize) {
+            Instance.PrefixEnabled = false;
+            Game1.createRadialDebris(__instance.currentLocation, __instance.Sprite.Texture.Name, new Rectangle(0, spriteAsset.SourceRectangle.Height * 4, spriteAsset.SourceRectangle.Width, spriteAsset.SourceRectangle.Height), spriteAsset.SourceRectangle.Width / 2, __instance.GetBoundingBox().Center.X, __instance.GetBoundingBox().Center.Y, number, (int)__instance.getTileLocation().Y, Color.White, Game1.pixelZoom);
+            Instance.PrefixEnabled = true;
+            return false;
+          }
         }
-
-        PrepareCustomSprite(__instance);
+        return true;
       }
     }
 

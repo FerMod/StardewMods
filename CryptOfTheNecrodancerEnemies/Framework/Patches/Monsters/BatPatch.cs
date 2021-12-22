@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using CryptOfTheNecroDancerEnemies.Framework.Constants;
+using CryptOfTheNecroDancerEnemies.Framework.Utilities;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;

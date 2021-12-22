@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using CryptOfTheNecroDancerEnemies.Framework.Constants;
+using CryptOfTheNecroDancerEnemies.Framework.Utilities;
 using CryptOfTheNecroDancerEnemies.Framework.Extensions;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Monsters;
+using CryptOfTheNecroDancerEnemies.Framework.Constants;
 
 namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
 
@@ -37,9 +38,7 @@ namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
 #if DEBUG
         ModEntry.ModMonitor.LogOnce($"{MethodBase.GetCurrentMethod().Name} (enabled: {Instance.PostfixEnabled})");
 #endif
-        if (!Instance.PostfixEnabled) {
-          return;
-        }
+        if (!Instance.PostfixEnabled) return;
 
         if (Sprites.Assets.TryGetFromNullableKey(texture.Name, out SpriteAsset spriteAsset) && spriteAsset.ShouldResize) {
           origin = spriteAsset.Origin.GetValueOrDefault(origin);

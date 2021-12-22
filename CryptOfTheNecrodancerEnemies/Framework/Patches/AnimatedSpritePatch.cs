@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using CryptOfTheNecroDancerEnemies.Framework.Constants;
+using CryptOfTheNecroDancerEnemies.Framework.Utilities;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

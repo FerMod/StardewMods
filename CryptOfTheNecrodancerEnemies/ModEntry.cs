@@ -1,13 +1,16 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CryptOfTheNecroDancerEnemies.Framework.Constants;
 using CryptOfTheNecroDancerEnemies.Framework.Extensions;
 using CryptOfTheNecroDancerEnemies.Framework.Patches;
+using CryptOfTheNecroDancerEnemies.Framework.Utilities;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Monsters;
+using static StardewValley.Debris;
 
 namespace CryptOfTheNecroDancerEnemies {
 
@@ -22,9 +25,10 @@ namespace CryptOfTheNecroDancerEnemies {
       ModHelper = Helper;
 
       ModPatchManager patchManager = new(helper, new List<IClassPatch>{
-        Game1Patch.CreateRadialDebrisPatch.CreatePatch(helper.Reflection),
+        Game1Patch.CreateRadialDebrisPatch.CreatePatch(helper.Reflection), // Prefer patching shedChunks and/or sharedDeathAnimation
         // MonsterPatch.ParseMonsterInfoPatch.CreatePatch(helper.Reflection),
         // MonsterPatch.ReloadSpritePatch.CreatePatch(helper.Reflection),
+        //MonsterPatch.ShedChunksPatch.CreatePatch(helper.Reflection),
         SpriteBatchPatch.InternalDrawPatch.CreatePatch(helper.Reflection),
         //AnimatedSpritePatch.LoadTexturePatch.CreatePatch(helper.Reflection),
         ////BatPatch.ReloadSpritePatch.CreatePatch(helper.Reflection),
@@ -32,7 +36,7 @@ namespace CryptOfTheNecroDancerEnemies {
         //CharacterPatch.SpriteSetterPatch.CreatePatch(helper.Reflection),
         ////CharacterPatch.GetShadowOffsetPatch.CreatePatch(helper.Reflection),
         ////AnimatedSpritePatch.AnimatePatch.CreatePatch(helper.Reflection),
-      }); ; ;
+      });
       patchManager.ApplyPatch();
 
       helper.ConsoleCommands.Add("reload_sprites", $"Reload the mod sprites.", this.ReloadSpritesCommand);
@@ -51,7 +55,25 @@ namespace CryptOfTheNecroDancerEnemies {
 
       helper.Events.GameLoop.SaveLoaded += this.DebugOnSaveLoaded;
       helper.Events.Input.ButtonPressed += this.DebugOnButtonPressed;
+      helper.Events.World.DebrisListChanged += this.OnDebrisListChanged;
+
 #endif
+    }
+
+    private void OnDebrisListChanged(object sender, DebrisListChangedEventArgs e) {
+      if (!(e.IsCurrentLocation && e.Added.Any())) return;
+
+      foreach (var debris in e.Added) {
+        if (debris.debrisType.Equals(DebrisType.SPRITECHUNKS) && Sprites.Assets.TryGetValue(debris.spriteChunkSheetName.Value, out SpriteAsset spriteAsset)) {
+          //debris.sizeOfSourceRectSquares.Value = 8;
+          foreach (var chunk in debris.Chunks) {
+            //chunk.xSpriteSheet.Value = Game1.random.Next(2) * debris.sizeOfSourceRectSquares.Value + 0;
+            //chunk.ySpriteSheet.Value = Game1.random.Next(2) * debris.sizeOfSourceRectSquares.Value + 120;
+            //chunk.rotationVelocity = (float)((Game1.random.NextDouble() < 0.5) ? Math.PI / Game1.random.Next(-32, -16) : Math.PI / Game1.random.Next(16, 32));
+            //chunk.scale = 4f;
+          }
+        }
+      }
     }
 
     private void OnLocationListChanged(object sender, LocationListChangedEventArgs e) {
@@ -65,7 +87,7 @@ namespace CryptOfTheNecroDancerEnemies {
       PrepareMonsterSprites(e.Added);
     }
 
-    private void PrepareMonsterSprites(IEnumerable<NPC> collection) {
+    private static void PrepareMonsterSprites(IEnumerable<NPC> collection) {
       foreach (var npc in collection) {
         if (npc is Monster) {
           var textureName = npc.Sprite.Texture?.Name;
@@ -153,6 +175,7 @@ namespace CryptOfTheNecroDancerEnemies {
           //SpawnMonster.BigSlimePurple(tile);
           //SpawnMonster.Spider(tile);
           SpawnMonster.SkeletonMage(tile);
+          //SpawnMonster.SkeletonMageDangerous(tile);
           break;
         case SButton.NumPad2:
           Game1.isTimePaused = false;
@@ -163,8 +186,9 @@ namespace CryptOfTheNecroDancerEnemies {
           Game1.game1.parseDebugInput("pausetime");
           break;
         case SButton.NumPad9:
-          Sprites.ReloadSpriteAssets();
-          //Helper.Content.InvalidateCache(asset => asset.DataType == typeof(Texture2D) && Sprites.Assets.ContainsKey(asset.AssetName));
+          ReloadSpritesCommand("reload_sprites", Array.Empty<string>());
+          //Sprites.ReloadSpriteAssets();
+          ////Helper.Content.InvalidateCache(asset => asset.DataType == typeof(Texture2D) && Sprites.Assets.ContainsKey(asset.AssetName));
           break;
       }
     }
@@ -176,7 +200,7 @@ namespace CryptOfTheNecroDancerEnemies {
       this.Helper.Events.Display.RenderedWorld -= OnDebugRenderedWorld;
     }
 
-    private void SetupDebugWorld() {
+    private static void SetupDebugWorld() {
       Game1.game1.parseDebugInput("nosave");
 
       //Game1.game1.parseDebugInput("zoomlevel 40");

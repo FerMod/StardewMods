@@ -1,14 +1,11 @@
-using System;
-using System.Diagnostics;
 using System.Reflection;
-using CryptOfTheNecroDancerEnemies.Framework.Constants;
 using CryptOfTheNecroDancerEnemies.Framework.Extensions;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
-using StardewValley.Monsters;
+using CryptOfTheNecroDancerEnemies.Framework.Constants;
+using System;
 
 namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
 
@@ -38,13 +35,13 @@ namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
         ModEntry.ModMonitor.LogOnce($"{MethodBase.GetCurrentMethod().Name} (enabled: {Instance.PostfixEnabled})");
 #endif
         if (!Instance.PostfixEnabled) return;
-
+        
         // TODO: Scale debris
         // x: 0, y: 128
         // Half the size of original. Calculate.
         if (Sprites.Assets.TryGetFromNullableKey(texture, out SpriteAsset spriteAsset) && spriteAsset.ShouldResize) {
-          var spriteScale = sourcerectangle.Width / sizeOfSourceRectSquares;
-          //scale = Game1.pixelZoom * spriteAsset.Scale;
+          //var spriteScale = sourcerectangle.Width / sizeOfSourceRectSquares;
+          ////scale = Game1.pixelZoom * spriteAsset.Scale;
 
           int x = sourcerectangle.X / sourcerectangle.Width;
           int y = sourcerectangle.Y / sourcerectangle.Height;
@@ -52,16 +49,34 @@ namespace CryptOfTheNecroDancerEnemies.Framework.Patches {
           x *= spriteAsset.SourceRectangle.Width;
           y *= spriteAsset.SourceRectangle.Height;
 
-          //sizeOfSourceRectSquares = spriteAsset.SourceRectangle.Width / 2;
+          int size = Math.Min(spriteAsset.SourceRectangle.Width, spriteAsset.SourceRectangle.Height);
+          sizeOfSourceRectSquares = size / 2;
 
           //sourcerectangle = new Rectangle(x, y, spriteAsset.SourceRectangle.Width, spriteAsset.SourceRectangle.Width);
-          sourcerectangle = new Rectangle(0, spriteAsset.SourceRectangle.Height * 4, spriteAsset.SourceRectangle.Width, spriteAsset.SourceRectangle.Width);
+          sourcerectangle = new Rectangle(0, spriteAsset.SourceRectangle.Height * 4, size, size);
+
+          /* Vector2 debriPos = new(xPosition, yPosition);
+           while (numberOfChunks > 0) {
+             var randVector = new Vector2(64f, 64f);
+             if (Game1.random.NextDouble() < 0.5) {
+               randVector.X *= -1;
+             }
+             randVector.Y *= Game1.random.Next(-1, 1);
+
+             Debris debris = new(texture, sourcerectangle, 1, debriPos, debriPos + randVector, groundLevelTile * 64, sizeOfSourceRectSquares);
+
+             debris.nonSpriteChunkColor.Value = color;
+             location?.debris.Add(debris);
+             debris.Chunks[0].scale = scale;
+
+             numberOfChunks--;
+           }*/
+
         }
 
       }
 
     }
-
   }
 
 }
